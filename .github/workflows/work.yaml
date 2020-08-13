@@ -1,6 +1,9 @@
 name: Lazy Script(Schedule)
 
-on:
+on:	 
+    push:
+        branches:  
+            - master
   schedule:
     - cron: '02 0/4 * * *'
 jobs:
@@ -20,4 +23,3 @@ jobs:
         env:
           NODE_ENV: 'production'
           JD_COOKIE: ${{ secrets.JD_COOKIE }}
-         
