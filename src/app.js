@@ -90,7 +90,7 @@ async function main() {
   ];
 
   for (const {valid, run} of scheduleOptions) {
-    if (nowHours === valid) {
+    if (/*nowHours === valid */ true) {
       await run();
     }
   }
