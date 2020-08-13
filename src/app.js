@@ -34,7 +34,7 @@ const getCookieData = (name, shareCode) => {
 
 async function runScript(fn, name = fn.name) {
   // TODO name 默认值需要调整从 fn 中获取
-  // return fn(getCookieData(name));
+  return fn(getCookieData(name));
 }
 
 async function main() {
@@ -99,6 +99,7 @@ async function main() {
 
 main().then(function () {
   // TODO 替换成 app.log
+  console.log('starting....');
   const resultPath = path.resolve(__dirname, '../dist/result.txt');
   if (!fs.existsSync(resultPath)) return;
   const content = fs.readFileSync(resultPath);
