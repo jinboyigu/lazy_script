@@ -7,7 +7,7 @@ const scriptName = '热8超级盲盒';
 const _printLog = printLog.bind(0, scriptName, void 0);
 
 async function main(cookie) {
-
+  _printLog(`运行: ${scriptName}`);
   const api = new Request(cookie, {}, {
     headers: {
       'User-Agent': 'jdapp',
