@@ -13,7 +13,7 @@ const serverChan = require('./lib/serverChan');
 // const bean = require('./jd/bean');
 // const invitation = require('./jd/invitation');
 const blindBox = require('./jd/blindBox');
-/**
+
 const getCookieData = (name, shareCode) => {
   shareCode && (shareCode = [].concat(shareCode));
   const getShareCodes = (name, targetIndex) => {
@@ -31,7 +31,7 @@ const getCookieData = (name, shareCode) => {
 
   return cookies.map((cookie, index) => ({cookie, shareCodes: shareCode || getShareCodes(name, index)}));
 };
-**/
+
 async function runScript(fn, name = fn.name) {
   // TODO name 默认值需要调整从 fn 中获取
   // return fn(getCookieData(name));
