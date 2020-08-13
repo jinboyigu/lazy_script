@@ -77,7 +77,8 @@ async function main(cookie) {
     return doActivePath(taskCoin.name, {type}).then(successLog);
   }
 
-
+/*
+#自己手动抽奖
   async function lottery() {
     await sleep();
     await doPrizePath(lottery.name).then(async data => {
@@ -88,7 +89,8 @@ async function main(cookie) {
       }
     });
   }
-
+*/
+  
   function successLog({code = 200, coinNum}) {
     code === 200 && _printLog(`获取到的热力值为: ${coinNum}`);
   }
