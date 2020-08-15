@@ -77,7 +77,7 @@ async function main(cookie) {
     return doActivePath(taskCoin.name, {type}).then(successLog);
   }
 
-#手动抽奖
+
   async function lottery() {
     await sleep();
     await doPrizePath(lottery.name).then(async data => {
