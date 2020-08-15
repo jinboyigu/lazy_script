@@ -1,6 +1,15 @@
 name: Lazy Script(Schedule)
 
 on:
+  release:
+    types: published
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/schedule.yaml'
+  watch:
+    types: started
   schedule:
     - cron: '02 0/4 * * *'
 jobs:
