@@ -12,7 +12,8 @@ const pet = require('./jd/pet');
 const cash = require('./jd/cash');
 const bean = require('./jd/bean');
 const invitation = require('./jd/invitation');
-const blindBox = require('./jd/blindBox');
+const superMarket = require('./jd/superMarket');
+const guardianStar = require('./jd/guardianStar');
 
 const getCookieData = (name, shareCode) => {
   shareCode && (shareCode = [].concat(shareCode));
@@ -51,9 +52,11 @@ async function main() {
         await sign();
         await fruit();
         await pet();
+        await runScript(cash, 'cash');
         await runScript(bean, 'bean');
         await runScript(invitation, 0);
-        await runScript(blindBox, 0);
+        await runScript(superMarket, 0);
+        await runScript(guardianStar, 0);
       },
     },
     {
@@ -66,6 +69,7 @@ async function main() {
       run: async () => {
         await fruit();
         await fruitSchedule(getCookieData(void 0, process.env.JD_FRUIT_SHARE_CODE_2));
+        await runScript(superMarket, 0);
       },
     },
     {
@@ -73,6 +77,7 @@ async function main() {
       run: async () => {
         await runScript(fruitSchedule, 0);
         await runScript(bean, 0);
+        await runScript(superMarket, 0);
       },
     },
     {
@@ -85,6 +90,7 @@ async function main() {
       run: async () => {
         await runScript(fruitSchedule, 0);
         await runScript(bean, 0);
+        await runScript(superMarket, 0);
       },
     },
   ];
