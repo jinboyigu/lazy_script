@@ -59,8 +59,8 @@ const actionRunHours = _.sortBy(runHours.map(v => {
 }));
 
 const config = {
-  'name': 'Lazy Script(Schedule New)',
-  'on': {'schedule': [{'cron': `10 ${actionRunHours.join(',')} * * *`}]},
+  'name': 'Lazy Script(Test)',
+  'on': {'push': {branches: ['test']}},
   'jobs': {
     'build': {
       'runs-on': 'ubuntu-latest',
@@ -77,9 +77,9 @@ const config = {
           },
         },
         {'name': 'Use Node.js', 'uses': 'actions/setup-node@v1', 'with': {'node-version': '14.x'}},
-        {'name': 'Run app', 'run': 'npm install'},
+        {'name': 'Run test', 'run': 'npm install'},
         {
-          'run': 'node src/app.js',
+          'run': 'node src/test.js',
           'env': _.assign({
             NODE_ENV: 'production',
           }, envSecrets),
@@ -91,7 +91,7 @@ const config = {
 
 try {
   fs.writeFileSync(
-    path.resolve(__dirname, '../../.github/workflows/schedule.yaml'),
+    path.resolve(__dirname, '../../.github/workflows/test.yaml'),
     yaml.safeDump(config, {
       noCompatMode: true,
       lineWidth: 200,
