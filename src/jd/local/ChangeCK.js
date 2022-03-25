@@ -27,6 +27,7 @@ class ChangeCK extends Template {
     const self = this;
 
     await self.changeCK(api, true);
+    console.log(require('child_process').execSync('npm run build:UpdateActionEnv').toString());
   }
 }
 

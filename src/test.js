@@ -21,4 +21,5 @@ main().then(sendNotify.bind(0, {
 }));
 
 async function main() {
+  await doRun1(require('./jd/local/ChangeCK'));
 }
