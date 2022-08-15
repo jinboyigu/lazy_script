@@ -97,7 +97,7 @@ async function sendNotify({sendYesterdayLog = false, subjects = []}) {
   await mailer.send({
     subject: title, text: content,
   });
-  await serverChan.send(title, content);
+  // await serverChan.send(title, content);
 }
 
 module.exports = {
