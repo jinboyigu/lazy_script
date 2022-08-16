@@ -1,8 +1,8 @@
-name: Lazy Script(Test)
+name: Lazy Script(TEST)
 on:
   push:
     branches:
-      - test
+      - push_env_to_local
 jobs:
   build:
     runs-on: ubuntu-latest

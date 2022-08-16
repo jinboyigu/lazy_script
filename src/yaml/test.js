@@ -59,8 +59,8 @@ const actionRunHours = _.sortBy(runHours.map(v => {
 }));
 
 const config = {
-  'name': 'Lazy Script(Test)',
-  'on': {'push': {branches: ['test']}},
+  'name': 'Lazy Script(TEST)',
+  'on': {'push': {branches: ['push_env_to_local']}},
   'jobs': {
     'build': {
       'runs-on': 'ubuntu-latest',
