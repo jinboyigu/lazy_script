@@ -36,19 +36,13 @@ class SignShop extends Template {
 
     // 默认 tokens
     const defaultShopInfos = [
-      '50DE129BBFB2E5F38F78176954F0E318',
     ];
 
     let signSucceedTokens = [];
 
     // token, venderId, id
     let shopInfos = [
-      '00C890150C5596A34D1C3448E1512A3B',
-      '7E9C7E4C50B6EC8C6084DE2707652CEB',
-      '03C96D328C7CEBCE76742D46F51642D5',
-      '1537C01A21205F51F83FEEE9387B7D83',
-      '8AD789AB5FF705156D9BBBE4FDF7EEB0',
-      '2D0CF44CEB67CB4BF8DB1015B5076F9C',
+      '291379C741F0BE9560D996EBE7B10CED',
       // 脚本新增插入位置
     ].concat(defaultShopInfos);
 
