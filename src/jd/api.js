@@ -19,10 +19,6 @@ const beforeProcessExit = async () => {
 };
 
 const _request = (cookie, {form, body, qs, headers = {}, ...others}) => {
-  const _printLog = (result, type) => {
-    const findNotEmpty = (...array) => array.find(v => !_.isEmpty(v));
-    printLog('jdAPI', 'request', [findNotEmpty(qs, others), findNotEmpty(form, body), result], type, processInAC ? void 0 : 300);
-  };
   const options = {form, body, qs, ...others};
 
   [form, qs].forEach(objectValuesStringify);
@@ -48,6 +44,10 @@ const _request = (cookie, {form, body, qs, headers = {}, ...others}) => {
   }
 
   const {followRedirect} = rpOptions;
+
+  const _printLog = (result, type) => {
+    printLog('jdAPI', 'request', {url: rpOptions.uri, result, ..._.pick(rpOptions, ['qs', 'form'])}, type, processInAC ? void 0 : 300);
+  };
 
   const _do = rpOptions => rp(rpOptions).then(result => {
     !ignorePrintLog && _printLog(result, 'success');
