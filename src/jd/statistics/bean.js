@@ -13,7 +13,7 @@ class StatisticsBean extends Template {
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static commonParamFn = () => ({});
-  static activityEndTime = '';
+  static activityEndTime = '2023-02-10';
 
   static customApiOptions = {
     uri: 'https://wq.jd.com',
@@ -49,6 +49,9 @@ class StatisticsBean extends Template {
     const total = await api.doGetPath('user/info/QueryJDUserInfo', {sceneid: '11110'}).then(_.property('base.jdNum'));
     // 获取所有列表
     const detailList = await api.doGetPath('activeapi/queryuserjingdoudetail', {pagesize: '10'}).then(_.property('detail')) || [];
+    if (_.isEmpty(detailList)) {
+      return api.log('获取信息出错');
+    }
     const prevDate = getMoment().subtract(1, 'days').format('YYYY-MM-DD');
     const preMount = _.map(detailList.filter(o => o['createdate'].replace(/\//g, '-').match(prevDate)), 'amount')
     .reduce(accumulateFn);
