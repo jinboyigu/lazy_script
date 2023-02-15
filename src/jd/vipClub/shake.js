@@ -81,7 +81,8 @@ class VipClubShake extends Template {
             });
           });
 
-          const attentionTaskData = await api.doGetBody('vvipclub_lotteryTask', getTaskFn('attentionTask'));
+          // 活动太火爆
+          const attentionTaskData = {} || await api.doGetBody('vvipclub_lotteryTask', getTaskFn('attentionTask'));
 
           const result = [];
 
@@ -91,7 +92,7 @@ class VipClubShake extends Template {
             waitDuration,
             taskItems,
             taskName,
-          } of data.data.concat(attentionTaskData.data)) {
+          } of data.data.concat(_.get(attentionTaskData, 'data', []))) {
             let list = taskItems.map(o => ({
               taskItemId: o.id,
               taskName,
