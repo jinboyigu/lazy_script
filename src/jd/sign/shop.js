@@ -35,8 +35,7 @@ class SignShop extends Template {
     // https://h5.m.jd.com/babelDiy/Zeus/2PAAf74aG3D61qvfKUM5dxUssJQ9/index.html?token=
 
     // 默认 tokens
-    const defaultShopInfos = [
-    ];
+    const defaultShopInfos = [];
 
     let signSucceedTokens = [];
 
@@ -73,6 +72,8 @@ class SignShop extends Template {
       await parallelRun({
         list,
         runFn: v => (listInfo ? handleListShopInfo : doSign)(...[].concat(v)),
+        onceNumber: 1,
+        onceDelaySecond: 1,
       });
     }
 
