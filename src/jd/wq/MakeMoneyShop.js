@@ -40,7 +40,8 @@ class MakeMoneyShop extends Template {
     // TODO 助力
 
     (getNowHour() !== 0) && await handleDoTask();
-    await handleAutoExchange();
+    // TODO 待修复
+    false && await handleAutoExchange();
 
     // 主要获取打卡奖励和输出结果
     async function handleDoTask() {
