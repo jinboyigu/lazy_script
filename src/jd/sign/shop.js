@@ -48,6 +48,7 @@ class SignShop extends Template {
       '05C56B453F3CEBBCD9DF0CA8937B3EE5',
       '81CD93DADBA5A4412E09649C1F314BB5',
       '4BC7E2CE9CB9FDE2E7C861103CE9B246',
+      '887A4F733C474FB3D8BD24F628242D68',
       // 脚本新增插入位置
     ].concat(defaultShopInfos);
 
