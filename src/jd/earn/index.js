@@ -11,6 +11,10 @@ class Earn extends Template {
   static times = 1;
   static commonParamFn = () => ({});
   static cookieKeys = ['wq_uin', 'wq_skey'];
+  // 签到已下线
+  // static activityEndTime = '2023-03-14 11:00:00';
+  // 整体下线
+  static activityEndTime = '2023-04-20 10:00:00';
 
   static apiOptions = {
     signData: {
@@ -18,7 +22,8 @@ class Earn extends Template {
       loginType: '1',
       loginWQBiz: biz,
       g_ty: 'ls',
-      g_tk: 1756009694,
+      g_tk: 'returnMoney',
+      clientVersion: '1.0.0',
     },
   };
 
@@ -104,6 +109,37 @@ class Earn extends Template {
   static initShareCodeTaskList(shareCodes) {
     if (shareCodes) {
       this.shareCodeTaskList = shareCodes;
+    }
+  }
+
+  static async doMain(api) {
+    const self = this;
+    await self.beforeRequest(api);
+    const prizeListData = await api.doFormBody('getExchangePrizeList');
+    if (!self.isSuccess(prizeListData)) return;
+    const {data: {totalNum, cashExpected, exchangePrizeList}} = prizeListData;
+    api.log(cashExpected);
+
+    for (const {prizeAmount, prizeId} of exchangePrizeList.reverse()) {
+      if (totalNum / 10000 > prizeAmount) {
+        const stop = await exchangePrize(prizeId);
+        if (stop) break;
+        await sleep(10);
+        await api.doFormBody('getExchangePrizeList');
+      }
+    }
+
+    async function exchangePrize(prizeId) {
+      return api.doFormBody('exchangePrize', {prizeId}).then(data => {
+        if (self.isSuccess(data)) {
+          api.log(`成功兑换 ${data.data.prizeName}`);
+          return true;
+        }
+        api.log(data.message);
+        if (data.subCode === 'E101') {
+          return true;
+        }
+      });
     }
   }
 }
