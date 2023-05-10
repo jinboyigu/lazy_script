@@ -67,7 +67,7 @@ async function sendNotify({sendYesterdayLog = false, subjects = []}) {
 
   const sortLogByName = content => getSortLogContent('name', content);
   const contents = [];
-  const yDay = getMoment().subtract(1, 'd').format('YYYY-MM-DD');
+  const yDay = getMoment().subtract(1, 'd').formatDate();
   if (sendYesterdayLog) {
     const yesterdayLog = getLogFile('app', yDay);
     contents.push(sortLogByName(getFileContent(yesterdayLog)));

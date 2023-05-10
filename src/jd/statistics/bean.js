@@ -52,7 +52,7 @@ class StatisticsBean extends Template {
     if (_.isEmpty(detailList)) {
       return api.log('获取信息出错');
     }
-    const prevDate = getMoment().subtract(1, 'days').format('YYYY-MM-DD');
+    const prevDate = getMoment().subtract(1, 'days').formatDate();
     const preMount = _.map(detailList.filter(o => o['createdate'].replace(/\//g, '-').match(prevDate)), 'amount')
     .reduce(accumulateFn);
     api.log(`总数: ${total}, 昨天(${prevDate.substring(5)})的收益: ${preMount}`);

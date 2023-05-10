@@ -95,7 +95,7 @@ class XinruiYear extends Template {
     // 用户信息
     api.userData = api.userData || {};
     const userData = api.userData;
-    const nowDate = getMoment().format('YYYY-MM-DD');
+    const nowDate = getMoment().formatDate();
 
     const doPath = (functionId, qs, options) => api.doGetPath(functionId, qs, _.assign({method: 'POST'}, options));
 

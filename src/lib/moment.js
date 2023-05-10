@@ -7,6 +7,12 @@ const FORMAT_FULL_DATE = 'YYYY-MM-DD HH:mm:ss';
 const _ = require('lodash');
 const moment = require('moment-timezone');
 
+_.assign(moment.prototype, {
+  formatDate() {
+    return this.format('YYYY-MM-DD');
+  },
+});
+
 // 定义默认format
 moment.defaultFormat = FORMAT_FULL_DATE;
 

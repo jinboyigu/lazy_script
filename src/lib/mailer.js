@@ -3,13 +3,13 @@
  */
 
 const _ = require('lodash');
+const fs = require('fs');
 const nodemailer = require('nodemailer');
+const MailParser = require('mailparser').MailParser;
 const {getEnv, updateProductEnv} = require('./env');
 const {getMoment} = require('./moment');
 const {readFileJSON, writeFileJSON} = require('./common');
 const Imap = require('imap');
-const utf8 = require('utf8');
-const quotedPrintable = require('quoted-printable');
 const {inspect, promisify} = require('util');
 
 const getTransportOption = () => getEnv('MAILER_TRANSPORTER_OPTION');
@@ -59,12 +59,15 @@ function _search({subject, since, seen, realDelFn = _.noop}, callback) {
     if (!boxInfo) {
       throw boxInfo;
     }
-    const searchParams = [['HEADER', 'SUBJECT', subject]];
+    const searchParams = [];
+    // TODO subject 一般是搜索不精确的
+    subject = void 0;
+    subject && searchParams.push(['HEADER', 'SUBJECT', subject]);
     since && searchParams.push(['SINCE', since]);
     /**
      * @type {Array}
      */
-    let searchResult = [] || await _call('search', searchParams);
+    let searchResult = await _call('search', searchParams);
     if (_.isEmpty(searchResult)) {
       searchParams[0] = 'ALL';
       searchResult = await _call('search', searchParams);
@@ -73,8 +76,9 @@ function _search({subject, since, seen, realDelFn = _.noop}, callback) {
       imap.end();
       throw new Error('node imap search failed');
     }
-    const messages = await promisify(fetchMessage)(searchResult.reverse());
-    const messageList = messages.filter(o => o.subject[0] === subject);
+    const messages = await promisify(fetchMessage)(searchResult);
+    debug && writeFileJSON(messages, 'messages.json', __dirname);
+    const messageList = subject ? messages.filter(o => o.subject === subject) : messages;
     let isSeen;
     for (const message of messageList) {
       isSeen = _.get(message, 'attrs.flags', []).includes('\\Seen');
@@ -100,41 +104,57 @@ function _search({subject, since, seen, realDelFn = _.noop}, callback) {
     function fetchMessage(msgIds, callback) {
       const result = [];
       const f = imap.fetch(msgIds, {
-        bodies: ['HEADER.FIELDS (FROM TO SUBJECT)', 'TEXT'],
+        bodies: '',
         struct: true,
       });
       f.on('message', function (msg, seqNo) {
         debug && console.log('Message #%d', seqNo);
         const prefix = '(#' + seqNo + ') ';
-        let msgInfo = {};
+        const msgInfo = {};
         msg.on('body', function (stream, info) {
-          debug && console.log(prefix, inspect(info));
-          debug && console.log(prefix + 'Body');
-          let buffer = '';
-          stream.on('data', chunk => {
-            buffer += chunk.toString();
-          });
-          stream.once('end', function () {
-            if (info.which === 'TEXT') {
-              const data = buffer.toString();
-              _.assign(msgInfo, {text: data});
-              if (debug) {
-                console.log(prefix + 'Body [%s] Finished', inspect(info.which));
-                console.log('\n\n\n\n' + data + '\n\n\n\n\n\n');
+          const mailParser = new MailParser();
+          stream.pipe(mailParser);//将为解析的数据流pipe到 mailparser
+          mailParser.on('headers', headers => {
+            _.assign(msgInfo, {
+              to: headers.get('to').text,
+              from: headers.get('from').text,
+              subject: headers.get('subject'),
+              date: headers.get('date'),
+              headers: _.fromPairs(_.toPairs(headers)),
+            });
+
+            mailParser.on('data', function (data) {
+              if (data.type === 'text') {//邮件正文
+                if (debug) {
+                  console.log('邮件内容信息>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+                  console.log('邮件内容: ' + data.html || data.text || JSON.stringify(data));
+                }
+                _.assign(msgInfo, _.pick(data, ['html', 'text', 'textAsHtml']));
               }
-            } else {
-              const parseHeader = Imap.parseHeader(buffer);
-              _.assign(msgInfo, parseHeader);
-              debug && console.log(prefix + 'Parsed header: %s', inspect(parseHeader));
+              // TODO 目前不需要附件
+              if (false && data.type === 'attachment') {//附件
+                console.log('邮件附件信息>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+                console.log('附件名称:' + data.filename);//打印附件的名称
+                data.content.pipe(fs.createWriteStream(data.filename));//保存附件到当前目录下
+                data.release();
+              }
+            });
+          });
+          mailParser.on('end', () => {
+            result.push(msgInfo);
+            if (result.length === msgIds.length) {
+              // 根据时间降序去重排
+              result.sort((m1, m2) => getMoment(m1.date).isBefore(m2.date) ? 1 : -1);
+              callback(void 0, result);
             }
           });
         });
         msg.once('attributes', function (attrs) {
-          _.assign(msgInfo, {attrs});
+          // TODO 后面有需要再打开
+          // _.assign(msgInfo, {attrs});
           debug && console.log(prefix + 'Attributes: %s', inspect(attrs, false, 8));
         });
         msg.once('end', function () {
-          result.push(msgInfo);
           debug && console.log(prefix + 'Finished');
         });
       });
@@ -143,7 +163,6 @@ function _search({subject, since, seen, realDelFn = _.noop}, callback) {
         debug && console.log('Fetch error: ' + err);
       });
       f.once('end', function () {
-        callback(void 0, result);
         debug && console.log('Done fetching all messages!');
       });
     }
@@ -171,18 +190,11 @@ function sendNewEnv() {
   const content = readFileJSON(newEnvPath);
   if (_.isEmpty(content)) return console.log('无需更新内容');
   send({
-    subject: `${newEnvSubject}_${getMoment().format('YYYY-MM-DD')}`,
+    subject: `${newEnvSubject}_${getMoment().formatDate()}`,
     text: JSON.stringify(content),
   }).then(() => {
     writeFileJSON({}, newEnvPath);
   });
-}
-
-function decodeMailText(text) {
-  try {
-    text = utf8.decode(quotedPrintable.decode(text));
-  } catch (e) {}
-  return text;
 }
 
 /**
@@ -191,23 +203,18 @@ function decodeMailText(text) {
 async function updateEnvFromMail(day = 2) {
   const nowMoment = getMoment();
   const getNewEnvs = () => search({
-    subject: `${newEnvSubject}_${nowMoment.format('YYYY-MM-DD')}`,
-  }).then(messages => messages.map(o => {
-    let text;
-    try {
-      text = JSON.parse(decodeMailText(o.text.trim()));
-    } catch (e) {}
-    return text;
-  }));
-  const allNewEnvs = [];
-  for (let i = 0; i < day; i++) {
-    const newEnvs = await getNewEnvs();
-    allNewEnvs.unshift(...newEnvs);
-    nowMoment.subtract(1, 'day');
-  }
+    since: nowMoment.subtract(day, 'day'),
+  }).then(messages =>
+    messages.filter(o => o.subject.startsWith(newEnvSubject)).map(({text}) => {
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (e) {}
+      return result;
+    }));
+  const allNewEnvs = await getNewEnvs();
   if (_.isEmpty(allNewEnvs)) return;
-  allNewEnvs.unshift({});
-  const newEnv = _.merge(...allNewEnvs);
+  const newEnv = _.merge({}, ...allNewEnvs.reverse());
   console.log(`开始从邮件内容中更新 new env`);
   console.log(JSON.stringify(newEnv));
   updateProductEnv(newEnv, false, true);
