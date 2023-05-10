@@ -72,7 +72,7 @@ const config = {
           'env': {'cache-name': 'cache-node-modules'},
           'with': {
             'path': '~/.npm',
-            'key': '${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles(\'**/package-lock.json\') }}',
+            'key': '${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles(\'**/package.json\') }}',
             'restore-keys': '${{ runner.os }}-build-${{ env.cache-name }}-\n${{ runner.os }}-build-\n${{ runner.os }}-\n',
           },
         },
