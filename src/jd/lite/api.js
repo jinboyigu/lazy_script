@@ -10,14 +10,15 @@ const {getMoment} = require('../../lib/moment');
  */
 function encrypt(functionId, body = {}, t = getMoment().valueOf()) {
   const key = '12aea658f76e453faf803d15c40a72e0';
+  const version = '3.1.0';
   const form = {
     appid: 'lite-android',
     body: JSON.stringify(body),
     client: 'android',
-    clientVersion: '3.1.0',
+    clientVersion: version,
     functionId,
     t,
-    uuid: '846c4c32dae910ef',
+    uuid: 'hjudwgohxzVu96krv/T6Hg==',
   };
   let msg = Object.values(form).join('&');
   const sign = CryptoJS.HmacSHA256(msg, key).toString();

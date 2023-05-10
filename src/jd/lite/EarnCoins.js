@@ -36,6 +36,9 @@ class LiteEarnCoins extends Template {
 
     async function handleDoTask() {
       const taskList = await doForm('newTaskCenterPage').then(data => data.data || []);
+      if (_.isEmpty(taskList)) {
+        throw new Error('接口有异常');
+      }
       for (const {taskName, taskType: activeType, taskInfo: {status}} of taskList) {
         if (status === 1/* || ['邀好友赚金币'].includes(taskName)*/) continue;
         if ([1, 2, 3].includes(activeType)) {
