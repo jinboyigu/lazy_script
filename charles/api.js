@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const exec = require('child_process').execSync;
+const {exec} = require('../src/lib/common');
 
 const _ = require('lodash');
 

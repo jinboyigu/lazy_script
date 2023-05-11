@@ -3,7 +3,7 @@ const path = require('path');
 const _ = require('lodash');
 const Cookie = require('./cookie');
 const {execSync} = require('child_process');
-const {sleep, readFileJSON, writeFileJSON} = require('./common');
+const {sleep, readFileJSON, writeFileJSON, exec} = require('./common');
 
 const processInAC = () => getEnv('NODE_ENV') === 'production';
 const getKeyByIndex = (key, index = 0) => index === 0 ? key : `${key}_${index}`;
@@ -156,7 +156,7 @@ async function uploadProductEnvToAction(needInAction) {
   const command = 'npm run build:UpdateActionEnv';
   console.log(command);
   await sleep(3);
-  console.log(require('child_process').execSync(command).toString());
+  exec(command);
 }
 
 module.exports = {

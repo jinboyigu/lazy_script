@@ -2,21 +2,20 @@
  * @description 更新日志的软连接
  */
 
-const {execSync} = require('child_process');
 const {getNowDate} = require('../lib/moment');
-const {getLogFile} = require('../lib/common');
+const {getLogFile, exec} = require('../lib/common');
 
 function main() {
   const isWin = process.platform === 'win32';
   const _do = () => {
     for (const name of ['request', 'app']) {
       const logFile = getLogFile(name);
-      execSync(`touch ${logFile}`);
+      exec(`touch ${logFile}`);
       const fileName = getLogFile(name, '');
       if (isWin) {
-        execSync(`rm -rf ${fileName}`);
+        exec(`rm -rf ${fileName}`);
       }
-      execSync(`ln -snf ${logFile} ${fileName}`);
+      exec(`ln -snf ${logFile} ${fileName}`);
     }
   };
 

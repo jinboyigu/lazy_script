@@ -7,6 +7,7 @@ const _ = require('lodash');
 const {doPolling} = require('../../lib/cron');
 const shopGiftUrlPath = path.resolve(__dirname, 'shopGift.url');
 const {getMoment} = require('../../lib/moment');
+const {exec} = require('../../lib/common');
 
 const origin = 'https://shop.m.jd.com';
 
@@ -61,7 +62,7 @@ class ShopGift extends Template {
     if (isFirstRun && self.shopSignUrlUpdated) {
       console.log('自动执行signShop');
       await sleep(30);
-      console.log(require('child_process').execSync('npm run start:SignShop').toString());
+      exec('npm run start:SignShop', {env: {...process.env, SighShopImmediately: true}});
     }
 
     async function handleFormat() {

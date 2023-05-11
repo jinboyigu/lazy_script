@@ -8,6 +8,7 @@ const path = require('path');
 const {search} = require('../lib/mailer');
 const {getMoment} = require('../lib/moment');
 const {updateProcessEnv} = require('../lib/env');
+const {exec} = require('../lib/common');
 
 async function updateShopSignFromMail() {
   const text = await search({
@@ -16,7 +17,7 @@ async function updateShopSignFromMail() {
   if (!text) return;
   console.log(`开始从邮件内容中更新 shopGift.url`);
   fs.writeFileSync(path.resolve(__dirname, '../jd/wq/shopGift.url'), text);
-  require('child_process').spawn('npm', ['run', 'start:ShopGift'], {stdio: 'inherit'});
+  exec('npm run start:ShopGift');
 }
 
 updateProcessEnv();

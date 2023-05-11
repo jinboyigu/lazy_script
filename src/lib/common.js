@@ -303,6 +303,27 @@ function formatFullPath(config, action) {
   });
 })();
 
+/**
+ *
+ * @param command {String|Array}
+ * @param options {Object}
+ * @return {Promise|undefined}
+ */
+const exec = async (command, options = {}) => {
+  let args;
+
+  [command, ...args] = _.isArray(command) ? command : command.split(' '); // 仅简单分割空格
+
+  const child = require('child_process').spawn(command, args, {stdio: ['inherit', 'inherit', 'inherit'], ...options});
+
+  if (child.stdout) {
+    return new Promise((resolve, reject) => {
+      child.stdout.on('data', data => resolve(`${data}`));
+      child.stderr.on('data', data => reject(`${data}`));
+    });
+  }
+};
+
 module.exports = {
   sleep,
 
@@ -336,4 +357,6 @@ module.exports = {
   addMosaic,
 
   formatFullPath,
+
+  exec,
 };

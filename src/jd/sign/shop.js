@@ -42,14 +42,8 @@ class SignShop extends Template {
     // token, venderId, id
     let shopInfos = [
       '9C1D723079C18C8F8F09AEB497322BDA',
-      '8A930577A491F64753E2058C8891EE7A',
-      'CD52EAC7EDF332B204D29F6BD088AEB0',
-      '1041C0338692A795C4D841D7AF541B47',
-      '89916B52A1A8EDA959D77678ED799EE1',
       '54C57165E25938C80A35B2E770E96424',
-      '7D776E741607856316BC4CAFB058DF30',
-      '297DC198812A72F65A6E498E9FCF7ADE',
-      '496E6CDA70CD3F4CEF6F28FC5AB6AA95',
+      '5402709C2D652C536516DCC015F5EF45',
       // 脚本新增插入位置
     ].concat(defaultShopInfos);
 
@@ -58,7 +52,7 @@ class SignShop extends Template {
     }
 
     const nowHour = self.getNowHour();
-    if (nowHour !== 23) {
+    if (nowHour !== 23 && !process.env.SighShopImmediately) {
       await updateShopInfos(false);
       return handleSign();
     }

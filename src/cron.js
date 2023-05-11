@@ -2,13 +2,13 @@
  * @description 本地定时运行脚本
  */
 
-const exec = require('child_process').execSync;
+const {exec} = require('./lib/common');
 const {CronJob} = require('cron');
 const _ = require('lodash');
 const {getFullDate} = require('./lib/moment');
 
 createCronJob('runDev', '0 */1 * * *', () => {
-  console.log(exec('npm run dev').toString());
+  exec('npm run dev');
 });
 
 function createCronJob(name, cronTime, onTick, onComplete) {
