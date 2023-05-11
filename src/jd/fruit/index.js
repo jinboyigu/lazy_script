@@ -57,7 +57,7 @@ class Fruit extends Template {
 
   static async doMain(api, shareCodes) {
     const self = this;
-    const needHarvest = false;
+    const needHarvest = _.get(self._command, 0); // node src/jd/fruit/index.js start 0 1
     // 快速浇水默认开启
     const enableFastWater = true;
     const waterTimes = 0;
