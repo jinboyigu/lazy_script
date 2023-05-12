@@ -22,8 +22,9 @@ function dateFormat() {
 # 加载本地变量
 source /etc/profile
 
-echo "开始自动更新代码"
-git fetch --all && git reset --hard origin/HEAD && git pull
+# 手动更新代码
+#echo "开始自动更新代码"
+#git fetch --all && git reset --hard origin/HEAD && git pull
 
 echo "`dateFormat` [$name] 开始执行定时任务" >> "$script_dir/logs/local.log"
 
