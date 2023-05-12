@@ -62,7 +62,7 @@ class ShopGift extends Template {
     if (isFirstRun && self.shopSignUrlUpdated) {
       console.log('自动执行signShop');
       await sleep(30);
-      exec('npm run start:SignShop', {env: {...process.env, SighShopImmediately: true}});
+      exec('node src/jd/sign/shop.js start * 1 && npm run build:updateShopToken');
     }
 
     async function handleFormat() {

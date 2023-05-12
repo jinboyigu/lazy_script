@@ -65,7 +65,7 @@ class SignShop extends Template {
     }
 
     const nowHour = self.getNowHour();
-    if (nowHour !== 23 && !process.env.SighShopImmediately) {
+    if (nowHour !== 23 || _.get(self._command, 0)) {
       await updateShopInfos(false);
       return handleSign();
     }
