@@ -1,14 +1,18 @@
 const Template = require('../base/template');
 
-const {sleep, writeFileJSON, singleRun, parallelRun, printLog} = require('../../lib/common');
+const {sleep, writeFileJSON, singleRun, parallelRun, printLog, replaceObjectMethod} = require('../../lib/common');
 const {sleepTime} = require('../../lib/cron');
 const _ = require('lodash');
 const {processInAC} = require('../../lib/env');
+const {genParamsSign, convertHex} = require('../../lib/security');
+const {getMoment} = require('../../lib/moment');
+const appid = 'interCenter_shopSign';
 
 class SignShop extends Template {
   static scriptName = 'SignShop';
   static scriptNameDesc = '店铺签到(web)';
   static needOriginH5 = true;
+  static needInAppComplete = true;
   static times = 1;
   static concurrent = true;
   static concurrentOnceDelay = 0;
@@ -19,7 +23,7 @@ class SignShop extends Template {
       uri: 'https://api.m.jd.com/api',
       qs: {
         loginType: 2,
-        appid: 'interCenter_shopSign',
+        appid,
       },
     },
   };
@@ -31,6 +35,16 @@ class SignShop extends Template {
   static async doMain(api) {
     const self = this;
 
+    const shopSignS = genParamsSign({userAgent: api.options.headers['user-agent'], appId: '4da33'/*, fp: '5975779562801414'*/});
+    replaceObjectMethod(api, 'doGetBody', async ([functionId, body, options]) => {
+      const t = getMoment().valueOf();
+      if (['interact_center_shopSign_getActivityInfo', 'interact_center_shopSign_signCollectGift'].includes(functionId)) {
+        const {h5st} = await shopSignS.sign({functionId, t, appid, body: convertHex(body)});
+        options = options || {};
+        _.assign(options, {qs: {h5st, t}});
+      }
+      return [functionId, body, options];
+    });
     // 签到页面url
     // https://h5.m.jd.com/babelDiy/Zeus/2PAAf74aG3D61qvfKUM5dxUssJQ9/index.html?token=
 
@@ -41,30 +55,13 @@ class SignShop extends Template {
 
     // token, venderId, id
     let shopInfos = [
-      '9C1D723079C18C8F8F09AEB497322BDA',
-      '42B131F2F83D24827851EA93D7FDFDAC',
-      'B08E6AC715F87ABFBF7B43EE3A3E8887',
       '0C174CB952B4E22C22E744FE32FB48BA',
       '180686F6F6EB1419C9CF0E4AD6A818C0',
       '5380D8125D8D98A1B0C19B8FC469ED79',
       '90732178E5D3FF4731EC332042CC8416',
-      '901D27C5F8554E18A2C6A196959EE465',
-      '372D397C45C6DD61B4359C2181EE9D8F',
       '1A4B4B0AFB6594B2C453FC7558D58435',
-      '8E805A12B11B59FF1A350737C54E1D99',
-      'D70558DAE61AA862977E570778ABCC4C',
       '47BB15B1D4AD4B527B7D242DC6C6A8E6',
       'C7BDE4A74E24395776C27F0EB8BB4B1E',
-      '26E47AD1E9FE83EE2E4A4AD6775AAEAC',
-      '351587AEC5EA62F4089D0D816D8211AA',
-      '4281E58AF7BFEFF054420F5FA6CE4526',
-      'A8AC004D7C66F8935C33A9EA9A3B8DF9',
-      '22361F66195898C3EBDCB7AF907059D4',
-      '469DC27F75F8C619704154DC31C7AAD1',
-      'A16F2ACAD95E93E81FF2C6420F84C317',
-      '30D9CF04178AA37DA461281F050DC287',
-      '96EC77E27BA4958FBCFF48DCD77DCF44',
-      '77828B736A86C47D370AA433CB854926',
       // 脚本新增插入位置
     ].concat(defaultShopInfos);
 
