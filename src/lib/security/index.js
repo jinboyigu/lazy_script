@@ -2,6 +2,7 @@ const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const CryptoJS = require('crypto-js');
 
 function genParamsSign(options) {
   const {userAgent = '', appId, fp} = options;
@@ -44,7 +45,9 @@ function genParamsSign(options) {
   };
   vm.createContext(ctx);
   vm.runInContext(jsContent, ctx);
-  return new ctx.ParamsSign({appId});
+  const paramsSign = new ctx.ParamsSign({appId});
+  paramsSign.ctx = ctx;
+  return paramsSign;
 }
 
 function convertHex() {
@@ -191,5 +194,6 @@ function convertHex() {
 
 module.exports = {
   genParamsSign,
-  convertHex: body => convertHex()(JSON.stringify(body)),
+  // convertHex: body => convertHex()(JSON.stringify(body)),
+  convertHex: body => CryptoJS.SHA256(JSON.stringify(body)).toString(),
 };
