@@ -1,6 +1,6 @@
 const Template = require('../base/template');
 
-const {sleep, writeFileJSON, singleRun, replaceObjectMethod} = require('../../lib/common');
+const {sleep, writeFileJSON, readFileJSON, singleRun, replaceObjectMethod} = require('../../lib/common');
 const _ = require('lodash');
 const {genParamsSign, convertHex} = require('../../lib/security');
 const {getMoment} = require('../../lib/moment');
@@ -12,10 +12,21 @@ const baseForm = {
   clientVersion: '11.4.4',
   client: 'apple',
 };
+const chlsjData = readFileJSON('./promote.chlsj', __dirname, []);
+
+const maxEncryptTimes = 3;/*使用 3 次就失效*/
+const encryptionList = _.flatten([
+  ...chlsjData.map(o => {
+    const text = _.get(o, 'request.body.text', '');
+    if (!text) return;
+    const searchParams = new URL(`http://test.cn?${text}`).searchParams;
+    return {joyLog: searchParams.get('joylog'), xApiEidToken: searchParams.get('x-api-eid-token')};
+  }).filter(v => v),
+].map(v => Array(maxEncryptTimes).fill(v)));
 
 class Promote extends Template {
   static scriptName = 'Promote';
-  static scriptNameDesc = 'Promote';
+  static scriptNameDesc = '拆快递';
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static needInAppComplete1 = true;
@@ -34,22 +45,54 @@ class Promote extends Template {
   };
 
   static async beforeRequest(api) {
-    const paramsSign = genParamsSign({userAgent: api.options.headers['user-agent'], appId: '2a045'});
-    replaceObjectMethod(api, 'doFormBody', async ([functionId, body, signData, options]) => {
-      const t = getMoment().valueOf();
-      if (['promote_collectScore', ''].includes(functionId)) {
-        const {h5st} = await paramsSign.sign({functionId, ...baseForm, t, body: convertHex(body)});
-        options = options || {};
-        _.merge(options, {
-          form: {
-            h5st,
-            t,
-            'x-api-eid-token': 'jdd03ZPNNW3TV6YVBDF6LALDR2XZXJIOXG7DOZCOE5KWDM52NKDQPTVI2DNJBTLINK7PEB5D6KDHQSFP3ME3ELYDTW3PZHQAAAAMIJABIJ6IAAAAADB34QTSDY7FBN4X',
-          },
-        });
+    api.joyLogTimes = 0;
+    _.get(chlsjData, '[0].request.header.headers').map(({name, value}) => {
+      if (name === 'cookie') {
+        // TODO 可能使用里面的 pt_key
+        if (!value.match(/pt_key=|pt_pin=/)) {
+          api.cookieInstance.set(value);
+        }
       }
-      return [functionId, body, signData, options];
     });
+    // 暂时不需要 h5st
+    const needH5st = false;
+    let paramsSign;
+    if (needH5st) {
+      paramsSign = genParamsSign({userAgent: api.options.headers['user-agent'], appId: '2a045'});
+    }
+    replaceObjectMethod(api, 'doFormBody', async ([functionId, body, signData, options]) => {
+        if (['promote_collectScore', ''].includes(functionId)) {
+          const t = getMoment().valueOf();
+          options = options || {};
+          if (needH5st) {
+            const {h5st} = await paramsSign.sign({functionId, ...baseForm, t, body: convertHex(body)});
+            _.merge(options, {form: {h5st}});
+          }
+          const {joyLog, xApiEidToken} = encryptionList.shift() || {};
+          if (joyLog) {
+            ++api.joyLogTimes;
+            if (encryptionList.filter(o => o.joylog === joyLog).length === maxEncryptTimes - 1) {
+              // 使用过一次就需更新原文件
+              chlsjData.shift();
+              writeFileJSON(chlsjData, './promote.chlsj', __dirname);
+            }
+          } else {
+            // TODO 可能要停止执行
+            console.log('joylog 数量不够了!!!');
+          }
+          _.merge(options, {
+            form: {
+              t,
+              ...joyLog && {
+                'x-api-eid-token': xApiEidToken,
+                joylog: joyLog,
+              },
+            },
+          });
+        }
+        return [functionId, body, signData, options];
+      },
+    );
   }
 
   static async doMain(api, shareCodes) {
@@ -57,11 +100,17 @@ class Promote extends Template {
 
     await self.beforeRequest(api);
 
+    let needStop = false;
+
     await handleDoTask();
+
+    if (!needStop) {
+      console.log(`${[api.getPin()]} 执行完毕`);
+    }
+    console.log(`joylog 加密次数: ${api.joyLogTimes}`);
 
     async function handleDoTask() {
       let doneTask = false;
-      let needStop = false;
       const {taskVos} = await api.doFormBody('promote_getTaskDetail', {
         'taskId': '',
         'appSign': 3,
