@@ -54,7 +54,7 @@ class Promote extends Template {
     'ZXASTT0205KkcMWdhhwWERkeG8q5fFjRWnqS7zB55awQ',
   ];
   static needInAppComplete1 = true;
-  static times = shareCodeTaskList.length ? 1 : 2; /* 设置好 shareCodeTaskList 之后就无需执行多次 */
+  static times = this.shareCodeTaskList.length ? 1 : 2; /* 设置好 shareCodeTaskList 之后就无需执行多次 */
   static commonParamFn = () => ({});
   static skipTaskIds = [1/*邀请好友助力*/, 14/*成功入会并浏览可得快递箱*/, 24/*浏览并下单可以得快递箱*/, 43/*绑卡成功可得快递箱*/, 44/*成功激活白条领立减券*/];
 
