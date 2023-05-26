@@ -2,8 +2,12 @@ const Template = require('../base/template');
 
 const {sleep, writeFileJSON, readFileJSON, singleRun, replaceObjectMethod} = require('../../lib/common');
 const _ = require('lodash');
+const fs = require('fs');
+const path = require('path');
 const {genParamsSign, convertHex} = require('../../lib/security');
 const {getMoment} = require('../../lib/moment');
+const {getFormValue} = require('../../lib/charles');
+const getJoyLogFromCharles = getFormValue.bind(0, 'joylog');
 
 const indexUrl = 'https://wbbny.m.jd.com/pb/014710620/mTPLZGkAcayB5UvZ6uZCtL3M6ca/index.html?babelChannel=syxview&sid=50d1da03cda6a41d924acc93160a1a3w&un_area=19_1601_36953_50400#/pages/home/index/index';
 
@@ -12,27 +16,47 @@ const baseForm = {
   clientVersion: '11.4.4',
   client: 'apple',
 };
-const chlsjData = readFileJSON('./promote.chlsj', __dirname, []);
-
 const maxEncryptTimes = 3;/*使用 3 次就失效*/
-const encryptionList = _.flatten([
-  ...chlsjData.map(o => {
-    const text = _.get(o, 'request.body.text', '');
-    if (!text) return;
-    const searchParams = new URL(`http://test.cn?${text}`).searchParams;
-    return {joyLog: searchParams.get('joylog'), xApiEidToken: searchParams.get('x-api-eid-token')};
-  }).filter(v => v),
-].map(v => Array(maxEncryptTimes).fill(v)));
+const removeCharlesOrigin = true;
+const allDataFile = path.resolve(__dirname, './promote/all.json');
+const allCharlesData = initCharlesData();
+
+function initCharlesData() {
+  const chlsjPath = path.resolve(__dirname, './promote');
+  const fileNames = fs.readdirSync(chlsjPath).filter(v => v.endsWith('.chlsj'));
+  if (_.isEmpty(fileNames)) {
+    return readFileJSON(allDataFile);
+  }
+
+  const data = _.flatten(fileNames.map(name => readFileJSON(name, chlsjPath, []))).filter(o => JSON.stringify(o).match('joylog='));
+  removeCharlesOrigin && fileNames.forEach(name => {
+    fs.rmSync(path.resolve(chlsjPath, name));
+  });
+  writeFileJSON(_.concat(readFileJSON(allDataFile, void 0, []), data), allDataFile);
+
+  return data;
+}
+
+function updateCharlesData(removeJoyLog) {
+  const data = allCharlesData;
+  removeJoyLog && _.remove(data, o => getJoyLogFromCharles(o) === removeJoyLog);
+  writeFileJSON(data, allDataFile);
+}
 
 class Promote extends Template {
   static scriptName = 'Promote';
   static scriptNameDesc = '拆快递';
   static dirname = __dirname;
-  static shareCodeTaskList = [];
+  static shareCodeTaskList = [
+    'ZXASTT018v_h1QhgY81XeKR6b1AFjRWnqS7zB55awQ',
+    'ZXASTT0107a4gE0Ic8AFjRWnqS7zB55awQ',
+    'ZXASTT019-akZNEhNqhCPQUKp84MFjRWnqS7zB55awQ',
+    'ZXASTT0205KkcMWdhhwWERkeG8q5fFjRWnqS7zB55awQ',
+  ];
   static needInAppComplete1 = true;
-  static times = 1;
+  static times = shareCodeTaskList.length ? 1 : 2; /* 设置好 shareCodeTaskList 之后就无需执行多次 */
   static commonParamFn = () => ({});
-  static skipTaskIds = [1/*邀请好友助力*/, 14/*成功入会并浏览可得快递箱*/, 24/*浏览并下单可以得快递箱*/, 44/*成功激活白条领立减券*/];
+  static skipTaskIds = [1/*邀请好友助力*/, 14/*成功入会并浏览可得快递箱*/, 24/*浏览并下单可以得快递箱*/, 43/*绑卡成功可得快递箱*/, 44/*成功激活白条领立减券*/];
 
   static apiOptions = {
     options: {
@@ -45,13 +69,19 @@ class Promote extends Template {
   };
 
   static async beforeRequest(api) {
+    const chlsjData = allCharlesData.filter(o => JSON.stringify(o).match(`pt_pin=${api.getPin()}`));
+    const encryptionList = _.flatten([
+      ...chlsjData.map(o => {
+        return {joyLog: getJoyLogFromCharles(o), xApiEidToken: getFormValue('x-api-eid-token', o)};
+      }).filter(v => v.joyLog),
+    ].map(v => Array(maxEncryptTimes).fill(v)));
     api.joyLogTimes = 0;
     _.get(chlsjData, '[0].request.header.headers').map(({name, value}) => {
       if (name === 'cookie') {
-        // TODO 可能使用里面的 pt_key
-        if (!value.match(/pt_key=|pt_pin=/)) {
-          api.cookieInstance.set(value);
-        }
+        api.cookieInstance.add(value);
+      }
+      if (name === 'user-agent') {
+        api.options.headers['user-agent'] = value;
       }
     });
     // 暂时不需要 h5st
@@ -71,10 +101,9 @@ class Promote extends Template {
           const {joyLog, xApiEidToken} = encryptionList.shift() || {};
           if (joyLog) {
             ++api.joyLogTimes;
-            if (encryptionList.filter(o => o.joylog === joyLog).length === maxEncryptTimes - 1) {
+            if (encryptionList.filter(o => o.joyLog === joyLog).length === maxEncryptTimes - 1) {
               // 使用过一次就需更新原文件
-              chlsjData.shift();
-              writeFileJSON(chlsjData, './promote.chlsj', __dirname);
+              updateCharlesData(joyLog);
             }
           } else {
             // TODO 可能要停止执行
@@ -111,10 +140,14 @@ class Promote extends Template {
 
     async function handleDoTask() {
       let doneTask = false;
-      const {taskVos} = await api.doFormBody('promote_getTaskDetail', {
+      const {taskVos, inviteId} = await api.doFormBody('promote_getTaskDetail', {
         'taskId': '',
         'appSign': 3,
       }).then(_.property('data.result')) || {};
+      self.updateShareCodeFn(inviteId);
+      for (const inviteId of self.getShareCodeFn()) {
+        await handleDoShareTask(inviteId);
+      }
       if (!taskVos) return;
       for (const task of taskVos) {
         let {taskId, status, times, maxTimes, waitDuration, subTitleName} = task;
@@ -181,6 +214,13 @@ class Promote extends Template {
         }
         return taskList;
       }
+    }
+
+    async function handleDoShareTask(inviteId) {
+      await api.doFormBody('promote_collectScore', {
+        inviteId,
+        'actionType': 0,
+      });
     }
   }
 }
