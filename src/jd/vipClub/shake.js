@@ -63,23 +63,23 @@ class VipClubShake extends Template {
           if (!self.isSuccess(data)) return [];
 
           // 签到
-          await api.doGet('pg_channel_page_data', {
-            appid,
-            body: {'paramData': {'token': 'dd2fb032-9fa3-493b-8cd0-0d57cd51812d'}},
-          }).then(async data => {
-            const floorToken = _.property('data.floorInfoList[1].token')(data);
-            const currSignCursor = _.property('data.floorInfoList[1].floorData.signActInfo.currSignCursor')(data);
-            const signActCycles = _.property('data.floorInfoList[1].floorData.signActInfo.signActCycles')(data);
-            if (signActCycles[currSignCursor - 1]['signStatus'] === 0) return;
-            return api.doGet('pg_interact_interface_invoke', {
-              appid,
-              body: {
-                floorToken,
-                'dataSourceCode': 'signIn',
-                'argMap': {currSignCursor},
-              },
-            });
-          });
+          // await api.doGet('pg_channel_page_data', {
+          //   appid,
+          //   body: {'paramData': {'token': 'dd2fb032-9fa3-493b-8cd0-0d57cd51812d'}},
+          // }).then(async data => {
+          //   const floorToken = _.property('data.floorInfoList[1].token')(data);
+          //   const currSignCursor = _.property('data.floorInfoList[1].floorData.signActInfo.currSignCursor')(data);
+          //   const signActCycles = _.property('data.floorInfoList[1].floorData.signActInfo.signActCycles')(data);
+          //   if (signActCycles[currSignCursor - 1]['signStatus'] === 0) return;
+          //   return api.doGet('pg_interact_interface_invoke', {
+          //     appid,
+          //     body: {
+          //       floorToken,
+          //       'dataSourceCode': 'signIn',
+          //       'argMap': {currSignCursor},
+          //     },
+          //   });
+          // });
 
           // 活动太火爆
           const attentionTaskData = {} || await api.doGetBody('vvipclub_lotteryTask', getTaskFn('attentionTask'));
