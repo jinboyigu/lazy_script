@@ -64,6 +64,10 @@ class Base {
   static concurrent = false;
   static concurrentOnceDelay = 2;
 
+  // 各自运行各自的, 报错也不影响其他 cookie
+  // TODO 后面都统一设置为 true
+  static keepIndependence = false;
+
   // 活动开始和结束时间, 默认没有
   static activityStartTime = '';
   static activityEndTime = '';
@@ -463,10 +467,18 @@ class Base {
       if (self.needChangeCK && initiativeChangeCkMaxTimes > 0) {
         await self.changeCK(api, processInAC() && [6, 14, 20].includes(getNowHour()));
       }
-      if (isCron) {
-        await self.doCron(api, shareCodes);
-      } else {
-        await self.doMain(api, shareCodes);
+      try {
+        if (isCron) {
+          await self.doCron(api, shareCodes);
+        } else {
+          await self.doMain(api, shareCodes);
+        }
+      } catch (e) {
+        if (self.keepIndependence) {
+          console.error(e);
+        } else {
+          throw e;
+        }
       }
     }
   }
