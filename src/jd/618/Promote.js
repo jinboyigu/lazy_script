@@ -86,10 +86,11 @@ class Promote extends Template {
     api.joyLogTimes = 0;
     replaceObjectMethod(api, 'doFormBody', async ([functionId, body, signData, options]) => {
       const oldFunctionId = functionId;
-      if (['getTaskDetail', 'collectScore', 'getFeedDetail'].includes(oldFunctionId)) {
+      const encryptFunctions = ['collectScore', 'grade_award'];
+      if ([...encryptFunctions, 'getTaskDetail', 'getFeedDetail', 'floating_layer'].includes(oldFunctionId)) {
         functionId = `${self.functionIdPrefix()}_${oldFunctionId}`;
       }
-      if (['collectScore'].includes(oldFunctionId) && self.needEncrypt) {
+      if (encryptFunctions.includes(oldFunctionId) && self.needEncrypt) {
         const t = getMoment().valueOf();
         options = options || {};
         if (needH5st) {
@@ -125,17 +126,28 @@ class Promote extends Template {
 
     await self.beforeRequest(api);
 
-    await handleDoTask(true);
+    const userInfo = {
+      score: 0,
+    };
 
+    await handleDoTask(true, 3/*jd app*/);
+    await handleDoTask(false, 2/*小程序*/);
+    await handleDoTask(false, 4/*jr app*/);
+
+    // 按需运行
+    // await handleReward();
+
+    api.log(`current score: ${userInfo.score}`);
     console.log(`${[api.getPin()]} 执行完毕`);
     console.log(`joylog 加密次数: ${api.joyLogTimes}`);
 
-    async function handleDoTask(isFirst) {
+    async function handleDoTask(isFirst, appSign = 3) {
       let doneTask = false;
-      const {taskVos, inviteId} = await api.doFormBody('getTaskDetail', {
+      const {taskVos, inviteId, parentUserScore} = await api.doFormBody('getTaskDetail', {
         'taskId': '',
-        'appSign': 3,
+        appSign,
       }).then(_.property('data.result')) || {};
+      userInfo.score = parentUserScore;
       if (isFirst) {
         const shareCodeTaskList = [].concat(self.shareCodeTaskList);
         _.remove(shareCodeTaskList, v => v === inviteId);
@@ -154,7 +166,7 @@ class Promote extends Template {
           const feedTask = await api.doFormBody('getFeedDetail', {taskId}).then(data => _.property('data.result.addProductVos[0]')(data) || _.property('data.result.taskVos[0]')(data));
           list = getList(feedTask);
         }
-        if (taskId === 28) {
+        if ([23/*早起打卡*/, 25/*去首页浮层进入活动*/, 28/*去品牌墙浏览更多权益*/].includes(taskId)) {
           list.forEach(o => {
             o.status = 1;
           });
@@ -166,7 +178,7 @@ class Promote extends Template {
           times++;
         }
         if (doneTask) {
-          return handleDoTask();
+          return handleDoTask(void 0, appSign);
         }
       }
 
@@ -215,6 +227,26 @@ class Promote extends Template {
         return data;
       });
     }
+
+    async function handleReward() {
+      const years = [];
+      for (let i = 2004; i <= 2023; i++) {
+        years.push(i);
+      }
+      for (const sceneId of years) {
+        await sleep(5);
+        const {
+          gradeList,
+          sceneList,/*years*/
+        } = await api.doFormBody('floating_layer', {sceneId}).then(_.property('data.result')) || {};
+        for (const {id: gradeId, status} of gradeList) {
+          if (status === 1) {
+            await sleep(2);
+            await api.doFormBody('grade_award', {gradeId});
+          }
+        }
+      }
+    }
   }
 }
 
@@ -223,6 +255,7 @@ function initCharlesData(name) {
   charlesDataFilePath = path.resolve(__dirname, `./${name}/all.json`);
 
   const dirPath = path.resolve(__dirname, name);
+  !fs.existsSync(dirPath) && fs.mkdirSync(dirPath);
   const fileNames = fs.readdirSync(dirPath).filter(v => v.endsWith('.chlsj'));
   const defaultData = readFileJSON(charlesDataFilePath, void 0, []);
   if (_.isEmpty(fileNames)) {
