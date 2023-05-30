@@ -35,7 +35,8 @@ function main() {
       _do();
       times = 0;
     });
-    process.on('beforeExit', _do);
+    // 会导致结束不了, 先屏蔽
+    // process.on('beforeExit', _do);
   }
 }
 
