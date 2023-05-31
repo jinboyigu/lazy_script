@@ -58,6 +58,9 @@ class Promote extends Template {
   static async beforeRequest(api) {
     const self = this;
     let encryptionList = [];
+    let fp = '';
+    let appId = '';
+    let needH5st = false;
     if (self.needEncrypt) {
       if (self.isFirstLoop() && api.currentCookieIndex === 0) {
         // 初始化
@@ -67,21 +70,22 @@ class Promote extends Template {
       encryptionList = _.flatten(charlesData.map(o => ({
         joyLog: getJoyLogFromCharles(o),
         xApiEidToken: getFormValue('x-api-eid-token', o),
+        headers: o.request.header.headers,
       })).filter(v => v.joyLog).map(v => Array(maxEncryptTimes).fill(v)));
-      _.get(charlesData, '[0].request.header.headers', []).map(({name, value}) => {
-        if (name === 'cookie') {
-          api.cookieInstance.add(value);
-        }
-        if (name === 'user-agent') {
-          api.options.headers['user-agent'] = value;
-        }
-      });
+      if (charlesData[0]) {
+        needH5st = true;
+        const h5stList = getFormValue('h5st', charlesData[0]).split(';');
+        fp = h5stList[1];
+        appId = h5stList[2];
+      }
     }
-    // 暂时不需要 h5st
-    const needH5st = false;
     let paramsSign;
     if (needH5st) {
-      paramsSign = genParamsSign({userAgent: api.options.headers['user-agent'], appId: '2a045'});
+      paramsSign = genParamsSign({
+        userAgent: api.options.headers['user-agent'],
+        appId,
+        fp,
+      });
     }
     api.joyLogTimes = 0;
     replaceObjectMethod(api, 'doFormBody', async ([functionId, body, signData, options]) => {
@@ -97,8 +101,16 @@ class Promote extends Template {
           const {h5st} = await paramsSign.sign({functionId, ...self.baseForm, t, body: convertHex(body)});
           _.merge(options, {form: {h5st}});
         }
-        const {joyLog, xApiEidToken} = encryptionList.shift() || {};
+        const {joyLog, xApiEidToken, headers} = encryptionList.shift() || {};
         if (joyLog) {
+          headers.forEach(({name, value}) => {
+            if (name === 'cookie') {
+              api.cookieInstance.add(value);
+            }
+            if (['user-agent', 'x-referer-page', 'x-rp-client', 'referer'].includes(name)) {
+              api.options.headers[name] = value;
+            }
+          });
           ++api.joyLogTimes;
           if (encryptionList.filter(o => o.joyLog === joyLog).length === maxEncryptTimes - 1) {
             // 使用过一次就需更新原文件
@@ -130,9 +142,10 @@ class Promote extends Template {
       score: 0,
     };
 
-    await handleDoTask(true, 3/*jd app*/);
+    await handleDoTask(false, 3/*jd app*/);
     await handleDoTask(false, 2/*小程序*/);
     await handleDoTask(false, 4/*jr app*/);
+    await handleDoTask(true/*助力按需运行*/, 3/*jd app*/);
 
     // 按需运行
     // await handleReward();
@@ -219,12 +232,14 @@ class Promote extends Template {
     }
 
     function collectScore(data) {
-      return api.doFormBody('collectScore', data).then(data => {
-        if (data.code !== 0) {
-          api.log(data.msg);
+      return api.doFormBody('collectScore', data).then(async result => {
+        if (result.code !== 0) {
+          // 忽略报错, 重复调用
+          api.log(result.msg);
+          return collectScore(data);
           throw new Error(`${[api.getPin()]} 运行有异常, 请手动执行`);
         }
-        return data;
+        return result;
       });
     }
 
