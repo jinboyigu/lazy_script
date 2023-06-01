@@ -12,20 +12,38 @@ class StatisticsRedEnvelope extends Template {
   static commonParamFn = () => ({});
   static needInApp = false;
   static times = 1;
+  static cookieKeys = ['wq_uin', 'wq_skey'];
 
   static async doMain(api, shareCodes) {
     const self = this;
 
-    const getRedInfo = () => api.doGetUrl('https://m.jingxi.com/user/info/QueryUserRedEnvelopesV2?type=1&orgFlag=JD_PinGou_New&page=1&cashRedType=1&redBalanceFlag=1&channel=1&sceneval=2&g_login_type=1&g_ty=ls', {
-      qs: {
-        _: getMoment().valueOf(),
-      },
-      headers: {
-        referer: 'https://st.jingxi.com/my/redpacket.shtml',
-      },
-    }).then(_.property('data'));
+    const getRedInfo = () => {
+      return api.doGetBody('redPacket', {
+        'type': 1,
+        'redBalanceFlag': 1,
+        'page': 1,
+        'tenantCode': 'jgminise',
+        'bizModelCode': '6',
+        'bizModeClientType': 'WxMiniProgram',
+        'externalLoginType': '2',
+      }, {
+        qs: {
+          appid: 'jd-cphdeveloper-m',
+          loginType: 11,
+          client: 'wx',
+          g_login_type: 0,
+          g_tk: 501823847,
+          g_ty: 'ajax',
+          appCode: 'msd95910c4',
+        },
+        headers: {
+          origin: 'https://wqs.jd.com',
+          referer: 'https://wqs.jd.com/',
+        },
+      });
+    };
 
-    let redList = _.get(await getRedInfo(), 'useRedInfo.redList') || [];
+    let redList = _.get(await getRedInfo(), 'result.redList') || [];
     const redSorted = {
       jdApplet: {
         limitName: /京东购物小程序|京东商城/,
@@ -52,7 +70,7 @@ class StatisticsRedEnvelope extends Template {
         m: 0,
         s: 0,
         millisecond: 0,
-      }).valueOf() / 1000;
+      }).valueOf();
     };
     const sumRedList = list => formatNumber(_.sum(list.map(o => +o['balance'])) || 0);
 
@@ -68,7 +86,7 @@ class StatisticsRedEnvelope extends Template {
     async function calculate(day) {
       Object.values(redSorted).forEach(o => {
         const {limitName, msgs = []} = o;
-        const targetReds = redList.filter(({beginTime}) => beginTime < getMoment().valueOf() / 1000).filter(({orgLimitStr}) => limitName ? orgLimitStr.match(limitName) : !orgLimitStr);
+        const targetReds = redList.filter(({beginTime}) => beginTime < getMoment().valueOf()).filter(({orgLimitStr}) => limitName ? orgLimitStr.match(limitName) : !orgLimitStr);
         const number = sumRedList(targetReds);
         const expireReds = targetReds.filter(o => o['endTime'] < getExpireTime(day));
         const expire = sumRedList(expireReds);
