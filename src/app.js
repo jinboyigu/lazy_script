@@ -124,7 +124,6 @@ async function main() {
     Fruit, TurnTableFarm,
     FruitFarmPark, FruitCollect,
     Cash,
-    CashApplet,
     BeanSmallBean,
     PlantBean,
     Family,
@@ -271,6 +270,7 @@ async function main() {
         await serialRun([
           Fruit,
           LiteEarnCoins,
+          CashApplet,
           SuperMarket,
           ...statistics,
           LiteHappyDig,
@@ -288,7 +288,6 @@ async function main() {
           Sign,
           KoiRedPacket,
           Cash,
-          CashApplet,
           PlantBean,
           [PlantBean, void 0, 'cron'],
           SuperBrandProduct,
