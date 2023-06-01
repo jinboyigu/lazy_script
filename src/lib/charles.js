@@ -12,7 +12,11 @@ function getFormValue(key, o) {
   const text = _.get(o, 'request.body.text', '');
   if (!text) return;
   const searchParams = new URL(`http://test.cn?${text}`).searchParams;
-  return searchParams.get(key);
+  if (_.isArray(key)) {
+    return _.fromPairs(key.map(k => [k, searchParams.get(k)]));
+  } else {
+    return searchParams.get(key);
+  }
 }
 
 module.exports = {

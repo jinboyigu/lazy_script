@@ -464,6 +464,13 @@ class Base {
       // TODO 先用 currentCookieIndex 后面再整体改名
       api.currentCookieIndex = api.currentCookieTimes = currentCookieTimes++;
       api.log = (output, fileName, name) => self.log(output, fileName, `${api.currentCookieTimes}] [${addMosaic(cookie['pt_pin'])}`, name);
+      api.clog = (msg, output = true) => {
+        const str = `[${api.getPin()}] ${msg}`;
+        if (!output) {
+          return str;
+        }
+        console.log(str);
+      };
       if (self.needChangeCK && initiativeChangeCkMaxTimes > 0) {
         await self.changeCK(api, processInAC() && [6, 14, 20].includes(getNowHour()));
       }

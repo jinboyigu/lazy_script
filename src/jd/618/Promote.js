@@ -71,6 +71,7 @@ class Promote extends Template {
         joyLog: getJoyLogFromCharles(o),
         xApiEidToken: getFormValue('x-api-eid-token', o),
         headers: o.request.header.headers,
+        baseForm: getFormValue(['appid', 'clientVersion', 'client'], o),
       })).filter(v => v.joyLog).map(v => Array(maxEncryptTimes).fill(v)));
       if (charlesData[0]) {
         needH5st = true;
@@ -87,6 +88,7 @@ class Promote extends Template {
         fp,
       });
     }
+    api.doneTaskTimes = 0;
     api.joyLogTimes = 0;
     replaceObjectMethod(api, 'doFormBody', async ([functionId, body, signData, options]) => {
       const oldFunctionId = functionId;
@@ -97,13 +99,10 @@ class Promote extends Template {
       if (encryptFunctions.includes(oldFunctionId) && self.needEncrypt) {
         const t = getMoment().valueOf();
         options = options || {};
-        if (needH5st) {
-          const {h5st} = await paramsSign.sign({functionId, ...self.baseForm, t, body: convertHex(body)});
-          _.merge(options, {form: {h5st}});
-        }
-        const {joyLog, xApiEidToken, headers} = encryptionList.shift() || {};
+        const {joyLog, xApiEidToken, headers, baseForm} = encryptionList.shift() || {};
         if (joyLog) {
           headers.forEach(({name, value}) => {
+            name = name.toLowerCase();
             if (name === 'cookie') {
               api.cookieInstance.add(value);
             }
@@ -117,12 +116,25 @@ class Promote extends Template {
             updateCharlesData(joyLog);
           }
         } else {
-          throw new Error('joylog 数量不够, 请重新导入');
+          throw api.clog(`joylog 数量不够了, 请重新导入`, false);
         }
+        let h5st;
+        if (needH5st) {
+          const h5stData = await paramsSign.sign({
+            functionId,
+            ...baseForm || self.baseForm,
+            t,
+            body: convertHex(body),
+          });
+          h5st = h5stData.h5st;
+        }
+
         _.merge(options, {
           form: {
             t,
+            h5st,
             ...joyLog && {
+              ...baseForm,
               'x-api-eid-token': xApiEidToken,
               joylog: joyLog,
             },
@@ -150,9 +162,9 @@ class Promote extends Template {
     // 按需运行
     // await handleReward();
 
-    api.log(`current score: ${userInfo.score}`);
-    console.log(`${[api.getPin()]} 执行完毕`);
-    console.log(`joylog 加密次数: ${api.joyLogTimes}`);
+    const scoreLabel = `目前分数: ${userInfo.score}`;
+    api.log(scoreLabel);
+    api.clog(`执行完毕, ${scoreLabel}, 成功执行次数: ${api.doneTaskTimes}, 加密次数: ${api.joyLogTimes}`);
 
     async function handleDoTask(isFirst, appSign = 3) {
       let doneTask = false;
@@ -235,10 +247,10 @@ class Promote extends Template {
       return api.doFormBody('collectScore', data).then(async result => {
         if (result.code !== 0) {
           // 忽略报错, 重复调用
-          api.log(result.msg);
+          // api.clog(`报错信息: ${result.msg}`);
           return collectScore(data);
-          throw new Error(`${[api.getPin()]} 运行有异常, 请手动执行`);
         }
+        ++api.doneTaskTimes;
         return result;
       });
     }
