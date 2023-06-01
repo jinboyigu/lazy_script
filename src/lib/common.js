@@ -315,8 +315,9 @@ const exec = async (command, options = {}) => {
 
   [command, ...args] = _.isArray(command) ? command : command.split(' '); // 仅简单分割空格
 
-  const child = require('child_process').spawn(command, args, {stdio: ['inherit', 'inherit', 'inherit'], ...options});
+  const child = require('child_process').spawnSync(command, args, {stdio: ['inherit', 'inherit', 'inherit'], ...options});
 
+  // 不需要打印出来需主动返回数据
   if (child.stdout) {
     return new Promise((resolve, reject) => {
       child.stdout.on('data', data => resolve(`${data}`));
