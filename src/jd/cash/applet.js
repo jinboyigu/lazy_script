@@ -46,17 +46,36 @@ class CashApplet extends Template {
     let needStop = !await self.updateWqAuthToken(api);
     if (needStop) throw api.clog('未登录', false);
 
-    const {inviteCode, shareDate} = await api.doFormBody('cash_mob_home').then(_.property('data.result'));
-    if (api.currentCookieTimes === 0) {
-      self.shareCode = {inviteCode, shareDate};
-    } else {
-      await api.doFormBody('cash_qr_code_assist', {...self.shareCode, type: 2}).then(data => {
-        if (self.isSuccess(data)) {
-          api.log(`成功助力 ${data.data.result.hostPin}`);
-        } else {
-          api.log(data.data.bizMsg);
-        }
-      });
+    await handleDoTask();
+    await handleDoShare();
+
+    async function handleDoTask() {
+      let doneTask = false;
+      const taskList = await api.doFormBody('cash_task_info', {'remind': 0}).then(_.property('data.result'));
+      for (const {duration, type} of taskList) {
+        doneTask = true;
+        await sleep(duration);
+        await api.doFormBody('cash_doTask', {type, 'source': 2});
+      }
+      if (doneTask) {
+        return handleDoTask();
+      }
+    }
+
+    async function handleDoShare() {
+      const {inviteCode, shareDate, signMoney} = await api.doFormBody('cash_mob_home').then(_.property('data.result'));
+      api.log(`当前钱数: ${signMoney}`);
+      if (api.currentCookieTimes === 0) {
+        self.shareCode = {inviteCode, shareDate};
+      } else {
+        await api.doFormBody('cash_qr_code_assist', {...self.shareCode, type: 2}).then(data => {
+          if (self.isSuccess(data)) {
+            api.log(`成功助力 ${data.data.result.hostPin}`);
+          } else {
+            api.log(data.data.bizMsg);
+          }
+        });
+      }
     }
   }
 }
