@@ -281,22 +281,24 @@ class Promote extends Template {
 function initCharlesData(name) {
   charlesDataFilePath = path.resolve(__dirname, `./${name}/all.json`);
 
+  const removeExpired = list => list.filter(o => getMoment(_.get(o, 'times.requestBegin')).add(23/*预估失效时间*/, 'hour').isAfter(getMoment()));
+
   const dirPath = path.resolve(__dirname, name);
   !fs.existsSync(dirPath) && fs.mkdirSync(dirPath);
   const fileNames = fs.readdirSync(dirPath).filter(v => v.endsWith('.chlsj'));
   const defaultData = readFileJSON(charlesDataFilePath, void 0, []);
   if (_.isEmpty(fileNames)) {
-    allCharlesData = defaultData;
+    allCharlesData = removeExpired(defaultData);
     return;
   }
 
-  const newData = _.flatten(fileNames.map(name => readFileJSON(name, dirPath, []))).filter(o => JSON.stringify(o).match('joylog='));
+  const newData = _.flatten(fileNames.map(name => readFileJSON(name, dirPath, []))).filter(o => JSON.stringify(o).match('joylog=') && o.path === '/');
   // 移除旧文件
   fileNames.forEach(name => {
     fs.rmSync(path.resolve(dirPath, name));
   });
 
-  writeFileJSON(allCharlesData = _.concat(defaultData, newData), charlesDataFilePath);
+  writeFileJSON(allCharlesData = removeExpired(_.concat(defaultData, newData)), charlesDataFilePath);
 }
 
 function updateCharlesData(removeJoyLog) {
