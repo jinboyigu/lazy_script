@@ -67,6 +67,7 @@ class Promote extends Template {
         initCharlesData(self.functionIdPrefix());
       }
       const charlesData = allCharlesData.filter(o => JSON.stringify(o).match(`pt_pin=${api.getPin()}`));
+      api.clog(`charles个数: ${charlesData.length}`)
       encryptionList = _.flatten(charlesData.map(o => ({
         joyLog: getJoyLogFromCharles(o),
         xApiEidToken: getFormValue('x-api-eid-token', o),
@@ -116,7 +117,7 @@ class Promote extends Template {
             updateCharlesData(joyLog);
           }
         } else {
-          throw api.clog(`joylog 数量不够了, 请重新导入`, false);
+          throw api.clog(`joylog 数量不够了, 请重新导入.成功执行次数: ${api.doneTaskTimes}, 加密次数: ${api.joyLogTimes}`, false);
         }
         let h5st;
         if (needH5st) {
