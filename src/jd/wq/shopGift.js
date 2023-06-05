@@ -33,12 +33,11 @@ class ShopGift extends Template {
 
   static async doMain(api, shareCodes, onlyUpdateShopSignToken) {
     const self = this;
-    const isFirstRun = api.currentCookieTimes === 0;
     const doPath = (functionId, qs) => api.doPath(functionId, void 0, {qs});
 
     await doPolling({
       async beforePollFn() {
-        if (isFirstRun) {
+        if (api.isFirst) {
           const next = await handleFormat();
           fs.writeFileSync(shopGiftUrlPath, '');
           for (const {venderId} of self.shopData) {
@@ -59,7 +58,7 @@ class ShopGift extends Template {
       await getGif(shopId, venderId);
     }
 
-    if (isFirstRun && self.shopSignUrlUpdated) {
+    if (api.isFirst && self.shopSignUrlUpdated) {
       console.log('自动执行signShop');
       await sleep(30);
       exec('npm run build:updateShopToken');

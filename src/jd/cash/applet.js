@@ -65,7 +65,7 @@ class CashApplet extends Template {
     async function handleDoShare() {
       const {inviteCode, shareDate, signMoney} = await api.doFormBody('cash_mob_home').then(_.property('data.result'));
       api.log(`当前钱数: ${signMoney}`);
-      if (api.currentCookieTimes === 0) {
+      if (api.isFirst) {
         self.shareCode = {inviteCode, shareDate};
       } else {
         await api.doFormBody('cash_qr_code_assist', {...self.shareCode, type: 2}).then(data => {

@@ -113,7 +113,7 @@ class Factory extends HarmonyTemplate {
         if (enable) {
           msg += ', 可以打造成功, 快进行充电!';
         }
-        if (enable || (api.currentCookieTimes === 0)) {
+        if (enable || api.isFirst) {
           api.log(msg);
         }
       }

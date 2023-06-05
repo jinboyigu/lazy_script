@@ -461,6 +461,9 @@ class Base {
       const api = self.initApi(new Cookie(cookie).toString(self.cookieKeys));
       // TODO 并发的情况下 api 的赋值不可用
       self.api = api;
+      if (currentCookieTimes === 0) {
+        api.isFirst = true;
+      }
       // TODO 先用 currentCookieIndex 后面再整体改名
       api.currentCookieIndex = api.currentCookieTimes = currentCookieTimes++;
       api.log = (output, fileName, name) => self.log(output, fileName, `${api.currentCookieTimes}] [${addMosaic(cookie['pt_pin'])}`, name);

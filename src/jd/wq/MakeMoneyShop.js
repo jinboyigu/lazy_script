@@ -169,7 +169,7 @@ class MakeMoneyShop extends Template {
 
     async function handleCronExChange() {
       if (getNowHour() !== 23) return true;
-      if (api.currentCookieIndex === 0) {
+      if (api.isFirst) {
         console.log('准备0点定时提现');
       }
       await sleepTime(24);

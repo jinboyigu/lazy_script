@@ -6,9 +6,9 @@ const fs = require('fs');
 const path = require('path');
 const {genParamsSign, convertHex} = require('../../lib/security');
 const {getMoment} = require('../../lib/moment');
+const {sleepTime} = require('../../lib/cron');
 const {getFormValue} = require('../../lib/charles');
 const getJoyLogFromCharles = getFormValue.bind(0, 'joylog');
-
 const maxEncryptTimes = 3;/*使用 3 次就失效*/
 let charlesDataFilePath = '';
 let allCharlesData = [];
@@ -62,12 +62,13 @@ class Promote extends Template {
     let appId = '';
     let needH5st = false;
     if (self.needEncrypt) {
-      if (self.isFirstLoop() && api.currentCookieIndex === 0) {
+      if (self.isFirstLoop() && api.isFirst) {
         // 初始化
         initCharlesData(self.functionIdPrefix());
       }
       const charlesData = allCharlesData.filter(o => JSON.stringify(o).match(`pt_pin=${api.getPin()}`));
-      api.clog(`charles个数: ${charlesData.length}`)
+      api.clog(`charles数量: ${charlesData.length}`);
+      api.charlesData = charlesData;
       encryptionList = _.flatten(charlesData.map(o => ({
         joyLog: getJoyLogFromCharles(o),
         xApiEidToken: getFormValue('x-api-eid-token', o),
@@ -89,8 +90,10 @@ class Promote extends Template {
         fp,
       });
     }
+    api.charlesData = api.charlesData || [];
     api.doneTaskTimes = 0;
     api.joyLogTimes = 0;
+    api.formatLog = () => `charles剩余: ${api.charlesData.length}, 成功执行次数: ${api.doneTaskTimes}, 加密次数: ${api.joyLogTimes}`;
     replaceObjectMethod(api, 'doFormBody', async ([functionId, body, signData, options]) => {
       const oldFunctionId = functionId;
       const encryptFunctions = ['collectScore', 'grade_award'];
@@ -113,11 +116,12 @@ class Promote extends Template {
           });
           ++api.joyLogTimes;
           if (encryptionList.filter(o => o.joyLog === joyLog).length === maxEncryptTimes - 1) {
+            _.remove(api.charlesData, o => getJoyLogFromCharles(o) === joyLog);
             // 使用过一次就需更新原文件
             updateCharlesData(joyLog);
           }
         } else {
-          throw api.clog(`joylog 数量不够了, 请重新导入.成功执行次数: ${api.doneTaskTimes}, 加密次数: ${api.joyLogTimes}`, false);
+          throw api.clog(`joylog 数量不够了, 请重新导入.${api.formatLog()}`, false);
         }
         let h5st;
         if (needH5st) {
@@ -149,11 +153,16 @@ class Promote extends Template {
   static async doMain(api, shareCodes) {
     const self = this;
 
-    await self.beforeRequest(api);
+    if (_.first(self._command) && api.isFirst) {
+      console.log('等待 0 点定时执行...');
+      await sleepTime(24);
+    }
 
     const userInfo = {
       score: 0,
     };
+
+    await self.beforeRequest(api);
 
     await handleDoTask(false, 3/*jd app*/);
     await handleDoTask(false, 2/*小程序*/);
@@ -165,7 +174,7 @@ class Promote extends Template {
 
     const scoreLabel = `目前分数: ${userInfo.score}`;
     api.log(scoreLabel);
-    api.clog(`执行完毕, ${scoreLabel}, 成功执行次数: ${api.doneTaskTimes}, 加密次数: ${api.joyLogTimes}`);
+    api.clog(`执行完毕! ${scoreLabel}, ${api.formatLog()}`);
 
     async function handleDoTask(isFirst, appSign = 3) {
       let doneTask = false;
