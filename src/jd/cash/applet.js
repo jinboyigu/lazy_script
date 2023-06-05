@@ -5,7 +5,7 @@ const _ = require('lodash');
 
 class CashApplet extends Template {
   static scriptName = 'CashApplet';
-  static scriptNameDesc = '领现金-小程序(仅助力)';
+  static scriptNameDesc = '领现金-小程序';
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static commonParamFn = () => ({
@@ -37,13 +37,9 @@ class CashApplet extends Template {
   };
 
   static async beforeRequest(api) {
-    return !await this.updateWqAuthToken(api);
-  }
-
-  static async doMain(api, shareCodes) {
     const self = this;
-
-    let needStop = !await self.updateWqAuthToken(api);
+    const needStop = !await this.updateWqAuthToken(api);
+    if (needStop) throw api.clog('未登录', false);
     self.injectEncryptH5st(api, {
       config: {
         cash_task_info: {appId: 'c8815'},
@@ -53,7 +49,12 @@ class CashApplet extends Template {
       },
       signFromSecurity: true,
     });
-    if (needStop) throw api.clog('未登录', false);
+  }
+
+  static async doMain(api, shareCodes) {
+    const self = this;
+
+    await self.beforeRequest(api);
 
     await handleDoTask();
     await handleDoShare();
