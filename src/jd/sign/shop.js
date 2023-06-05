@@ -4,7 +4,7 @@ const {sleep, writeFileJSON, singleRun, parallelRun, printLog, replaceObjectMeth
 const {sleepTime} = require('../../lib/cron');
 const _ = require('lodash');
 const {processInAC} = require('../../lib/env');
-const {genParamsSign, convertHex} = require('../../lib/security');
+const {genParamsSign} = require('../../lib/security');
 const {getMoment} = require('../../lib/moment');
 const appid = 'interCenter_shopSign';
 
@@ -39,7 +39,7 @@ class SignShop extends Template {
     replaceObjectMethod(api, 'doGetBody', async ([functionId, body, options]) => {
       const t = getMoment().valueOf();
       if (['interact_center_shopSign_getActivityInfo', 'interact_center_shopSign_signCollectGift'].includes(functionId)) {
-        const {h5st} = await shopSignS.sign({functionId, t, appid, body: convertHex(body)});
+        const {h5st} = await shopSignS.sign({functionId, t, appid, body});
         options = options || {};
         _.assign(options, {qs: {h5st, t}});
       }

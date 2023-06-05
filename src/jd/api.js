@@ -46,7 +46,10 @@ const _request = (cookie, {form, body, qs, headers = {}, ...others}) => {
   const {followRedirect} = rpOptions;
 
   const _printLog = (result, type) => {
-    printLog('jdAPI', 'request', {url: rpOptions.uri, result, ..._.pick(rpOptions, ['qs', 'form'])}, type, processInAC ? void 0 : 300);
+    printLog('jdAPI', 'request', {
+      url: rpOptions.uri,
+      result, ..._.pick(rpOptions, ['qs', 'form']),
+    }, type, processInAC ? void 0 : 300);
   };
 
   const _do = rpOptions => rp(rpOptions).then(result => {
@@ -104,12 +107,21 @@ class Api {
     if (options['blockRequest']) {
       return Promise.resolve({});
     }
-    let data = await _request(this.cookie, options);
-    if (this.notLogin(data)) {
-      await require('./base').changeCK(this, true);
-      process.off('beforeExit', beforeProcessExit).on('beforeExit', beforeProcessExit);
-      // 重新请求一次
+    const {repeatTimes = 3, repeatFn = _.noop} = options;
+    let data;
+    for (let i = 0; i < repeatTimes; i++) {
       data = await _request(this.cookie, options);
+      if (this.notLogin(data) && i === 0) {
+        await require('./base').changeCK(this, true);
+        process.off('beforeExit', beforeProcessExit).on('beforeExit', beforeProcessExit);
+        // 重新请求一次
+        data = await _request(this.cookie, options);
+      }
+      if (repeatFn(data)) {
+        await sleep(2);
+      } else {
+        break;
+      }
     }
     return data;
   }

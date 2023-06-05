@@ -4,7 +4,7 @@ const {sleep, writeFileJSON, readFileJSON, singleRun, replaceObjectMethod} = req
 const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
-const {genParamsSign, convertHex} = require('../../lib/security');
+const {genParamsSign} = require('../../lib/security');
 const {getMoment} = require('../../lib/moment');
 const {sleepTime} = require('../../lib/cron');
 const {getFormValue} = require('../../lib/charles');
@@ -129,7 +129,7 @@ class Promote extends Template {
             functionId,
             ...baseForm || self.baseForm,
             t,
-            body: convertHex(body),
+            body,
           });
           h5st = h5stData.h5st;
         }

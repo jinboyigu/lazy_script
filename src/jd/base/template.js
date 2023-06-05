@@ -3,6 +3,7 @@ const Base = require('./index');
 const {sleep, writeFileJSON, replaceObjectMethod} = require('../../lib/common');
 const EncryptH5st = require('../../lib/EncryptH5st');
 const {getMoment} = require('../../lib/moment');
+const {genParamsSign} = require('../../lib/security');
 
 class Template extends Base {
   static scriptName = 'Template';
@@ -169,6 +170,7 @@ class Template extends Base {
     replaceMethods = ['doFormBody', 'doGetBody'],
     afterEncryptFn = _.noop,
     signKeys = [],
+    signFromSecurity = false,
   }) {
     const origin = _.get(api, 'options.headers.origin');
 
@@ -191,7 +193,11 @@ class Template extends Base {
         // TODO 整理成通用方法
         if (functionId in config) {
           let {encryptH5st, appId, fingerprint, algoData, platform, disableAutoUpdate, version} = config[functionId];
-          !encryptH5st && (config[functionId] = encryptH5st = new EncryptH5st({
+          !encryptH5st && (config[functionId] = encryptH5st = signFromSecurity ? genParamsSign({
+            userAgent: api.options.headers['user-agent'],
+            appId,
+            fp: fingerprint,
+          }) : new EncryptH5st({
             appId,
             origin,
             fingerprint,
@@ -205,13 +211,18 @@ class Template extends Base {
             notSignForm = _.omit(form, signKeys);
             form = _.pick(form, signKeys);
           }
-          form = await encryptH5st.sign({functionId, ...form});
+          if (signFromSecurity) {
+            const {h5st} = await encryptH5st.sign({functionId, ...form});
+            _.assign(form, {h5st});
+          } else {
+            form = await encryptH5st.sign({functionId, ...form});
+          }
           removeEncryptKeys.forEach(key => {
             delete form[key];
           });
           _.merge(form, notSignForm);
         }
-        afterEncryptFn(form);
+        await afterEncryptFn(form);
         if (['doGetBody', 'doGet'].includes(method)) {
           return [functionId, void 0, _.merge(options, {qs: form})];
         }
