@@ -147,6 +147,7 @@ async function main() {
     RubikSCube,
     SuperBrandProduct,
     SplitHongbao,
+    require('./jd/618/FirePower'),
   ];
   const scheduleOptions = [
     {
