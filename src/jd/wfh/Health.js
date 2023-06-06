@@ -13,6 +13,7 @@ class Health extends HarmonyTemplate {
     getTaskList: 'jdhealth_getTaskDetail',
     doTask: 'jdhealth_collectScore',
     doWaitTask: 'jdhealth_collectScore',
+    doRedeem: '',
   };
 
   static async doCron(api) {
