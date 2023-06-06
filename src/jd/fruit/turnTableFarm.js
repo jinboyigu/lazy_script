@@ -1,6 +1,7 @@
 const Template = require('../base/template');
 
 const {sleep, writeFileJSON, singleRun} = require('../../lib/common');
+const _ = require('lodash');
 
 const TASK_DO = 1;
 const TASK_DONE = 2;
@@ -9,7 +10,7 @@ class TurntableFarm extends Template {
   static scriptName = 'TurntableFarm';
   static scriptNameDesc = '东东农场-天天红包';
   static shareCodeTaskList = [];
-  static commonParamFn = () => ({});
+  static commonParamFn = () => ({'version': 22, 'channel': 1});
 
   static apiOptions = {
     signData: {appid: 'wh5'},
@@ -17,7 +18,7 @@ class TurntableFarm extends Template {
   };
 
   static isSuccess(data) {
-    return this._.property('code')(data) === '0';
+    return _.property('code')(data) === '0';
   }
 
   static apiNamesFn() {
@@ -31,7 +32,9 @@ class TurntableFarm extends Template {
         successFn: async (data, api) => {
           // writeFileJSON(data, 'initForTurntableFarm.json', __dirname);
 
-          if (!self.isSuccess(data)) return [];
+          if (!self.isSuccess(data)) {
+            throw data.message;
+          }
 
           const result = [];
 
