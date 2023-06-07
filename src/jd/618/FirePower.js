@@ -27,7 +27,7 @@ class FirePower extends Template {
   static async beforeRequest(api) {
     const self = this;
 
-    api.cookieInstance.add('unpl=JF8EAKhnNSttXRkBA0xRE0BCGFwGW11fQx8EPW9WBF0KTAQDElAZQhV7XlVdXxRKEB9uYBRUXFNIVA4bAisiEEpcVl1bC0IWA19XNVddaEpkVhNXSUEQH1tWV1wISBJQam5WU1xdSQcGEwBJRUJJXQduXQ57FwZsVzVkXGhKZAQrSXUTXRhVAQwOCB8RAWZmBVdYC05dVhwDHhBDSFVWDApaSRdQX2UFVFpbe1c%7CJF8EAM5nNSttWkxRAhoFThsRGV1dWw1fTB4KaTJVUFUPGVcMHVASEBR7XlVdXxRKFx9vbxRUVVNJUw4eCysSFHtdVV9cCEsfA2tkNWRdWSU6ARhsS1NRe15Ublw4GRALZ2UMXF8IHFECTwceQkBLWF1eVAxOFQtvYgNTVAocVwEaCkxBR3tcZFdcOEsRAmduDFRtaEpkBCsDK0R-S1xVX1wJSxABbSpXU1VQSV0NGVJMFxcfWFEODQhOHgNmYwBWVVhOUgISUEwRFEpVAw0KOEonAw');
+    api.cookieInstance.add('unpl=JF8EALFnNSttWE1SUE5RSBNATQ1SWwpYSUQFOGBVUV1RTlEGHwASGxZ7XlVdXxRKEB9uYRRUXFNKVQ4bBisSE3tdVV9fC00UCm5nNWRaWEIZRElPKxEQe1xkXloOTRIEa2ECU15QTlQGGgcfERRLXFRuXQ57EANmVzVkWFhKVQEfBB4RFntcZFxdCUoXBGxmAVdtEyVVSBsFHRQVTFlSWVoLQxIDbGYAUF5cS1UFKwAbEhdIbVc');
 
     self.injectEncryptH5st(api, {
       config: {
@@ -49,7 +49,12 @@ class FirePower extends Template {
     api.log(`当前火力值: ${joinNum || 0}`);
 
     async function handleDoTask() {
-      const groupInfo = await queryFullGroupInfoMap().then(_.property('dayGroupData.groupInfo')) || [];
+      const groupInfo = await queryFullGroupInfoMap().then(data => {
+        if (data.code === 1) {
+          throw api.clog(data.msg, false);
+        }
+        return _.get(data, 'dayGroupData.groupInfo', []);
+      });
 
       for (const {projectId: encryptProjectId, taskId: encryptAssignmentId, status, showInfo} of groupInfo) {
         if (status !== 1 || !encryptAssignmentId) continue;
