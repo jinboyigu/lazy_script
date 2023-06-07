@@ -7,7 +7,7 @@ const path = require('path');
 const {genParamsSign} = require('../../lib/security');
 const {getMoment} = require('../../lib/moment');
 const {sleepTime} = require('../../lib/cron');
-const {getFormValue} = require('../../lib/charles');
+const {getFormValue, readDirJSON} = require('../../lib/charles');
 const getJoyLogFromCharles = getFormValue.bind(0, 'joylog');
 const maxEncryptTimes = 3;/*使用 3 次就失效*/
 let charlesDataFilePath = '';
@@ -295,20 +295,12 @@ function initCharlesData(name) {
 
   const dirPath = path.resolve(__dirname, name);
   !fs.existsSync(dirPath) && fs.mkdirSync(dirPath);
-  const fileNames = fs.readdirSync(dirPath).filter(v => v.endsWith('.chlsj'));
   const defaultData = readFileJSON(charlesDataFilePath, void 0, []);
-  if (_.isEmpty(fileNames)) {
-    allCharlesData = removeExpired(defaultData);
-    return;
-  }
+  const newData = readDirJSON(dirPath, {formatFn: array => array.filter(o => JSON.stringify(o).match('joylog=') && o.path === '/')});
 
-  const newData = _.flatten(fileNames.map(name => readFileJSON(name, dirPath, []))).filter(o => JSON.stringify(o).match('joylog=') && o.path === '/');
-  // 移除旧文件
-  fileNames.forEach(name => {
-    fs.rmSync(path.resolve(dirPath, name));
-  });
+  allCharlesData = removeExpired(_.concat(defaultData, newData));
 
-  writeFileJSON(allCharlesData = removeExpired(_.concat(defaultData, newData)), charlesDataFilePath);
+  !_.isEmpty(newData) && writeFileJSON(allCharlesData, charlesDataFilePath);
 }
 
 function updateCharlesData(removeJoyLog) {
