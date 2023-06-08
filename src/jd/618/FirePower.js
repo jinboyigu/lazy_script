@@ -2,6 +2,7 @@ const Template = require('../base/template');
 
 const {sleep, writeFileJSON, singleRun, replaceObjectMethod} = require('../../lib/common');
 const {getMoment} = require('../../lib/moment');
+const {sleepTime} = require('../../lib/cron');
 const _ = require('lodash');
 
 class FirePower extends Template {
@@ -27,12 +28,22 @@ class FirePower extends Template {
   static async beforeRequest(api) {
     const self = this;
 
-    api.cookieInstance.add('unpl=JF8EALFnNSttWE1SUE5RSBNATQ1SWwpYSUQFOGBVUV1RTlEGHwASGxZ7XlVdXxRKEB9uYRRUXFNKVQ4bBisSE3tdVV9fC00UCm5nNWRaWEIZRElPKxEQe1xkXloOTRIEa2ECU15QTlQGGgcfERRLXFRuXQ57EANmVzVkWFhKVQEfBB4RFntcZFxdCUoXBGxmAVdtEyVVSBsFHRQVTFlSWVoLQxIDbGYAUF5cS1UFKwAbEhdIbVc');
+    api.cookieInstance.set('CSID', 'QTw9HCRRUlEBQloMWUdYTlFmdSlwflNaF1gDABcMDFVqe3Z7d3hxchVWVS1TWlRWWndgYAxeRBVnZBlzXF9aOkBSQFxCWllZYXJmdnlX');
+    // await api.doGetUrl('https://u.jd.com/OzlWBuX', {
+    //   setCookieKeys: ['CSID'],
+    // });
+    await api.doGetUrl('https://u.jd.com/jda?e=618%7Cpc%7C&p=JF8BAQIJK1olXDYDZBoCUBVIMzZNXhpXVhgcFR0DXR9QHDMXQA4KD1heSgINVRYJUz1NQxxBQwRdKwICTTRURzhjQAF-KgZrLyUnUhRiRx1bSzsLBVlXABdCUQ5LXmFMRANLAnZQESYIBEkXA2gLK15UDXB2Eh4tajhHUxBRSxwdPQICKS5RBHsSA24JH18TWAUEZF5cCUkUBWwBGlslbQYBZBUzCXsVA24JG1wWXAIBZF5aAU8UBWwKEl4TVAUyU15UOJ6Yr7qHt1kWWQIBVm5tCksXBGw4GGsSXQ8WUiwcWl8RcV84G1wlXjYyVl9cDEInM3ZqbjpDPQVWESMVWAAfXW9rA2s&a=fCg9UgoiAwwHO1BcXkQYFFljfn51cl5eQl0zVRBSUll%2bAQAPDSwjLw%3d%3d&refer=norefer&d=OzlWBuX&h5st=-1917063884', {
+      headers: {
+        referer: 'https://u.jd.com/OzlWBuX',
+      },
+      setCookieKeys: ['unpl'],
+    });
 
     self.injectEncryptH5st(api, {
       config: {
         queryFullGroupInfoMap: {appId: '6a98d'},
         doInteractiveAssignment: {appId: '6a98d'},
+        getCoupons: {appId: '6a98d'},
       },
       signFromSecurity: true,
     });
@@ -41,7 +52,36 @@ class FirePower extends Template {
   static async doMain(api, shareCodes) {
     const self = this;
 
+    const unionActId = '31162';
+    const actId = '3nNmntNrufZjkZF1XJJKknDuCbaQ';
+
+    const needGetCoupons = _.first(self._command);
+    if (needGetCoupons && api.isFirst) {
+      console.log('等待 20 点定时执行...');
+      await sleepTime(20);
+    }
+
     await self.beforeRequest(api);
+
+    if (needGetCoupons) {
+      // 领取/助力
+      await api.doFormBody('getCoupons', {
+        actId, unionActId,
+        'platform': 2,
+        // 'd': 'OzlWBuX',
+        'unionShareId': '',
+        'type': 1,
+      }).then(data => api.clog(JSON.stringify(data)));
+      await sleep(2);
+      await api.doFormBody('getCoupons', {
+        actId, unionActId,
+        'platform': 2,
+        'd': 'OzlWBuX',
+        'unionShareId': '',
+        'type': 1,
+      }).then(data => api.clog(JSON.stringify(data)));
+      return;
+    }
 
     await handleDoTask();
 
@@ -75,10 +115,9 @@ class FirePower extends Template {
 
     function queryFullGroupInfoMap() {
       return api.doGetBody('queryFullGroupInfoMap', {
-        'actId': '3nNmntNrufZjkZF1XJJKknDuCbaQ',
-        'unionActId': '31162',
+        actId, unionActId,
         'platform': 4,
-        'd': 'auHULYP',
+        // 'd': 'auHULYP',
         'taskType': 1,
         'prstate': 0,
       }).then(_.property('data'));

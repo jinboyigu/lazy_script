@@ -97,6 +97,7 @@ class Api {
   }
 
   async commonDo(options) {
+    const self = this;
     // 请求优先展示 functionId, 以便定位和排查问题
     const priorityProperty = 'functionId';
     ['qs', 'form'].forEach(key => {
@@ -107,7 +108,15 @@ class Api {
     if (options['blockRequest']) {
       return Promise.resolve({});
     }
-    const {repeatTimes = 3, repeatFn = _.noop} = options;
+
+    const {repeatTimes = 3, repeatFn = _.noop, setCookieKeys} = options;
+    if (setCookieKeys) {
+      _.assign(options, {
+        resolveWithFullResponse: true,
+        followRedirect: false,
+      });
+    }
+
     let data;
     for (let i = 0; i < repeatTimes; i++) {
       data = await _request(this.cookie, options);
@@ -123,7 +132,25 @@ class Api {
         break;
       }
     }
+
+    if (setCookieKeys) {
+      const {response, statusCode} = data;
+      updateCookie(statusCode === 200 ? data.headers['set-cookie'] : response.headers['set-cookie']);
+    }
+
     return data;
+
+    function updateCookie(newCookie) {
+      const cookie = new Cookie(newCookie);
+      if (setCookieKeys === '*') {
+        self.cookieInstance.add(newCookie);
+      } else {
+        setCookieKeys.forEach(key => {
+          self.cookieInstance.set(key, cookie.get(key));
+          cookie.get(key);
+        });
+      }
+    }
   }
 
   async do(options = {}) {
