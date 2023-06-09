@@ -19,7 +19,8 @@ function updateNewEnvByCharles() {
   }), v => !_.isEmpty(v)), ptPin);
   const jdCookieOption = JD_COOKIE_OPTION.map(o => {
     const cookies = o.cookies;
-    return newCookies.find(o => o[ptPin] === cookies[ptPin]) || {};
+    const target = newCookies.find(o => o[ptPin] === cookies[ptPin]) || {};
+    return {cookies: target};
   });
   const data = {JD_COOKIE_OPTION: jdCookieOption};
   writeFileJSON(data, '../../../.env.new.json', __dirname);
