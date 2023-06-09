@@ -15,21 +15,23 @@ const TemporarilyOffline = {start: _.noop, cron: _.noop, getName: () => 'Tempora
 
 let errorOutput = [];
 
+const _filterTemporarilyOff = list => _.filter(_.concat(list), o => !_.isEqual(o, TemporarilyOffline));
+
 async function multipleRun(targets, onceDelaySecond = 1) {
   return parallelRun({
-    list: targets,
+    list: _filterTemporarilyOff(targets),
     runFn: item => doRun(..._.concat(item)),
     onceDelaySecond,
   });
 }
 
 async function serialRun(targets, runFn = doRun) {
-  for (const target of _.concat(targets)) {
-    await doPolling({
-      beforePollFn: () => runFn(..._.concat(target)),
-      totalTime: 30 * 2,
-    });
-  }
+  return parallelRun({
+    list: _filterTemporarilyOff(targets),
+    runFn: item => runFn(..._.concat(item)),
+    onceDelaySecond: 10,
+    onceNumber: 1,
+  });
 }
 
 async function doRun(target, cookieData = getCookieData(target.scriptName), method = 'start') {

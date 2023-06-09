@@ -59,6 +59,7 @@ function diffFromNow(target) {
   return targetMoment.diff(nowMoment, 'millisecond');
 }
 
+// TODO 没有 stopFn 的情况下容易丢失 stop 状态, 需要另外逻辑处理
 async function doPolling({
   beforePollFn = _.noop,
   stopFn,
