@@ -272,8 +272,9 @@ class Base {
     const cookieOption = findCurrentCookieOption(getEnv('JD_COOKIE_OPTION'));
     const originCookie = new Cookie(cookieOption.cookies);
 
-    if (!originCookie.get(cWskey) && getNowHour() === 0) {
-      return log(`当前cookie没有${cWskey}, 无需更新`);
+    if (!originCookie.get(cWskey)) {
+      getNowHour() === 0 && log(`当前cookie没有${cWskey}, 无需更新`);
+      return;
     }
 
     if (!force) {
