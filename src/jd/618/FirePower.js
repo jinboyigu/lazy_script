@@ -54,32 +54,18 @@ class FirePower extends Template {
 
     const unionActId = '31162';
     const actId = '3nNmntNrufZjkZF1XJJKknDuCbaQ';
+    const d = ''; // 邀请码
 
-    const needGetCoupons = _.first(self._command);
-    if (needGetCoupons && api.isFirst) {
-      console.log('等待 20 点定时执行...');
-      await sleepTime(20);
+    const getCouponCronHour = _.first(self._command);
+    if (getCouponCronHour && api.isFirst) {
+      console.log(`等待 ${getCouponCronHour} 点定时执行...`);
+      await sleepTime(+getCouponCronHour);
     }
 
     await self.beforeRequest(api);
 
-    if (needGetCoupons) {
-      // 领取/助力
-      await api.doFormBody('getCoupons', {
-        actId, unionActId,
-        'platform': 2,
-        // 'd': 'OzlWBuX',
-        'unionShareId': '',
-        'type': 1,
-      }).then(data => api.clog(JSON.stringify(data)));
-      await sleep(2);
-      await api.doFormBody('getCoupons', {
-        actId, unionActId,
-        'platform': 2,
-        'd': 'OzlWBuX',
-        'unionShareId': '',
-        'type': 1,
-      }).then(data => api.clog(JSON.stringify(data)));
+    if (getCouponCronHour) {
+      await getCoupons();
       return;
     }
 
@@ -115,12 +101,37 @@ class FirePower extends Template {
 
     function queryFullGroupInfoMap() {
       return api.doGetBody('queryFullGroupInfoMap', {
-        actId, unionActId,
+        actId, unionActId, d,
         'platform': 4,
-        // 'd': 'auHULYP',
         'taskType': 1,
         'prstate': 0,
       }).then(_.property('data'));
+    }
+
+    // 领取/助力
+    async function getCoupons(unionShareId = '') {
+      const body = {
+        actId, unionActId, d,
+        'platform': 2,
+        unionShareId,
+      };
+      // 先检查是否有次数
+      const {code, msg} = await api.doFormBody('showCoupon', body);
+      if (code !== 0) {
+        return api.clog(msg);
+      }
+      await sleep();
+      await api.doFormBody('getCoupons', {
+        ...body,
+        'type': 1,
+      }).then(data => {
+        const coupon = _.get(data, 'data.couponList[0]');
+        if (!coupon) return api.clog(data.msg);
+        const typeLabel = ['', '红包', '', '优惠券'];
+        const label = typeLabel[coupon.type];
+        !label && api.log(coupon);
+        api.clog(`获得 ${coupon.discount}(${label || coupon.type})`);
+      });
     }
   }
 }
