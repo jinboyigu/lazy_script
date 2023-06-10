@@ -41,7 +41,6 @@ class PointsGasStation extends Template {
     return data.code === 200;
   }
 
-
   static async beforeRequest(api) {
     const pathConfig = {
       user: [
@@ -51,13 +50,30 @@ class PointsGasStation extends Template {
       ],
     };
 
-    replaceObjectMethod(api, 'doBodyPath', ([functionId, body]) => {
+    const encryptBody = body => {
       body = body || {};
-      functionId = formatFullPath(pathConfig, functionId);
       const t = getMoment().valueOf();
       const encStr = encrypt(t, body);
       _.assign(body, {t, encStr});
+      return body;
+    }
+
+    replaceObjectMethod(api, 'doBodyPath', function ([functionId, body]) {
+      body = encryptBody(body);
+      functionId = formatFullPath(pathConfig, functionId);
       return [functionId, body];
+    });
+    replaceObjectMethod(api, 'doFormBody', async ([functionId, body, signData, options]) => {
+      body = encryptBody(body);
+      options = {
+        uri: 'https://api.m.jd.com/api',
+        form: {
+          appid: 'h5-sep',
+          client: 'm',
+          clientVersion: '6.0.0',
+        }
+      };
+      return [functionId, body, signData, options];
     });
   }
 
@@ -72,7 +88,7 @@ class PointsGasStation extends Template {
 
     async function handleSign() {
       let {signInfo: {signStatus}, totalNum} = await api.doBodyPath('dwSignInfo').then(getData);
-      signStatus === 0 && await api.doBodyPath('dwSign').then(data => {
+      signStatus === 0 && await api.doFormBody('DATAWALLET_USER_SIGN').then(data => {
         totalNum = _.get(data, 'data.totalNum');
       });
 
@@ -80,7 +96,7 @@ class PointsGasStation extends Template {
     }
 
     async function handleDoTask() {
-      const taskList = await api.doBodyPath('dwList').then(getData);
+      const taskList = await api.doFormBody('dwapp_task_dwList').then(getData);
       for (let {startDate, endDate, viewStatus, id, taskType} of taskList) {
         if (getMoment().isBefore(startDate) || getMoment().isAfter(endDate) || viewStatus === 1) continue;
         await api.doBodyPath('dwRecord', {
@@ -96,15 +112,5 @@ class PointsGasStation extends Template {
 }
 
 singleRun(PointsGasStation).then();
-
-// console.log('dwList');
-// console.log(encrypt(1662365059018) === 'ffe325e8df5a823b99ee0ebabe4db53d');
-// console.log('dwRecord');
-// console.log(encrypt(1662365112250, {
-//   'id': 1651078401,
-//   'taskType': 1,
-// }) === '0356bacf58dd17d524f413de5a906dfe');
-// console.log('dwReceive');
-// console.log(encrypt(1662365119089, {'id': 1651078401}) === 'cfccda54018896d9ddd4b00bbbedf4a6');
 
 module.exports = PointsGasStation;
