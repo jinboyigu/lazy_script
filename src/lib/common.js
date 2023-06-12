@@ -214,7 +214,10 @@ async function singleRun(target, method = 'start', runFn = null) {
   for (const m of _.concat(method)) {
     if (command1 === m && isCurrentFile) {
       updateProcessEnv();
-      const _getCookie = _.wrap(getCookieData(), data => (_.isNil(command2) || command2 === '*') ? data : _.pullAt(data, command2.split(',')));
+      const _getCookie = _.wrap(getCookieData(), data => [undefined, '*', '.'].includes(command2) ? data : _.pullAt(data, command2.split(',')));
+      try {
+        command3[0] = JSON.parse(command3[0]);
+      } catch (e) {}
       target._command = command3;
       promise = await (runFn ? runFn(m, _getCookie) : target[m](_getCookie()));
     }

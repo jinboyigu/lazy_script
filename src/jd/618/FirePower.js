@@ -59,7 +59,7 @@ class FirePower extends Template {
     const getCouponCronHour = _.first(self._command);
     if (getCouponCronHour && api.isFirst) {
       console.log(`等待 ${getCouponCronHour} 点定时执行...`);
-      await sleepTime(+getCouponCronHour);
+      await sleepTime(getCouponCronHour);
     }
 
     await self.beforeRequest(api);

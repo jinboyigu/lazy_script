@@ -68,6 +68,9 @@ class Promote extends Template {
       }
       const charlesData = allCharlesData.filter(o => JSON.stringify(o).match(`pt_pin=${api.getPin()}`));
       api.clog(`charles数量: ${charlesData.length}`);
+      if (self._command[1]) {
+        throw '仅输出charles数量';
+      }
       api.charlesData = charlesData;
       encryptionList = _.flatten(charlesData.map(o => ({
         joyLog: getJoyLogFromCharles(o),
@@ -153,9 +156,10 @@ class Promote extends Template {
   static async doMain(api, shareCodes) {
     const self = this;
 
-    if (_.first(self._command) && api.isFirst) {
-      console.log('等待 0 点定时执行...');
-      await sleepTime(24);
+    const cronHour = _.first(self._command);
+    if (cronHour && api.isFirst) {
+      console.log(`等待 ${cronHour} 点定时执行...`);
+      await sleepTime(cronHour);
     }
 
     const userInfo = {
