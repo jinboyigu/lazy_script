@@ -193,7 +193,7 @@ class Template extends Base {
         // TODO 整理成通用方法
         if (functionId in config) {
           let {encryptH5st, appId, fingerprint, algoData, platform, disableAutoUpdate, version} = config[functionId];
-          !encryptH5st && (config[functionId] = encryptH5st = signFromSecurity ? genParamsSign({
+          !encryptH5st && (config[functionId]['encryptH5st'] = encryptH5st = signFromSecurity ? genParamsSign({
             userAgent: api.options.headers['user-agent'],
             appId,
             fp: fingerprint,

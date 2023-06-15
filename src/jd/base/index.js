@@ -104,6 +104,10 @@ class Base {
     return this.scriptNameDesc || this.scriptName;
   }
 
+  static getValue(key) {
+    return _.isFunction(this[key]) ? this[key]() : this[key];
+  }
+
   // helpers
   static log(output, fileName, label = this.currentCookieTimes, name = this.getName()) {
     output = `[${label}] ${_.isPlainObject(output) ? JSON.stringify(output) : output}`;
@@ -217,7 +221,7 @@ class Base {
   }
 
   static initApi(cookie) {
-    const apiOptions = _.isFunction(this.apiOptions) ? this.apiOptions() : this.apiOptions;
+    const apiOptions = this.getValue('apiOptions');
     const {signData = {}, options = {}, formatDataFn = data => data} = apiOptions;
     const {requestFnName, apiNames = []} = this.apiExtends;
 
@@ -431,7 +435,7 @@ class Base {
       }));
     }
 
-    if (self.concurrent) {
+    if (self.getValue('concurrent')) {
       return parallelRun({
         list: data,
         runFn: ({cookie, shareCodes}) => _do(cookie, shareCodes),

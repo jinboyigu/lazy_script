@@ -20,6 +20,7 @@ class FirePower extends Template {
   });
   static keepIndependence = true;
   static activityEndTime = '2023-06-18';
+  static concurrent = () => this._command[0];
 
   static apiOptions() {
     return {};
@@ -57,8 +58,8 @@ class FirePower extends Template {
     const d = ''; // 邀请码
 
     const getCouponCronHour = _.first(self._command);
-    if (getCouponCronHour && api.isFirst) {
-      console.log(`等待 ${getCouponCronHour} 点定时执行...`);
+    if (getCouponCronHour) {
+      api.clog(`等待 ${getCouponCronHour} 点定时执行...`);
       await sleepTime(getCouponCronHour);
     }
 
@@ -78,6 +79,11 @@ class FirePower extends Template {
       const groupInfo = await queryFullGroupInfoMap().then(data => {
         if (data.code === 1) {
           throw api.clog(data.msg, false);
+        }
+        const {status, joinNum} = _.last(_.get('longGroupData.groupInfo', [])) || {};
+        if (status === 2) {
+          api.log(`火力值已达到最高值 ${joinNum}`);
+          return [];
         }
         return _.get(data, 'dayGroupData.groupInfo', []);
       });
@@ -120,7 +126,6 @@ class FirePower extends Template {
       if (code !== 0) {
         return api.clog(msg);
       }
-      await sleep();
       await api.doFormBody('getCoupons', {
         ...body,
         'type': 1,
