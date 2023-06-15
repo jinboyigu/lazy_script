@@ -1,9 +1,8 @@
-const Template = require('../wq/index');
+const Template = require('../base/template');
 
 const {replaceObjectMethod, sleep, writeFileJSON, singleRun} = require('../../lib/common');
 const {getMoment} = require('../../lib/moment');
 const _ = require('lodash');
-const {} = require('../../lib/common');
 
 const indexUrl = 'https://wqsh.jd.com/promote/201801/bean/mybean.html';
 
@@ -13,49 +12,55 @@ class StatisticsBean extends Template {
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static commonParamFn = () => ({});
-  static activityEndTime = '2023-02-10';
+  static cookieKeys = ['wq_uin', 'wq_skey'];
+  static times = 1;
+  static keepIndependence = true;
 
-  static customApiOptions = {
-    uri: 'https://wq.jd.com',
-    headers: {
-      referer: indexUrl,
-    },
-  };
-
-
-  static async beforeRequest(api) {
-    replaceObjectMethod(api, 'doGetPath', ([functionId, qs, options]) => {
-      qs = {
-        ...qs,
-        _: getMoment().valueOf(),
-        g_login_type: 0,
-        g_tk: 239007826,
-        g_ty: 'ls',
-      };
-      return [functionId, qs, options];
-    });
+  static apiOptions() {
+    return {
+      options: {
+        headers: {
+          origin: new URL(indexUrl).origin,
+          referer: indexUrl,
+        },
+        qs: {
+          appid: 'jd-cphdeveloper-m',
+          loginType: 11,
+          g_login_type: 0,
+          g_tk: 2433214,
+          g_ty: 'ajax',
+          appCode: 'msd95910c4',
+          body: {
+            'tenantCode': 'jgminise',
+            'bizModelCode': 6,
+            'bizModeClientType': 'WxMiniProgram',
+            'externalLoginType': 2,
+          },
+        },
+      },
+    };
   }
 
   static async doMain(api, shareCodes) {
     const self = this;
 
-    const loginSuccess = await self.mLoginWeb(api, indexUrl);
-    if (!loginSuccess) return;
-    await self.beforeRequest(api);
-
     const accumulateFn = (accumulator, currentValue) => accumulator + currentValue;
 
     // 获取用户信息
-    const total = await api.doGetPath('user/info/QueryJDUserInfo', {sceneid: '11110'}).then(_.property('base.jdNum'));
+    const total = await api.doGetBody('queryJDUserInfo').then(data => {
+      if (data.retcode !== 0) {
+        throw api.clog('未登录', false);
+      }
+      return _.get(data, 'base.jdNum');
+    });
     // 获取所有列表
-    const detailList = await api.doGetPath('activeapi/queryuserjingdoudetail', {pagesize: '10'}).then(_.property('detail')) || [];
-    if (_.isEmpty(detailList)) {
-      return api.log('获取信息出错');
-    }
+    const {list: detailList, willExpireNum} = await api.doGetBody('myBean');
     const prevDate = getMoment().subtract(1, 'days').formatDate();
-    const preMount = _.map(detailList.filter(o => o['createdate'].replace(/\//g, '-').match(prevDate)), 'amount')
+    const preMount = _.map(detailList.filter(o => o['createDate'].replace(/\//g, '-').match(prevDate)), 'amount')
     .reduce(accumulateFn);
-    api.log(`总数: ${total}, 昨天(${prevDate.substring(5)})的收益: ${preMount}`);
+    api.log(`总数: ${total}, 昨天(${prevDate.substring(5)})的收益: ${preMount}, 明天24点将过期的数量: ${willExpireNum}`);
+    // TODO 确认具体过期获取
+    return;
     // 获取即将过期列表
     const expireList = await api.doGetPath('activep3/singjd/queryexpirejingdou').then(_.property('expirejingdou')) || [];
     if (_.isEmpty(expireList)) return;
