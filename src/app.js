@@ -20,7 +20,6 @@ const Common = require('./jd/base/common');
 const Sign = require('./jd/sign');
 const Sign1 = require('./jd/sign/Sign1');
 const SignShop = require('./jd/sign/shop');
-const SignRemote = require('./jd/sign/remote');
 const SignTurnTable = TemporarilyOffline || require('./jd/sign/TurnTable');
 const PlantBean = require('./jd/plantBean');
 const SuperMarket = TemporarilyOffline || require('./jd/superMarket');
@@ -39,17 +38,13 @@ const SplitHongbao = require('./jd/wfh/splitHongbao');
 const Health = require('./jd/wfh/Health');
 const HealthShare = require('./jd/wfh/HealthShare');
 const HealthSign = require('./jd/wfh/HealthSign');
-const Earn = require('./jd/earn');
 const Cash = require('./jd/cash');
 const CashApplet = require('./jd/cash/applet');
 const CashShare = require('./jd/cash/share');
 const StatisticsBean = require('./jd/statistics/bean');
 const StatisticsRedEnvelope = require('./jd/statistics/RedEnvelope');
 const IsvShopSign = TemporarilyOffline || require('./jd/isv/shopSign');
-const SecondKillRedPacket = TemporarilyOffline || require('./jd/secondKill/redPacket');
-const JxCfd = TemporarilyOffline || require('./jd/jxCfd');
 const VipClubShake = require('./jd/vipClub/shake');
-const KoiRedPacket = TemporarilyOffline || require('./jd/koiRedPacket');
 let Joy = require('./jd/joy');
 const JoyRedeem = require('./jd/joy/redeem');
 const JoySign = require('./jd/joy/Sign');
@@ -57,7 +52,6 @@ const Family = TemporarilyOffline || require('./jd/family');
 const BianPao = require('./jd/family/bianPao');
 const JxHongBao = require('./jd/family/jxHongBao');
 const JxFarm = require('./jd/wq/JxFarm');
-const WomenBlindBox = require('./jd/family/WomenBlindBox');
 const LuckyToHitTheGoldenEgg = require('./jd/family/LuckyToHitTheGoldenEgg');
 const Live = TemporarilyOffline || require('./jd/live');
 const LiveRedEnvelopeRain = TemporarilyOffline || require('./jd/live/RedEnvelopeRain');
@@ -70,7 +64,6 @@ const Joy20210805 = require('./jd/joy/20210805');
 const SuperBrandDay = require('./jd/superBrand/day');
 const SuperBrandProduct = require('./jd/superBrand/Product');
 const RubikSCube = TemporarilyOffline || require('./jd/rubikSCube');
-const Factory = TemporarilyOffline || require('./jd/wfh/Factory');
 const PointsGasStation = require('./jd/dwapp/PointsGasStation');
 const ExplorePlanet = require('./jd/explorePlanet');
 
@@ -128,12 +121,9 @@ async function main() {
     PlantBean,
     Family,
     Live,
-    SecondKillRedPacket,
     VipClubShake,
     SuperMarket,
-    Earn,
     GoldCreator,
-    Factory,
     PointsGasStation,
     BeanSignApplet,
     ExplorePlanet,
@@ -159,7 +149,6 @@ async function main() {
           Health,
         ]);
         await serialRun([
-          KoiRedPacket,
           // 23点后的活动补充
           IsvShopSign,
           SignShop,
@@ -206,7 +195,6 @@ async function main() {
       valid: 9,
       run: async () => {
         await serialRun(Joy);
-        await doRun(Earn);
       },
     },
     {
@@ -220,7 +208,6 @@ async function main() {
       run: async () => {
         await serialRun([
           Fruit,
-          Factory,
           PlantBean,
         ]);
       },
@@ -276,7 +263,6 @@ async function main() {
           ...statistics,
           LiteHappyDig,
           SuperBrandDay,
-          SecondKillRedPacket,
           SplitHongbao,
         ]);
       },
@@ -287,14 +273,12 @@ async function main() {
         await serialRun([
           LiteHappyDig,
           Sign,
-          KoiRedPacket,
           Cash,
           PlantBean,
           [PlantBean, void 0, 'cron'],
           SuperBrandProduct,
           Joy,
           Fruit,
-          Factory,
         ]);
 
         // 24点后定时启动
@@ -311,8 +295,6 @@ async function main() {
           SignTurnTable,
           Sign1,
           IsvShopSign,
-          // 做任务抽奖
-          WomenBlindBox,
         ], 0);
       },
     },
@@ -330,7 +312,6 @@ async function main() {
   async function cronLoop() {
     await serialRun([
       PlantBean,
-      Factory,
       Health,
     ], doCron);
 
