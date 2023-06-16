@@ -80,10 +80,9 @@ class FirePower extends Template {
         if (data.code === 1) {
           throw api.clog(data.msg, false);
         }
-        const {status, joinNum} = _.last(_.get('longGroupData.groupInfo', [])) || {};
+        const {status, joinNum} = _.last(_.get(data, 'longGroupData.groupInfo', [])) || {};
         if (status === 2) {
-          api.log(`火力值已达到最高值 ${joinNum}`);
-          return [];
+          throw api.log(`火力值已达到最高值 ${joinNum}`);
         }
         return _.get(data, 'dayGroupData.groupInfo', []);
       });

@@ -404,6 +404,7 @@ class Base {
 
   static async loopInit(data, isCron) {
     const self = this;
+    self._command = self._command || [];
     let currentCookieTimes = 0;
     data = _.concat(data);
 
@@ -464,7 +465,6 @@ class Base {
 
     async function init(cookie, shareCodes, isCron = false) {
       const api = self.initApi(new Cookie(cookie).toString(self.cookieKeys));
-      self._command = self._command || [];
       // TODO 并发的情况下 api 的赋值不可用
       self.api = api;
       if (currentCookieTimes === 0) {
