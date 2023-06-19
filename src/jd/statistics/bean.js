@@ -14,7 +14,6 @@ class StatisticsBean extends Template {
   static commonParamFn = () => ({});
   static cookieKeys = ['wq_uin', 'wq_skey'];
   static times = 1;
-  static keepIndependence = true;
 
   static apiOptions() {
     return {
@@ -49,7 +48,7 @@ class StatisticsBean extends Template {
     // 获取用户信息
     const total = await api.doGetBody('queryJDUserInfo').then(data => {
       if (data.retcode !== 0) {
-        throw api.clog('未登录', false);
+        api.logSignOut();
       }
       return _.get(data, 'base.jdNum');
     });

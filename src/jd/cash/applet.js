@@ -20,7 +20,6 @@ class CashApplet extends Template {
   static activityEndTime = '';
   static times = 1;
   static cookieKeys = ['wq_uin', 'wq_skey'];
-  static keepIndependence = true;
 
   static apiOptions = {
     options: {
@@ -39,7 +38,7 @@ class CashApplet extends Template {
   static async beforeRequest(api) {
     const self = this;
     const needStop = !await this.updateWqAuthToken(api);
-    if (needStop) throw api.clog('未登录', false);
+    if (needStop) api.logSignOut();
     self.injectEncryptH5st(api, {
       config: {
         cash_task_info: {appId: 'c8815'},

@@ -17,8 +17,8 @@ class StatisticsRedEnvelope extends Template {
   static async doMain(api, shareCodes) {
     const self = this;
 
-    const getRedInfo = () => {
-      return api.doGetBody('redPacket', {
+    const getRedInfo = () =>
+      api.doGetBody('redPacket', {
         'type': 1,
         'redBalanceFlag': 1,
         'page': 1,
@@ -40,10 +40,14 @@ class StatisticsRedEnvelope extends Template {
           origin: 'https://wqs.jd.com',
           referer: 'https://wqs.jd.com/',
         },
+      }).then(data => {
+        if (data.code !== '0') {
+          api.logSignOut();
+        }
+        return data;
       });
-    };
 
-    let redList = _.get(await getRedInfo(), 'result.redList') || [];
+    let redList = _.get(await getRedInfo(), 'result.redList', []);
     const redSorted = {
       jdApplet: {
         limitName: /京东购物小程序|京东商城/,

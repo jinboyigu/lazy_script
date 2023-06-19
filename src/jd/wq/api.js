@@ -27,7 +27,7 @@ async function mLoginWx(api) {
     if (response.statusCode !== 302) return;
     const setCookie = response.headers['set-cookie'];
     if (!setCookie) {
-      throw api.log('用户未登录');
+      api.logSignOut();
     }
     const newCookie = new Cookie(setCookie, [
       // 'openid2',

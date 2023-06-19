@@ -36,7 +36,7 @@ class WqBase extends Template {
       if (loginSuccess) {
         api.cookieInstance.add(setCookie);
       } else {
-        api.log('用户未登录');
+        api.logSignOut();
       }
       return loginSuccess;
     });

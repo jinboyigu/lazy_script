@@ -18,7 +18,6 @@ class FirePower extends Template {
     client: 'apple',
     clientVersion: '12.0.2',
   });
-  static keepIndependence = true;
   static activityEndTime = '2023-06-18';
   static concurrent = () => this._command[0];
 

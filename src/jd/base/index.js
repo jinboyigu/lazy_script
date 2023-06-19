@@ -66,7 +66,7 @@ class Base {
 
   // 各自运行各自的, 报错也不影响其他 cookie
   // TODO 后面都统一设置为 true
-  static keepIndependence = false;
+  static keepIndependence = true;
 
   // 活动开始和结束时间, 默认没有
   static activityStartTime = '';
@@ -472,13 +472,20 @@ class Base {
       }
       // TODO 先用 currentCookieIndex 后面再整体改名
       api.currentCookieIndex = api.currentCookieTimes = currentCookieTimes++;
-      api.log = (output, fileName, name) => self.log(output, fileName, `${api.currentCookieTimes}] [${addMosaic(cookie['pt_pin'])}`, name);
+      const pinLabel = addMosaic(cookie['pt_pin']);
+      api.log = (output, fileName, name) => self.log(output, fileName, `${api.currentCookieTimes}] [${pinLabel}`, name);
       api.clog = (msg, output = true) => {
-        const str = `[${api.getPin()}] ${msg}`;
+        const str = `[${pinLabel}] ${msg}`;
         if (!output) {
           return str;
         }
         console.log(str);
+      };
+      // 提示未登录, 抛出异常
+      api.logSignOut = () => {
+        const msg = '未登录';
+        api.log(msg);
+        throw api.clog(msg, false);
       };
       if (self.needChangeCK && initiativeChangeCkMaxTimes > 0) {
         await self.changeCK(api, processInAC() && [6, 14, 20].includes(getNowHour()));
