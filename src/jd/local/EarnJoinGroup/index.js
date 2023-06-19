@@ -3,11 +3,14 @@ const Template = require('../../base/template');
 
 const {sleep, writeFileJSON, readFileJSON, singleRun, replaceObjectMethod} = require('../../../lib/common');
 const {getEnv} = require('../../../lib/env');
+const {formatPasteData} = require('../../../lib/charles');
 const _ = require('lodash');
 
 // 获取数据并清空
 const originBodyPath = require('path').resolve(__dirname, './originBody.json');
-const originBody = readFileJSON(originBodyPath);
+// 读取 charles 复制过来的数据
+const bodyStr = formatPasteData(require('fs').readFileSync(originBodyPath).toString()).body;
+const originBody = bodyStr ? JSON.parse(bodyStr) : readFileJSON(originBodyPath);
 require('fs').writeFileSync(originBodyPath, '');
 
 class EarnJoinGroup extends Template {
