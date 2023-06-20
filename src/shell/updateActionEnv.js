@@ -13,9 +13,9 @@ async function main() {
     getEnv('github_api_default_config'),
     /* 暂时不需要 */
     /*{
-      owner: 'jinboyigu',
-      repo: 'run_lazy_script',
-    },*/
+     owner: 'jinboyigu',
+     repo: 'run_lazy_script',
+     },*/
   ];
 
   const actionName = 'ACTION_ENV';
@@ -26,10 +26,15 @@ async function main() {
   const MyOctokit = Octokit.defaults({auth});
 
   for (const options of config) {
-    await updateProductActionEnv(options);
+    const result = await updateProductActionEnv(options);
+    const {status} = result;
+    if (status === 204) {
+      console.log(`[${actionName}] ${JSON.stringify(options)} 更新成功`);
+    } else {
+      console.log(`[${actionName}] ${JSON.stringify(options)} 更新失败`);
+      console.log(result);
+    }
   }
-
-  console.log(`${actionName} 更新成功`);
 
   async function updateProductActionEnv(defaultOption) {
     const octokit = new MyOctokit();
@@ -40,8 +45,8 @@ async function main() {
     return updateActionValue(actionName, JSON.stringify(actionEnv));
 
     async function updateActionValue(name, value) {
-      console.log(`${name} value: `);
-      console.log(value);
+      // console.log(`${name} value: `);
+      // console.log(value);
       const {key, key_id} = await request({route: 'GET /repos/{owner}/{repo}/actions/secrets/public-key'});
       const encryptedValue = encryptActionValue(value, key);
       return request({method: 'PUT'}, {
@@ -59,7 +64,8 @@ async function main() {
 
       return octokit.request(route, _.assign(defaultOption, options)).then(result => {
         console.log(result);
-        return _.property('data')(result);
+        const data = _.get(result, 'data');
+        return data || result;
       });
     }
   }
