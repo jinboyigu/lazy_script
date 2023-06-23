@@ -117,6 +117,7 @@ async function main() {
     Fruit, TurnTableFarm,
     FruitFarmPark, FruitCollect,
     Cash,
+    CashApplet,
     BeanSmallBean,
     PlantBean,
     Family,
