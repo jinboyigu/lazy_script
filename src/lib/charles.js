@@ -44,6 +44,12 @@ function readDirJSON(dirPath, options = {}) {
     fs.rmSync(path.resolve(dirPath, name));
   });
 
+  result.forEach(o => {
+    _.get(o, 'request.header.headers', []).forEach(header => {
+      header.name = header.name.toLowerCase();
+    });
+  });
+
   return result;
 }
 
