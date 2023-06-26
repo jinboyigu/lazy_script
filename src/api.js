@@ -42,6 +42,7 @@ async function doRun(target, cookieData = getCookieData(target.scriptName), meth
   try {
     result = await target[method](cookieData);
   } catch (e) {
+    // TODO 估计不会抛出异常了, 因为基本在 base/index.js(keepIndependence=true)中捕获了
     errorOutput.push(`[${name}] error:`);
     errorOutput.push(e.stack);
     errorOutput.push('----------------------');
@@ -83,6 +84,18 @@ async function sendNotify({sendYesterdayLog = false, subjects = []}) {
   const [mainSubject = 'lazy_script', ...otherSubject] = subjects;
   const getSubject = (str = mainSubject) => [str].concat(otherSubject).join('_');
 
+  const errorLogs = _.filter([
+    sendYesterdayLog && getFileContent(getLogFile('error', yDay)).toString(),
+    getFileContent(getLogFile('error')).toString(),
+  ]);
+  if (!_.isEmpty(errorLogs)) {
+    errorOutput.unshift(...[
+      'error.log\n',
+      ...errorLogs,
+      '----------------------',
+      '\ndoRun error\n',
+    ]);
+  }
   if (!_.isEmpty(errorOutput)) {
     errorOutput.push('\n\nrequest.log\n');
     sendYesterdayLog && errorOutput.push(getFileContent(getLogFile('request', yDay)));

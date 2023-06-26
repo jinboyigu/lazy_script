@@ -498,6 +498,7 @@ class Base {
         }
       } catch (e) {
         if (self.keepIndependence) {
+          api.log((e.stack || e).replace(`[${pinLabel}] `, ''), 'error');
           console.error(e);
         } else {
           throw e;
