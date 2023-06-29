@@ -60,7 +60,6 @@ function _search({subject, since, seen, realDelFn = _.noop}, callback) {
       throw boxInfo;
     }
     const searchParams = [];
-    // TODO subject 一般是搜索不精确的
     subject = void 0;
     subject && searchParams.push(['HEADER', 'SUBJECT', subject]);
     since && searchParams.push(['SINCE', since]);
@@ -68,13 +67,15 @@ function _search({subject, since, seen, realDelFn = _.noop}, callback) {
      * @type {Array}
      */
     let searchResult = await _call('search', searchParams);
-    if (_.isEmpty(searchResult)) {
+    // TODO subject 一般是搜索不精确的, 所以需要再重新搜索
+    if (_.isEmpty(searchResult) && !since) {
       searchParams[0] = 'ALL';
       searchResult = await _call('search', searchParams);
     }
     if (_.isEmpty(searchResult)) {
       imap.end();
-      throw new Error('node imap search failed');
+      callback(void 0, seen ? false : []);
+      return;
     }
     const messages = await promisify(fetchMessage)(searchResult);
     debug && writeFileJSON(messages, 'messages.json', __dirname);
@@ -213,7 +214,7 @@ async function updateEnvFromMail(day = 2) {
       return result;
     }));
   const allNewEnvs = await getNewEnvs();
-  if (_.isEmpty(allNewEnvs)) return;
+  if (_.isEmpty(allNewEnvs)) return console.log(`没有找到相应数据(${nowMoment.formatDate()}~至今)`);
   const newEnv = _.merge({}, ...allNewEnvs.reverse());
   console.log(`开始从邮件内容中更新 new env`);
   console.log(JSON.stringify(newEnv));
