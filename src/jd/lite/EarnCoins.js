@@ -59,12 +59,13 @@ class LiteEarnCoins extends Template {
         // await doForm('checkTaskResource', commonData);
         let {
           code,
-          data: {
-            uuid,
-            taskInfo,
-          },
+          data: enterAndLeaveData,
           message,
         } = await doFromWithClientTime('enterAndLeave', _.assign({messageType: '1'}, commonData));
+        let {
+          uuid,
+          taskInfo,
+        } = enterAndLeaveData || {};
         if (code !== 0) {
           if (message === '无此进入uuid信息') {
             commonData.activeId += '&__in_task_view__=jdLiteiOS';
