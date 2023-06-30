@@ -72,11 +72,21 @@ class CashApplet extends Template {
     }
 
     async function handleDoShare() {
-      const {inviteCode, shareDate, signMoney} = await api.doFormBody('cash_mob_home').then(_.property('data.result'));
+      const {
+        inviteCode,
+        shareDate,
+        signMoney,
+        roundIntro,
+      } = await api.doFormBody('cash_mob_home').then(_.property('data.result'));
       api.log(`当前钱数: ${signMoney}`);
+
       if (api.isFirst) {
+        if (roundIntro.includes('邀请助力功能升级中')) {
+          api.log('邀请助力功能升级中');
+          return;
+        }
         self.shareCode = {inviteCode, shareDate};
-      } else {
+      } else if (self.shareCode) {
         await api.doFormBody('cash_qr_code_assist', {...self.shareCode, type: 2}).then(data => {
           if (self.isSuccess(data)) {
             api.log(`成功助力 ${data.data.result.hostPin}`);
