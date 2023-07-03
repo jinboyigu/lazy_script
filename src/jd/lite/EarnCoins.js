@@ -66,6 +66,9 @@ class LiteEarnCoins extends Template {
           uuid,
           taskInfo,
         } = enterAndLeaveData || {};
+        if (code === 801) {
+          api.logSignOut();
+        }
         if (code !== 0) {
           if (message === '无此进入uuid信息') {
             commonData.activeId += '&__in_task_view__=jdLiteiOS';
