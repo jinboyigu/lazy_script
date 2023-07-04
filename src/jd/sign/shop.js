@@ -61,17 +61,14 @@ class SignShop extends Template {
       '8FE6B2B73AFCAA2F741A87090B755428',
       '25DCC9C000C2CD089B72B5673C655D8F',
       '3756A1C3E882FD88D6D86F38B51FD303',
-      '10664B108DA72AAAFAFDA5577924C7FC',
-      'BE90E8EF5A78E28B93E613D395530A3A',
-      '0AB3D4E9E6A2FFBB2F3171B51B2C43CB',
-      '317A06C60ED66C7264774A5067B788A8',
-      '1693A6516AA0DD7F806B1EE6189BF9DB',
       'E0AF6A39BDBC761B629C1408E6930700',
-      '318F439AE10D8C96949FE28BC2F5E72A',
       'C03B0DA650FCFD49A2EFFA7A7AED40E9',
       'D0186069248E3FA3CF6709522338D564',
       'CA8F38BC462AD12AD59F7413BD3D5A14',
       'BCEC9E8F8A80CD17BDEB66AAB1E4AF0B',
+      '7C033877FD5C8780B0D7279CEF14C11B',
+      'C85AB4672E1A063AEA815B0A1BAB971F',
+      'A139C4F01E6C4CBBF12E4C653B4953DE',
       // 脚本新增插入位置
     ].concat(defaultShopInfos);
 
@@ -96,7 +93,7 @@ class SignShop extends Template {
       await parallelRun({
         list,
         runFn: v => (listInfo ? handleListShopInfo : doSign)(...[].concat(v)),
-        onceNumber: 1,
+        onceNumber: 5,
         onceDelaySecond: 1,
       });
     }
@@ -106,7 +103,7 @@ class SignShop extends Template {
       shopInfos = shopInfos.map(v => _.concat(v));
       // 同时请求的情况下接口做了限制
       // {"code":"-1","echo":"com.jd.jsf.gd.error.RpcException: [JSF-22211]Invocation of com.jd.interact.center.client.api.color.service.read.ShopSignActivityReadService.getActivityInfo of app: is over invoke limit:[20], please wait next period or add upper limit."}
-      await sleep(api.currentCookieTimes * 2 * shopInfos.length);
+      // await sleep(api.currentCookieTimes * 2 * shopInfos.length);
       for (let shopInfo of shopInfos) {
         if (shopInfo.length !== 1) continue;
         const token = shopInfo[0];
