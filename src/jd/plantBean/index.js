@@ -8,21 +8,46 @@ class PlantBean extends Template {
   static shareCodeTaskList = [];
   static times = 2;
   static concurrent = false;
+  static needInAppComplete1 = true;
   static defaultShareCodes = [
     'i7zarrja6jbtvgu2smlqd24e7y3h7wlwy7o5jii',
     'hxpwjlakoy4pxmtejjqf4gpvke',
   ];
+  static commonParamFn = () => ({
+    appid: 'signed_wh5',
+    client: 'apple',
+    clientVersion: '12.0.4',
+    body: {'version': '9.2.4.3'},
+  });
 
   static apiOptions = {
-    signData: {
-      appid: 'ld',
-      body: {version: '9.0.0.1'},
+    options: {
+      headers: {
+        referer: 'https://plantearth.m.jd.com/',
+      },
     },
   };
 
   static isSuccess(data) {
     return _.property('code')(data) === '0';
   };
+
+  static async beforeRequest(api) {
+    this.injectEncryptH5st(api, {
+      config: {
+        plantBeanIndex: {appId: 'd246a'},
+        cultureBean: {appId: '6a216'},
+        receiveNutrients: {appId: 'b56b8'},
+        receiveNutrientsTask: {appId: 'd22ac'},
+        plantChannelNutrientsTask: {appId: '2424e'},
+        shopNutrientsTask: {appId: '19c88'},
+        productTaskList: {appId: '7351b'},
+        productNutrientsTask: {appId: 'a4e2d'},
+      },
+      signFromSecurity: true,
+    });
+  }
+
 
   static async handleUpdateCurrentShareCode(api) {
     const self = this;
@@ -72,7 +97,7 @@ class PlantBean extends Template {
             gainedNum: times,
             waitDuration,
           } of taskList) {
-            if (status === 1 || [1/*每日签到*/, 2/*邀请好友*/].includes(taskType) || ['好友助力', '评价商品'].includes(taskName)) continue;
+            if (status === 1 || [1/*每日签到*/, 2/*邀请好友*/].includes(taskType) || ['好友助力', '评价商品', '免费水果'/* TODO 后续看下如何完成*/].includes(taskName)) continue;
 
             maxTimes = +maxTimes;
             times = +times;
@@ -138,6 +163,8 @@ class PlantBean extends Template {
 
   static async doCron(api) {
     const self = this;
+
+    await self.beforeRequest(api);
 
     const plantBeanIndexData = await api.doFormBody('plantBeanIndex');
     const data = _.get(plantBeanIndexData, 'data', {});
