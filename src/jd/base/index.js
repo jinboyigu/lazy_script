@@ -294,10 +294,14 @@ class Base {
     }
 
     const commonHeaders = {
-      'user-agent': 'JD4iPhone/167945%20(iPhone;%20iOS;%20Scale/2.00)',
+      'user-agent': 'JD4iPhone/168714%20(iPhone;%20iOS;%20Scale/3.00);jdmall;iphone;version/12.0.4;build/168714;network/wifi;screen/1170x2532;os/16.5',
     };
     const {tokenKey, url} = await handleGenToken();
     if (!tokenKey || !url) return;
+    if (tokenKey.startsWith('@')) {
+      api.log(`tokenKey: ${tokenKey}`);
+      api.logSignOut();
+    }
     return updateCookieOptions(tokenKey, url);
 
     async function handleGenToken() {

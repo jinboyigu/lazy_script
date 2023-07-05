@@ -7,7 +7,7 @@ const Template = require('../base/template');
 
 const {sleep, readFileJSON, writeFileJSON, singleRun} = require('../../lib/common');
 const {getMoment} = require('../../lib/moment');
-const {uploadProductEnvToAction} = require('../../lib/env');
+const {uploadProductEnvToAction, getProductEnv} = require('../../lib/env');
 const _ = require('lodash');
 
 class ChangeCK extends Template {
@@ -27,11 +27,26 @@ class ChangeCK extends Template {
   static async doMain(api, shareCodes) {
     const self = this;
 
+    self.oldCookieOption = _.get(getProductEnv(), 'JD_COOKIE_OPTION');
+
     await self.changeCK(api, true);
   }
 
   static async afterAllDone() {
+    const self = this;
     await uploadProductEnvToAction();
+    const newCookieOption = _.get(getProductEnv(), 'JD_COOKIE_OPTION');
+    const changed = newCookieOption.map(({cookies}, i) => {
+      const newCookies = {};
+      Object.entries(cookies).forEach(([key, value]) => {
+        if (self.oldCookieOption[i].cookies[key] !== value) {
+          newCookies[key] = value;
+        }
+      });
+      return newCookies;
+    });
+    if (_.every(changed, _.isEmpty)) return console.log('无需发送邮件');
+    require('../../lib/mailer').sendNewEnv({'JD_COOKIE_OPTION': changed});
   }
 }
 

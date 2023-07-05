@@ -186,9 +186,9 @@ const newEnvSubject = 'lazy_script_new_env';
  * @description 将新的 env 发送到邮件, 本地更新采用 merge 模式, 所以需要保证数据源完整性(Array不需要更改的数据也要留好位置)
  * @example {"JD_COOKIE_OPTION":[{},{},{},{"cookies":{"wq_skey":"test"}}]}
  */
-function sendNewEnv() {
-  const newEnvPath = require('path').resolve(__dirname, '../../.env.new.json');
-  const content = readFileJSON(newEnvPath);
+function sendNewEnv(content, fileName = '.env.new.json') {
+  const newEnvPath = require('path').resolve(__dirname, `../../${fileName}`);
+  content = content || readFileJSON(newEnvPath);
   if (_.isEmpty(content)) return console.log('无需更新内容');
   send({
     subject: `${newEnvSubject}_${getMoment().formatDate()}`,
