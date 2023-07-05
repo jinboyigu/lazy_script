@@ -10,14 +10,15 @@ class Fruit extends Template {
   static scriptName = 'Fruit';
   static scriptNameDesc = '东东农场';
   static times = 1;
+  static needInAppComplete1 = true;
+  static commonParamFn = () => ({
+    appid: 'signed_wh5',
+    client: 'apple',
+    clientVersion: '12.0.4',
+    body: {'version': 23, 'channel': 1},
+  });
   static apiOptions = {
     options: {
-      qs: {
-        appid: 'wh5',
-      },
-      form: {
-        body: {'version': 18, 'channel': 3, 'babelChannel': '10'},
-      },
       headers: {
         referer: indexUrl,
       },
@@ -55,6 +56,60 @@ class Fruit extends Template {
     }
   }
 
+  static async beforeRequest(api) {
+    // 从 https://storage.360buyimg.com/babel/00600381/1456188/production/dev/app.dee901ec.js 中获取
+    const originConfig = {
+      'initForFarm': '8a2af',
+      'taskInitForFarm': 'fcb5a',
+      'browseAdTaskForFarm': '53f09',
+      'firstWaterTaskForFarm': '0cf1e',
+      'waterFriendGotAwardForFarm': 'd08ff',
+      'ddnc_getTreasureBoxAward': '67dfc',
+      'totalWaterTaskForFarm': '102f5',
+      'gotThreeMealForFarm': '57b30',
+      'waterGoodForFarm': '0c010',
+      'choiceGoodsForFarm': '5f4ca',
+      'gotCouponForFarm': 'b1515',
+      'gotStageAwardForFarm': '81591',
+      'followVenderForBrand': '71547',
+      'gotWaterGoalTaskForFarm': 'c901b',
+      'gotNewUserTaskForFarm': 'de8f8',
+      'orderTaskGotWaterForFarm': 'eed5c',
+      'clockInForFarm': '32b94',
+      'clockInFollowForFarm': '4a0b4',
+      'waterFriendForFarm': '673a0',
+      'awardFirstFriendForFarm': '9b655',
+      'awardInviteFriendForFarm': '2b5ca',
+      'awardCallOrInviteFriendForFarm': 'b0b03',
+      'userMyCardForFarm': '86ba5',
+      'getCallUserCardForFarm': '2ca57',
+      'deleteFriendForFarm': 'eaf91',
+      'gotLowFreqWaterForFarm': '8172b',
+      'getFullCollectionReward': '5c767',
+      'getOrderPayLotteryWater': 'ef089',
+      'receiveStageEnergy': '15507',
+      'exchangeGood': '52963',
+      'farmAssistInit': '92354',
+      'myCardInfoForFarm': '157b6',
+      'gotPopFirstPurchaseTaskForFarm': 'd432f',
+      'limitWaterInitForFarm': '6bdc2',
+      'ddnc_surpriseModal': 'e81c1',
+      'friendInitForFarm': 'a5a9c',
+      'clockInInitForFarm': '08dc3',
+      'guideTaskAward': '59bc4',
+      'myExchangeInfoForFarm': '61809',
+      'qryCompositeMaterials': 'a5243',
+    };
+    const config = {};
+    Object.entries(originConfig).forEach(([key, appId]) => {
+      config[key] = {appId};
+    });
+    this.injectEncryptH5st(api, {
+      config,
+      signFromSecurity: true,
+    });
+  }
+
   static async doMain(api, shareCodes) {
     const self = this;
     const needHarvest = _.get(self._command, 0); // node src/jd/fruit/index.js start 0 1
@@ -62,6 +117,7 @@ class Fruit extends Template {
     const enableFastWater = true;
     const waterTimes = 0;
 
+    await self.beforeRequest(api);
     // 指定浇水次数
     if (waterTimes) await handleWaterGoodForFarm(waterTimes);
     // 浇水到成熟
