@@ -356,6 +356,8 @@ class Base {
           if (oldPtKey !== newPtKey) {
             api.cookie = cookie.toString([cPtPin, cPtKey]);
             log(`${cPtKey}发生了变化, ${JSON.stringify([oldPtKey, newPtKey])}`);
+          } else {
+            log(`转换成功! ${cPtKey}没有变化`);
           }
           const jsonData = getProductEnv();
           _.merge(findCurrentCookieOption(jsonData['JD_COOKIE_OPTION']), cookieOption);
