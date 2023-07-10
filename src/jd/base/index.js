@@ -357,15 +357,17 @@ class Base {
             api.cookie = cookie.toString([cPtPin, cPtKey]);
             log(`${cPtKey}发生了变化, ${JSON.stringify([oldPtKey, newPtKey])}`);
           } else {
-            log(`转换成功! ${cPtKey}没有变化`);
+            const msg = `转换成功! ${cPtKey}没有变化`;
+            log(msg);
+            console.log(`[${addMosaic(currentPin)}] ${msg}`);
           }
           const jsonData = getProductEnv();
           _.merge(findCurrentCookieOption(jsonData['JD_COOKIE_OPTION']), cookieOption);
           updateProductEnv(jsonData);
           needUpdateAction = true;
-          console.log('转换成功并成功写入文件');
+          console.log(`[${addMosaic(currentPin)}] 转换成功并成功写入文件`);
         } else {
-          console.log('转换失败, 请查看报错');
+          console.log(`[${addMosaic(currentPin)}] 转换失败, 请查看报错`);
           console.log(response);
         }
       });

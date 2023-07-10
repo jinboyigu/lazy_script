@@ -27,7 +27,9 @@ class ChangeCK extends Template {
   static async doMain(api, shareCodes) {
     const self = this;
 
-    self.oldCookieOption = _.get(getProductEnv(), 'JD_COOKIE_OPTION');
+    if (!self.oldCookieOption) {
+      self.oldCookieOption = _.get(getProductEnv(), 'JD_COOKIE_OPTION');
+    }
 
     await self.changeCK(api, true);
   }
@@ -43,9 +45,12 @@ class ChangeCK extends Template {
           newCookies[key] = value;
         }
       });
-      return newCookies;
+      if (!_.isEmpty(newCookies)) {
+        newCookies['wskey'] = cookies['wskey'];
+      }
+      return {cookies: newCookies};
     });
-    if (_.every(changed, _.isEmpty)) return console.log('无需发送邮件');
+    if (_.every(changed, o => _.isEmpty(o.cookies))) return console.log('无需发送邮件');
     require('../../lib/mailer').sendNewEnv({'JD_COOKIE_OPTION': changed});
   }
 }
