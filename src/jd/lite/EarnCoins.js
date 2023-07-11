@@ -77,6 +77,7 @@ class LiteEarnCoins extends Template {
           }
           uuid = await doFromWithClientTime('enterAndLeave', _.assign({messageType: '1'}, commonData)).then(_.property('data.uuid'));
         }
+        if (!taskInfo) return;
         const videoTimeLength = taskInfo['videoBrowsing'] || '';
         await sleep(videoTimeLength || 10);
         const nextData = _.assign({messageType: '2', uuid, videoTimeLength}, commonData);
