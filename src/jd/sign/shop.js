@@ -32,6 +32,8 @@ class SignShop extends Template {
     return _.property('code')(data) === 200;
   }
 
+  static activityInfoCache = {};
+
   static async doMain(api) {
     const self = this;
 
@@ -60,16 +62,11 @@ class SignShop extends Template {
       'BCEC9E8F8A80CD17BDEB66AAB1E4AF0B',
       'A139C4F01E6C4CBBF12E4C653B4953DE',
       'E0E992C174F391EE190A734A21047137',
-      '1E96EB2705E58B5ABB2E5D6CCF025F95',
-      'B2E27A701BB16A079F0AA715434546EF',
-      'E4440CF19C0B58715BB8A20000E5B3AA',
       'E5E4E59BF60665896BDC6AEF3E242F6B',
-      '8E7D94BCB0016A29E0A3DDAB0143C2C3',
-      'E3FF17F060F9A3A2109E7599FFEB554F',
-      'CDA8CA2E3BFC6A2B1B3E60B4FF99449C',
-      '3FDEBFDD5411EEF6CD7EFF1E18D1F1E1',
       '1EF57AFB83E6C8D47253898D7E02AE9A',
       '4617CAAE30287EF38425B6DE0D496669',
+      'E9C68674BC3E4BD113DD4EBD360303E6',
+      '7DBBAF0AD5C1473B4C2E7A5F392734C1',
       // 脚本新增插入位置
     ].concat(defaultShopInfos);
 
@@ -94,7 +91,7 @@ class SignShop extends Template {
       await parallelRun({
         list,
         runFn: v => (listInfo ? handleListShopInfo : doSign)(...[].concat(v)),
-        onceNumber: 5,
+        onceNumber: 1,
         onceDelaySecond: 1,
       });
     }
@@ -104,7 +101,7 @@ class SignShop extends Template {
       shopInfos = shopInfos.map(v => _.concat(v));
       // 同时请求的情况下接口做了限制
       // {"code":"-1","echo":"com.jd.jsf.gd.error.RpcException: [JSF-22211]Invocation of com.jd.interact.center.client.api.color.service.read.ShopSignActivityReadService.getActivityInfo of app: is over invoke limit:[20], please wait next period or add upper limit."}
-      // await sleep(api.currentCookieTimes * 2 * shopInfos.length);
+      await sleep(api.currentCookieTimes * 2 * shopInfos.length);
       for (let shopInfo of shopInfos) {
         if (shopInfo.length !== 1) continue;
         const token = shopInfo[0];
@@ -175,7 +172,15 @@ class SignShop extends Template {
 
     // 获取店铺信息
     async function getActivityInfo(token) {
-      return api.doGetBody('interact_center_shopSign_getActivityInfo', {token});
+      if (self.activityInfoCache[token]) {
+        // 只获取一次
+        return Promise.resolve(self.activityInfoCache[token]);
+      }
+      return api.doGetBody('interact_center_shopSign_getActivityInfo', {token}).then(data => {
+        if (!data) throw '请求过多';
+        self.activityInfoCache[token] = data;
+        return data;
+      });
     }
 
     // 签到
