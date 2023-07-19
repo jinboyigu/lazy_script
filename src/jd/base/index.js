@@ -432,8 +432,9 @@ class Base {
         const key = o.cookie['pt_pin'];
         if (_.has(cookieConfig, key)) {
           const {scriptName: scriptNameConfig} = _.get(cookieConfig, key, {});
-          const {disable, disableShareCode, defaultShareCode = {}} = scriptNameConfig || {};
+          const {disable, enable, disableShareCode, defaultShareCode = {}} = scriptNameConfig || {};
           const scriptName = self.scriptName;
+          if (!_.isNil(enable) && !_.concat(enable).includes(scriptName)) return '';
           if (_.concat(disable).includes(scriptName)) return '';
           if (_.concat(disableShareCode).includes(scriptName)) {
             o.shareCodes = [];
