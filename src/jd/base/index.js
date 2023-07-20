@@ -497,7 +497,7 @@ class Base {
         throw api.clog(msg, false);
       };
       if (self.needChangeCK && initiativeChangeCkMaxTimes > 0) {
-        await self.changeCK(api, processInAC() && [6, 14, 20].includes(getNowHour()));
+        await self.changeCK(api, processInAC() && [7, 14, 18, 22].includes(getNowHour()));
       }
       try {
         if (isCron) {
