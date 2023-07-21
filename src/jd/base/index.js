@@ -426,36 +426,35 @@ class Base {
       }
     }
 
-    const cookieConfig = getEnv('JD_COOKIE_CONFIG');
-    if (!_.isEmpty(cookieConfig)) {
-      data = _.filter(data.map(o => {
-        const key = o.cookie['pt_pin'];
-        if (_.has(cookieConfig, key)) {
-          const {scriptName: scriptNameConfig} = _.get(cookieConfig, key, {});
-          const {disable, enable, disableShareCode, defaultShareCode = {}} = scriptNameConfig || {};
-          const scriptName = self.scriptName;
-          if (!_.isNil(enable) && !_.concat(enable).includes(scriptName)) return '';
-          if (_.concat(disable).includes(scriptName)) return '';
-          if (_.concat(disableShareCode).includes(scriptName)) {
-            o.shareCodes = [];
-          }
-          o.shareCodes = _.filter(_.concat(o.shareCodes, _.get(defaultShareCode, scriptName)));
+    const patchData = o => {
+      const cookieConfig = getEnv('JD_COOKIE_CONFIG');
+      if (_.isEmpty(cookieConfig)) return;
+      const key = o.cookie['pt_pin'];
+      if (_.has(cookieConfig, key)) {
+        const {scriptName: scriptNameConfig} = _.get(cookieConfig, key, {});
+        const {disable, enable, disableShareCode, defaultShareCode = {}} = scriptNameConfig || {};
+        const scriptName = self.scriptName;
+        if (!_.isNil(enable) && !_.concat(enable).includes(scriptName) || _.concat(disable).includes(scriptName)) {
+          o.disabled = true;
         }
-        return o;
-      }));
-    }
+        if (_.concat(disableShareCode).includes(scriptName)) {
+          o.shareCodes = [];
+        }
+        o.shareCodes = _.filter(_.concat(o.shareCodes, _.get(defaultShareCode, scriptName)));
+      }
+    };
 
     if (self.getValue('concurrent')) {
       return parallelRun({
         list: data,
-        runFn: ({cookie, shareCodes}) => _do(cookie, shareCodes),
+        runFn: _do,
         onceNumber: 1,
         onceDelaySecond: self.concurrentOnceDelay,
       });
     }
 
-    for (const {cookie, shareCodes} of data) {
-      await _do(cookie, shareCodes);
+    for (const item of data) {
+      await _do(item);
     }
 
     if (needUpdateAction) {
@@ -466,13 +465,15 @@ class Base {
     --initiativeChangeCkMaxTimes;
     await self.afterAllDone();
 
-    async function _do(cookie, shareCodes) {
+    async function _do(data) {
+      patchData(data);
+      const {cookie, shareCodes, disabled} = data;
       self.currentCookieTimes = currentCookieTimes;
       await self.beforeInit();
-      await init(cookie, self.isFirstLoop() ? _.filter(_.concat(shareCodes)) : void 0, isCron);
+      await init(cookie, self.isFirstLoop() ? _.filter(_.concat(shareCodes)) : void 0, isCron, disabled);
     }
 
-    async function init(cookie, shareCodes, isCron = false) {
+    async function init(cookie, shareCodes, isCron = false, disabled) {
       const api = self.initApi(new Cookie(cookie).toString(self.cookieKeys));
       // TODO 并发的情况下 api 的赋值不可用
       self.api = api;
@@ -499,6 +500,9 @@ class Base {
       if (self.needChangeCK && initiativeChangeCkMaxTimes > 0) {
         await self.changeCK(api, processInAC() && [7, 14, 18, 22].includes(getNowHour()));
       }
+      // 停止运行该脚本
+      if (disabled) return;
+
       try {
         if (isCron) {
           await self.doCron(api, shareCodes);
