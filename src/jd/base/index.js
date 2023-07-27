@@ -492,10 +492,15 @@ class Base {
         console.log(str);
       };
       // 提示未登录, 抛出异常
-      api.logSignOut = () => {
+      api.logSignOut = (throwMsg = true) => {
         const msg = '未登录';
         api.log(msg);
-        throw api.clog(msg, false);
+        if (throwMsg) {
+          throw api.clog(msg, false);
+        } else {
+          api.clog(msg);
+          throw '';
+        }
       };
       if (self.needChangeCK && initiativeChangeCkMaxTimes > 0) {
         await self.changeCK(api, processInAC() && [7, 14, 18, 22].includes(getNowHour()));
@@ -511,7 +516,8 @@ class Base {
         }
       } catch (e) {
         if (self.keepIndependence) {
-          api.log((e.stack || e).replace(`[${pinLabel}] `, ''), 'error');
+          /* 存在抛出异常但是不想输出到 error.log 的情况 */
+          e && api.log((e.stack || e).replace(`[${pinLabel}] `, ''), 'error');
           console.error(e);
         } else {
           throw e;

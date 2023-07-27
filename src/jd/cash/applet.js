@@ -1,6 +1,7 @@
 const Template = require('../base/template');
 
 const {sleep, writeFileJSON, singleRun} = require('../../lib/common');
+const {processInAC} = require('../../lib/env');
 const _ = require('lodash');
 
 class CashApplet extends Template {
@@ -38,7 +39,7 @@ class CashApplet extends Template {
   static async beforeRequest(api) {
     const self = this;
     const needStop = !await this.updateWqAuthToken(api);
-    if (needStop) api.logSignOut();
+    if (needStop) api.logSignOut(!processInAC());
     self.injectEncryptH5st(api, {
       config: {
         cash_task_info: {appId: 'c8815'},

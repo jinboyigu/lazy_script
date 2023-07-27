@@ -3,6 +3,7 @@ const Template = require('../base/template');
 const {sleep, writeFileJSON, singleRun} = require('../../lib/common');
 const _ = require('lodash');
 const {getMoment, getNowDate} = require('../../lib/moment');
+const {processInAC} = require('../../lib/env');
 
 class StatisticsRedEnvelope extends Template {
   static scriptName = 'StatisticsRedEnvelope';
@@ -42,7 +43,7 @@ class StatisticsRedEnvelope extends Template {
         },
       }).then(data => {
         if (data.code !== '0') {
-          api.logSignOut();
+          api.logSignOut(!processInAC());
         }
         return data;
       });

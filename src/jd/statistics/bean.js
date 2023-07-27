@@ -2,6 +2,7 @@ const Template = require('../base/template');
 
 const {replaceObjectMethod, sleep, writeFileJSON, singleRun} = require('../../lib/common');
 const {getMoment} = require('../../lib/moment');
+const {processInAC} = require('../../lib/env');
 const _ = require('lodash');
 
 const indexUrl = 'https://wqsh.jd.com/promote/201801/bean/mybean.html';
@@ -48,12 +49,15 @@ class StatisticsBean extends Template {
     // 获取用户信息
     const total = await api.doGetBody('queryJDUserInfo').then(data => {
       if (data.retcode !== 0) {
-        api.logSignOut();
+        api.logSignOut(!processInAC());
       }
       return _.get(data, 'base.jdNum');
     });
     // 获取所有列表
     const {list: detailList, willExpireNum} = await api.doGetBody('myBean');
+    if (!detailList) {
+      api.logSignOut(!processInAC());
+    }
     const prevDate = getMoment().subtract(1, 'days').formatDate();
     const preMount = _.map(detailList.filter(o => o['createDate'].replace(/\//g, '-').match(prevDate)), 'amount')
     .reduce(accumulateFn);
