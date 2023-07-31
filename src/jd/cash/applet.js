@@ -18,7 +18,7 @@ class CashApplet extends Template {
     loginType: '1',
     loginWQBiz: 'pet-town',
   });
-  static activityEndTime = '';
+  static activityEndTime = '2023-07-28';
   static times = 1;
   static cookieKeys = ['wq_uin', 'wq_skey'];
 
