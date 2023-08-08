@@ -8,28 +8,46 @@ function updateNewEnvByCharles() {
   if (!JD_COOKIE_OPTION) return console.log('无需更新');
   const result = readDirJSON(__dirname);
   const cookieKeys = [
+    // 标识, 需更新的cookie 字段, [header 值(默认为 cookie), 判断方法]
     ['wq_uin', 'wq_skey'],
     ['pt_pin', 'pt_key'],
+    ['', 'wskey', ['j-e-c', v => JSON.parse(decodeURIComponent(v)).cipher.pin]],
   ];
-  const newCookies = _.filter(result.map(o => {
-    const cookie = new Cookie('');
-    o.request.header.headers.forEach(({name, value}) => {
-      if (name === 'cookie') {
-        cookie.add(value);
-      }
-    });
-    const targetKeys = cookieKeys.find(keys => cookie.get(keys[0]));
-    if (!targetKeys) return;
-    return _.pick(cookie.toObject(), targetKeys);
-  }), v => !_.isEmpty(v));
-  const jdCookieOption = JD_COOKIE_OPTION.map(o => {
-    const cookies = o.cookies;
-    const target = newCookies.filter(o => cookieKeys.some(([pinKey]) => o[pinKey] === cookies[pinKey])) || [];
-    return {cookies: _.merge({}, ...target)};
+  const newCookieOption = JD_COOKIE_OPTION.map(cookieOption => {
+    // TODO 后续可能要支持更新 loginConfig.headers
+    const {cookies, loginConfig} = cookieOption;
+    const oldCookie = new Cookie(cookies);
+    const newCookies = result.map(o => {
+      const cookie = new Cookie('');
+      o.request.header.headers.forEach(({name, value}) => {
+        name = name.toLowerCase();
+        if (name === 'cookie') {
+          cookie.add(value);
+        } else {
+          cookie.set(name, value);
+        }
+      });
+      return cookie;
+    }).filter(cookie => cookieKeys.find(keys =>
+      !_.isEqual(...[cookie, oldCookie].map(c => c.get(keys[1]))) /* 相同则无需更新 */
+      && keys.some(k => {
+        const [key, getValFn = v => v] = _.concat(k);
+        const [v1, v2] = [cookie.get(key), oldCookie.get(key) || loginConfig.headers[key]].map(getValFn);
+        return v1 && v1 === v2;
+      })))
+    .map(cookie => _.pick(cookie.toObject(), _.flatten(cookieKeys.map(array => _.filter([array[0], array[1]])))));
+    if (_.isEmpty(newCookies)) {
+      return {};
+    }
+    return {cookies: _.merge({}, ...newCookies)};
   });
-  const data = {JD_COOKIE_OPTION: jdCookieOption};
+  if (newCookieOption.every(_.isEmpty)) {
+    console.log('没有新数据, 无需更新');
+    return;
+  }
+  const data = {JD_COOKIE_OPTION: newCookieOption};
   writeFileJSON(data, '../../../.env.new.json', __dirname);
-  console.log(data);
+  console.log(require('util').inspect(data, {depth: null}));
   console.log('成功写入文件 .env.new.json, 请手动执行发送邮件的命令');
   console.log('npm run shell:sendNewEnvByMail');
 }
