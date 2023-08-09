@@ -215,6 +215,7 @@ async function updateEnvFromMail(day = 2) {
     }));
   const allNewEnvs = await getNewEnvs();
   if (_.isEmpty(allNewEnvs)) return console.log(`没有找到相应数据(${nowMoment.formatDate()}~至今)`);
+  // TODO 判断是否需要更新
   const newEnv = _.merge({}, ...allNewEnvs.reverse());
   console.log(`开始从邮件内容中更新 new env`);
   console.log(JSON.stringify(newEnv));

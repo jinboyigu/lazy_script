@@ -3,6 +3,8 @@ const {getNowDate, getNowHour} = require('./lib/moment');
 const {getCookieData, updateProcessEnv, processInAC, getEnv} = require('./lib/env');
 const {sleepTime} = require('./lib/cron');
 const {sleep} = require('./lib/common');
+// TODO 放到每个脚本执行前
+require('../src/lib/common').exec('node src/shell/updateEnvFromMail.js');
 updateProcessEnv();
 const {
   multipleRun,
