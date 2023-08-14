@@ -316,16 +316,42 @@ function formatFullPath(config, action) {
 const exec = async (command, options = {}) => {
   let args;
 
-  [command, ...args] = _.isArray(command) ? command : command.split(' '); // 仅简单分割空格
+  [command, ...args] = _.isArray(command) ? command : splitCommand(command);
 
   const child = require('child_process').spawnSync(command, args, {stdio: ['inherit', 'inherit', 'inherit'], ...options});
 
   // 不需要打印出来需主动返回数据
   if (child.stdout) {
+    if (!child.stdout.on) {
+      return Promise.resolve(child.stdout.toString());
+    }
     return new Promise((resolve, reject) => {
       child.stdout.on('data', data => resolve(`${data}`));
       child.stderr.on('data', data => reject(`${data}`));
     });
+  }
+
+  // 匹配双引号
+  function splitCommand(str, searchString = '"') {
+    const commands = [];
+    let c = '';
+    const _update = v => {
+      commands.push(v);
+      c = '';
+    };
+    str.split('').forEach((v, i) => {
+      if (c.startsWith(searchString) && v === searchString) {
+        _update(c.substring(1));
+      } else if (v !== ' ' || (c.startsWith(searchString) && v === ' ')) {
+        c += v;
+        if (str.split('').length - 1 === i) {
+          _update(c);
+        }
+      } else if (c && !c.startsWith(searchString)) {
+        _update(c);
+      }
+    });
+    return commands;
   }
 };
 
