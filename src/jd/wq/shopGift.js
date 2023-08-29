@@ -40,8 +40,8 @@ class ShopGift extends Template {
         if (api.isFirst) {
           const next = await handleFormat();
           fs.writeFileSync(shopGiftUrlPath, '');
-          for (const {venderId} of self.shopData) {
-            updateShopSignToken(venderId);
+          for (const {shopId} of self.shopData) {
+            updateShopSignToken(shopId);
             await sleep();
           }
           return next;
@@ -55,7 +55,8 @@ class ShopGift extends Template {
     }
 
     for (const {shopId, venderId} of self.shopData) {
-      await getGif(shopId, venderId);
+      // TODO 接口有问题, 先取消
+      // await getGif(shopId, venderId);
     }
 
     if (api.isFirst && self.shopSignUrlUpdated) {
@@ -112,20 +113,32 @@ class ShopGift extends Template {
       await api.delFavShop(shopId);
     }
 
-    async function updateShopSignToken(venderId) {
-      await api.doGetUrl('https://wq.jd.com/shopbranch/GetUrlSignDraw', {
+    async function updateShopSignToken(shopId) {
+      await api.doGetUrl('https://api.m.jd.com/client.action', {
         qs: {
-          channel: 1,
-          venderId,
-          _: getMoment().valueOf(),
-          g_login_type: 1,
-          callback: 'getUrlSignDraw',
-          g_tk: 239007826,
-          g_ty: 'ls',
-          appCode: 'msc588d6d5',
+          'functionId': 'whx_getShopHomeActivityInfo',
+          'body': {
+            'ad_od': 'share',
+            'cu': 'true',
+            'gx': 'RnE3l2NZPmbQytRI-s0tCHs',
+            'shopId': shopId,
+            'utm_campaign': 't_1003272801_',
+            'utm_medium': 'jingfen',
+            'utm_source': 'kong',
+            'utm_term': '5c423aaa234540cf8b25fee04091890f',
+            'utm_user': 'plusmember',
+            'source': 'm-shop',
+          },
+          't': '1693302641721',
+          'appid': 'shop_m_jd_com',
+          'clientVersion': '11.0.0',
+          'client': 'wh5',
+          'area': '1_72_2799_0',
+          'uuid': '16931848767201136119672',
+          'x-api-eid-token': 'jdd03VPFTDM3SGD5HJ6BCX2Q2X6VQMTWJF2IOJI7KSCDWMG64LYHHFNPB73MZQX2NJ2MK4HFU7PO7RPPBTPUYUPGH2ZLRNIAAAAMKICX57PYAAAAACQYEQD3CKISRRQX',
         },
       }).then(data => {
-        const isvUrl = _.get(data, 'data.isvUrl') || '';
+        const isvUrl = _.get(data, 'result.signStatus.isvUrl') || '';
         if (isvUrl) {
           self.shopSignUrlUpdated = true;
           fs.writeFileSync(path.resolve(__dirname, '../sign/shopToken.url'), `\n${decodeURIComponent(isvUrl)}\n`, {flag: 'a'});
