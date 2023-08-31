@@ -8,7 +8,7 @@ const nodemailer = require('nodemailer');
 const MailParser = require('mailparser').MailParser;
 const {getEnv, updateProductEnv} = require('./env');
 const {getMoment} = require('./moment');
-const {readFileJSON, writeFileJSON} = require('./common');
+const {readFileJSON, writeFileJSON, formatJSONOutput} = require('./common');
 const Imap = require('imap');
 const {inspect, promisify} = require('util');
 
@@ -192,7 +192,7 @@ function sendNewEnv(content, fileName = '.env.new.json') {
   if (_.isEmpty(content)) return console.log('无需更新内容');
   send({
     subject: `${newEnvSubject}_${getMoment().formatDate()}`,
-    text: JSON.stringify(content),
+    text: formatJSONOutput(content),
   }).then(() => {
     writeFileJSON({}, newEnvPath);
   });
@@ -218,7 +218,7 @@ async function updateEnvFromMail(day = 2) {
   // TODO 判断是否需要更新
   const newEnv = _.merge({}, ...allNewEnvs.reverse());
   console.log(`开始从邮件内容中更新 new env`);
-  console.log(JSON.stringify(newEnv));
+  console.log(formatJSONOutput(newEnv));
   updateProductEnv(newEnv, false, true);
 }
 

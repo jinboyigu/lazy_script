@@ -12,6 +12,8 @@ const _sleep = require('util').promisify(setTimeout);
  */
 const sleep = (seconds = 1) => _sleep(seconds * 1000);
 
+const formatJSONOutput = object => JSON.stringify(object, void 0, 2);
+
 const logPath = path.resolve(__dirname, '../../logs');
 const getLogFile = (fileName, date = getNowDate()) => path.resolve(logPath, `${fileName}${date ? '.' : ''}${date || ''}.log`);
 const cacheWriteStream = {};
@@ -49,7 +51,7 @@ const extractLogToObject = str => {
 const getFileContent = (filePath, defaultValue = '') => fs.existsSync(filePath) ? fs.readFileSync(filePath) : defaultValue;
 const _getAbsolutePath = (fileName, dirname) => dirname ? path.resolve(dirname, fileName) : fileName;
 // 将json写入文件中
-const writeFileJSON = (data, fileName, dirname) => fs.writeFileSync(_getAbsolutePath(fileName, dirname), JSON.stringify(data), {encoding: 'utf-8'});
+const writeFileJSON = (data, fileName, dirname) => fs.writeFileSync(_getAbsolutePath(fileName, dirname), formatJSONOutput(data), {encoding: 'utf-8'});
 const readFileJSON = (fileName, dirname, defaultValue = {}) => {
   const absolutePath = _getAbsolutePath(fileName, dirname);
   const data = getFileContent(absolutePath);
@@ -396,6 +398,7 @@ module.exports = {
   addMosaic,
 
   formatFullPath,
+  formatJSONOutput,
 
   exec,
 };

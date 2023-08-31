@@ -1,1 +1,11 @@
-[{"body":"{}","client":"apple","clientVersion":"10.0.8","openudid":"c6993893af46e44aa14818543914768cf2509fbf","sign":"4d7daa7e9ea4d0b55b0c6ebed48d2bc6","st":"1627558612033","sv":"120"}]
+[
+  {
+    "body": "{}",
+    "client": "apple",
+    "clientVersion": "10.0.8",
+    "openudid": "c6993893af46e44aa14818543914768cf2509fbf",
+    "sign": "4d7daa7e9ea4d0b55b0c6ebed48d2bc6",
+    "st": "1627558612033",
+    "sv": "120"
+  }
+]

@@ -6,7 +6,7 @@ const _ = require('lodash');
 const Api = require('../api');
 const UserAgent = require('./UserAgent');
 const Cookie = require('../../lib/cookie');
-const {sleep, printLog, parallelRun, addMosaic} = require('../../lib/common');
+const {sleep, printLog, parallelRun, addMosaic, formatJSONOutput} = require('../../lib/common');
 const {getMoment, getNextHour, getNowHour} = require('../../lib/moment');
 const {sleepDate} = require('../../lib/cron');
 const {processInAC, getProductEnv, updateProductEnv, uploadProductEnvToAction, getEnv} = require('../../lib/env');
@@ -355,7 +355,7 @@ class Base {
           });
           if (oldPtKey !== newPtKey) {
             api.cookie = cookie.toString([cPtPin, cPtKey]);
-            log(`${cPtKey}发生了变化, ${JSON.stringify([oldPtKey, newPtKey])}`);
+            log(`${cPtKey}发生了变化, ${formatJSONOutput([oldPtKey, newPtKey])}`);
           } else {
             const msg = `转换成功! ${cPtKey}没有变化`;
             log(msg);

@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const {exec} = require('../src/lib/common');
+const {exec, formatJSONOutput} = require('../src/lib/common');
 
 const _ = require('lodash');
 
@@ -118,7 +118,7 @@ const formatForm = (key, object) => {
   }
   object[key] = result;
 
-  fs.writeFileSync(jsonPath, JSON.stringify(result), {encoding: 'utf-8'});
+  fs.writeFileSync(jsonPath, formatJSONOutput(result), {encoding: 'utf-8'});
   if (isGitIgnore || 1/*按需执行*/) return;
   // 新增的json文件需要进行提交
   exec(`git add ${jsonPath}`);
