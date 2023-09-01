@@ -17,6 +17,7 @@ class Cash extends Template {
     clientVersion: '12.0.4',
     client: 'apple',
   });
+  static activityEndTime = '2023-08-31';
 
   static async beforeRequest(api) {
     const self = this;
