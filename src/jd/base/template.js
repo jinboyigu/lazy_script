@@ -212,8 +212,8 @@ class Template extends Base {
             form = _.pick(form, signKeys);
           }
           if (signFromSecurity) {
-            const {h5st} = await encryptH5st.sign({functionId, ...form});
-            _.assign(form, {h5st});
+            const result = await encryptH5st.sign({functionId, ...form});
+            _.assign(form, _.pick(result, ['h5st', '_stk', '_ste']));
           } else {
             form = await encryptH5st.sign({functionId, ...form});
           }
