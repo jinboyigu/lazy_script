@@ -148,10 +148,10 @@ function getOriginDataFromFile(filePath) {
   return fs.existsSync(filePath) ? _.filter(fs.readFileSync(filePath).toString().split(/\r?\n/g)) : [];
 }
 
-function getUrlDataFromFile(filePath) {
+function getUrlDataFromFile(filePath, addPrefix = true) {
   const array = getOriginDataFromFile(filePath);
   return array.filter(str => !str.startsWith('mp://'))
-  .map(str => str.match(/[\u4e00-\u9fa5]/) ? '' : /^https?:\/\//.test(str) ? str : `https://${str}`)
+  .map(str => str.match(/[\u4e00-\u9fa5]/) ? '' : /^https?:\/\//.test(str) ? str : addPrefix ? `https://${str}` : '')
   .filter(str => {
     let result = !!str;
     try {

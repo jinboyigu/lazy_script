@@ -68,7 +68,7 @@ class ShopGift extends Template {
     }
 
     async function handleFormat() {
-      const urls = getUrlDataFromFile(shopGiftUrlPath);
+      const urls = getUrlDataFromFile(shopGiftUrlPath, false);
       const getShopInfoFromUrl = async (url, needGetReal = false) => {
         const result = {};
         let realUrl;
