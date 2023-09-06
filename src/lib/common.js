@@ -328,7 +328,12 @@ const exec = async (command, options = {}) => {
     });
   }
 
-  const child = require('child_process').spawnSync(command, args, {stdio: ['inherit', 'inherit', 'inherit'], ...options});
+  const child = require('child_process').spawnSync(command, args, {
+    stdio: ['inherit', 'inherit', 'inherit'],
+    /* 避免路径错误 */
+    cwd: path.resolve(__dirname, '../../'),
+    ...options,
+  });
 
   // 不需要打印出来需主动返回数据
   if (child.stdout) {
