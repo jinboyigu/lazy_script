@@ -55,8 +55,8 @@ async function main() {
     await doRun(Fruit);
   }
 
-  if (nowHour === 23) {
-    await sleepTime(24);
-    await doRun(require('./jd/earn/AdvertPlugin'));
-  }
+  // if (nowHour === 23) {
+  //   await sleepTime(24);
+  //   await doRun(require('./jd/earn/AdvertPlugin'));
+  // }
 }
