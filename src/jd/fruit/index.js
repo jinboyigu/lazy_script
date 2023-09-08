@@ -383,13 +383,13 @@ class Fruit extends Template {
             const card = {type: 'fastCard', maxTimes, returnLimit: true};
             const [{limit}] = await handleUseCard(card);
             delete card.returnLimit;
-            api.log(`使用快速浇水卡 ${limit} 次, 在 ${getMoment().add(limit * 3, 's').format()} 之后可以完成`);
+            api.logBoth(`使用快速浇水卡 ${limit} 次, 在 ${getMoment().add(limit * 3, 's').format()} 之后可以完成`);
             await handleUseCard(card);
             return logFarmInfo(true);
           }
           const waterTimes = remainEnergy / 10;
           const time = getMoment().add(waterTimes * 3, 's');
-          api.log(`完成需浇水 ${waterTimes} 次, 在 ${time.format()} 之后可以完成`);
+          api.logBoth(`完成需浇水 ${waterTimes} 次, 在 ${time.format()} 之后可以完成`);
           await handleWaterGoodForFarm(waterTimes);
         }
       });

@@ -491,6 +491,11 @@ class Base {
         }
         console.log(str);
       };
+      // 同时输出log 文件和控制台
+      api.logBoth = msg => {
+        api.log(msg);
+        api.clog(msg);
+      }
       // 提示未登录, 抛出异常
       api.logSignOut = (throwMsg = true) => {
         const msg = '未登录';
