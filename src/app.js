@@ -69,6 +69,9 @@ const RubikSCube = TemporarilyOffline || require('./jd/rubikSCube');
 const PointsGasStation = require('./jd/dwapp/PointsGasStation');
 const ExplorePlanet = require('./jd/explorePlanet');
 
+/* 极简模式 */
+const BSign = require('./jd/bSign');
+
 /* 极速版 */
 const LiteSpringReward = TemporarilyOffline || require('./jd/lite/SpringReward');
 const LiteEarnCoins = require('./jd/lite/EarnCoins');
@@ -130,6 +133,7 @@ async function main() {
     PointsGasStation,
     BeanSignApplet,
     ExplorePlanet,
+    BSign,
   ];
   // 极速版
   const lites = [
