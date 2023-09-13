@@ -71,6 +71,7 @@ const ExplorePlanet = require('./jd/explorePlanet');
 
 /* 极简模式 */
 const BSign = require('./jd/bSign');
+const RichTree = require('./jd/richTree');
 
 /* 极速版 */
 const LiteSpringReward = TemporarilyOffline || require('./jd/lite/SpringReward');
@@ -134,6 +135,7 @@ async function main() {
     BeanSignApplet,
     ExplorePlanet,
     BSign,
+    RichTree,
   ];
   // 极速版
   const lites = [
@@ -319,6 +321,7 @@ async function main() {
   async function cronLoop() {
     await serialRun([
       PlantBean,
+      RichTree,
       Health,
     ], doCron);
 
