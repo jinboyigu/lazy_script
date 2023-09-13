@@ -354,6 +354,7 @@ class Base {
             },
           });
           if (oldPtKey !== newPtKey) {
+            needUpdateAction = true;
             api.cookie = cookie.toString([cPtPin, cPtKey]);
             log(`${cPtKey}发生了变化, ${formatJSONOutput([oldPtKey, newPtKey])}`);
           } else {
@@ -364,7 +365,6 @@ class Base {
           const jsonData = getProductEnv();
           _.merge(findCurrentCookieOption(jsonData['JD_COOKIE_OPTION']), cookieOption);
           updateProductEnv(jsonData);
-          needUpdateAction = true;
           console.log(`[${addMosaic(currentPin)}] 转换成功并成功写入文件`);
         } else {
           console.log(`[${addMosaic(currentPin)}] 转换失败, 请查看报错`);
