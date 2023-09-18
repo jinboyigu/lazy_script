@@ -37,7 +37,10 @@ class SignShop extends Template {
   static async doMain(api) {
     const self = this;
 
-    const shopSignS = genParamsSign({userAgent: api.options.headers['user-agent'], appId: '4da33'/*, fp: '5975779562801414'*/});
+    const shopSignS = genParamsSign({
+      userAgent: api.options.headers['user-agent'],
+      appId: '4da33',/*, fp: '5975779562801414'*/
+    });
     replaceObjectMethod(api, 'doGetBody', async ([functionId, body, options]) => {
       const t = getMoment().valueOf();
       if (['interact_center_shopSign_getActivityInfo', 'interact_center_shopSign_signCollectGift'].includes(functionId)) {
@@ -58,14 +61,10 @@ class SignShop extends Template {
     // token, venderId, id
     let shopInfos = [
       '2E8D9F7A09CB006910851D5080356825',
-      '2D7302637B072DDB440412AADE1AA47A',
-      '0D76B8121B63824C045872C66F050BAA',
-      '3670A252594C2FF232A61B1221D14CCB',
-      '4E95FE5B7C49831ADD9DC688F6FA2083',
       'A912D04A09FD473CB3E251D73E60A372',
-      '06AD553F0E3385D42E5BF397512C18CE',
       '45C8DF4D3CC42105C92792D5B467DDCF',
       'A6DA30B4EF0496CD4D527B7A9FBA66CB',
+      '5A81B15611F948760820EAC2309FDA14',
       // 脚本新增插入位置
     ].concat(defaultShopInfos);
 
