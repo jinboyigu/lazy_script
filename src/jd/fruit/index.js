@@ -14,8 +14,9 @@ class Fruit extends Template {
   static commonParamFn = () => ({
     appid: 'signed_wh5',
     client: 'apple',
-    clientVersion: '12.0.4',
-    body: {'version': 23, 'channel': 1},
+    clientVersion: '12.1.0',
+    body: {'version': 24, 'channel': 1, 'babelChannel': '10'},
+    'x-api-eid-token': 'jdd03ZPNNW3TV6YVBDF6LALDR2XZXJIOXG7DOZCOE5KWDM52NKDQPTVI2DNJBTLINK7PEB5D6KDHQSFP3ME3ELYDTW3PZHQAAAAMKT2FH2RIAAAAADKQD76G3HF5ZAQX',
   });
   static apiOptions = {
     options: {
