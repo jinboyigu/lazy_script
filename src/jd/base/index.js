@@ -462,7 +462,6 @@ class Base {
       // TODO 确认本地更新的话是否需要上传
       await uploadProductEnvToAction(true);
     }
-    --initiativeChangeCkMaxTimes;
     await self.afterAllDone();
 
     async function _do(data) {
@@ -508,6 +507,7 @@ class Base {
         }
       };
       if (self.needChangeCK && initiativeChangeCkMaxTimes > 0) {
+        --initiativeChangeCkMaxTimes;
         await self.changeCK(api, processInAC() && [7, 14, 18, 22].includes(getNowHour()));
       }
       // 停止运行该脚本
