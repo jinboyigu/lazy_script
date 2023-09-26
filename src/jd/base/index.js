@@ -11,8 +11,8 @@ const {getMoment, getNextHour, getNowHour} = require('../../lib/moment');
 const {sleepDate} = require('../../lib/cron');
 const {processInAC, getProductEnv, updateProductEnv, uploadProductEnvToAction, getEnv} = require('../../lib/env');
 
-// 本地运行无需主动更新
-let initiativeChangeCkMaxTimes = processInAC() ? 1 : 0;
+// 记录已转换过的 cookie {[pt_pin]:true}
+const changedCK = {};
 let needUpdateAction = false;
 
 // 注册全局变量
@@ -481,7 +481,8 @@ class Base {
       }
       // TODO 先用 currentCookieIndex 后面再整体改名
       api.currentCookieIndex = api.currentCookieTimes = currentCookieTimes++;
-      const pinLabel = addMosaic(cookie['pt_pin']);
+      const ptPin = cookie['pt_pin'];
+      const pinLabel = addMosaic(ptPin);
       api.log = (output, fileName, name) => self.log(output, fileName, `${api.currentCookieTimes}] [${pinLabel}`, name);
       api.clog = (msg, output = true) => {
         const str = `[${pinLabel}] ${msg}`;
@@ -494,7 +495,7 @@ class Base {
       api.logBoth = msg => {
         api.log(msg);
         api.clog(msg);
-      }
+      };
       // 提示未登录, 抛出异常
       api.logSignOut = (throwMsg = true) => {
         const msg = '未登录';
@@ -506,8 +507,8 @@ class Base {
           throw '';
         }
       };
-      if (self.needChangeCK && initiativeChangeCkMaxTimes > 0) {
-        --initiativeChangeCkMaxTimes;
+      if (self.needChangeCK && processInAC() && !changedCK[ptPin]) {
+        changedCK[ptPin] = true;
         await self.changeCK(api, processInAC() && [7, 14, 18, 22].includes(getNowHour()));
       }
       // 停止运行该脚本
