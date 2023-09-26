@@ -383,10 +383,12 @@ class Fruit extends Template {
           if (maxTimes > 0 && enableFastWater) {
             const card = {type: 'fastCard', maxTimes, returnLimit: true};
             const [{limit}] = await handleUseCard(card);
-            delete card.returnLimit;
-            api.logBoth(`使用快速浇水卡 ${limit} 次, 在 ${getMoment().add(limit * 3, 's').format()} 之后可以完成`);
-            await handleUseCard(card);
-            return logFarmInfo(true);
+            if (limit > 0) {
+              delete card.returnLimit;
+              api.logBoth(`使用快速浇水卡 ${limit} 次, 在 ${getMoment().add(limit * 3, 's').format()} 之后可以完成`);
+              await handleUseCard(card);
+              return logFarmInfo(true);
+            }
           }
           const waterTimes = remainEnergy / 10;
           const time = getMoment().add(waterTimes * 3, 's');
