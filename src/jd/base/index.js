@@ -356,7 +356,7 @@ class Base {
           if (oldPtKey !== newPtKey) {
             needUpdateAction = true;
             api.cookie = cookie.toString([cPtPin, cPtKey]);
-            log(`${cPtKey}发生了变化, ${formatJSONOutput([oldPtKey, newPtKey])}`);
+            log(`${cPtKey}发生了变化, ${JSON.stringify([oldPtKey, newPtKey])}`);
           } else {
             const msg = `转换成功! ${cPtKey}没有变化`;
             log(msg);
