@@ -191,8 +191,8 @@ class Fruit extends Template {
       for (const {type, maxTimes, returnLimit} of targetCards) {
         const card = cardInfos.find(o => o.type === type);
         if (type === 'doubleCard') {
-          const {farmUserPro: {totalEnergy}} = await handleInitForFarm();
-          if (totalEnergy < 100) {
+          const totalEnergy = await handleInitForFarm().then(_.property('farmUserPro.totalEnergy'));
+          if (totalEnergy && totalEnergy < 100) {
             api.log('当前水壶水滴低于100g, 请大于再进行使用翻倍卡');
             continue;
           }
