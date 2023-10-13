@@ -122,7 +122,10 @@ class Fruit extends Template {
     // 指定浇水次数
     if (waterTimes) await handleWaterGoodForFarm(waterTimes);
     // 浇水到成熟
-    if (needHarvest) return logFarmInfo(true);
+    if (needHarvest) {
+      api.clog('开始自动浇水至收获');
+      return logFarmInfo(true);
+    }
 
     const {
       farmUserPro,
