@@ -421,13 +421,20 @@ class Fruit extends Template {
       successTimes && api.log(`成功浇水 ${successTimes} 次`);
     }
 
-    async function handleInitForFarm(shareCode, loopTimes = 3) {
-      if (loopTimes <= 0) {
-        return {};
+    async function handleInitForFarm(fromCache = true) {
+      if (fromCache && api.cacheFarm) {
+        return api.cacheFarm;
       }
-      const farmData = await self.doApiInitForFarm(api, shareCode);
-      if (!self.isSuccess(farmData)) {
-        return handleInitForFarm(shareCode, --loopTimes);
+      let farmData = {};
+      for (let i = 0; i < 3; i++) {
+        farmData = await self.doApiInitForFarm(api);
+        if (self.isSuccess(farmData)) {
+          api.cacheFarm = farmData;
+          break;
+        }
+        const is404 = farmData.code === '404';
+        if (i === 1 && is404) break;
+        await sleep(is404 ? 30 : 5);
       }
       if (_.get(farmData, 'todayGotWaterGoalTask.canPop')) {
         // 被水滴砸中
