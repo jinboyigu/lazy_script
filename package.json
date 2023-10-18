@@ -46,6 +46,7 @@
     "shell:updateShopSignFromMail": "node src/shell/updateShopSignFromMail.js",
     "shell:sendNewEnvByMail": "node src/shell/sendNewEnvByMail.js",
     "shell:updateEnvFromMail": "node src/shell/updateEnvFromMail.js",
+    "shell:updateNewEnv": "node src/shell/updateNewEnvByCharles/index.js",
     "test": "mocha --recursive"
   },
   "repository": {
