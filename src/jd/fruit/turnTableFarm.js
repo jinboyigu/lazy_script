@@ -2,6 +2,7 @@ const Template = require('../base/template');
 
 const {sleep, writeFileJSON, singleRun} = require('../../lib/common');
 const _ = require('lodash');
+const {getEnv} = require('../../lib/env');
 
 const TASK_DO = 1;
 const TASK_DONE = 2;
@@ -60,7 +61,7 @@ class TurntableFarm extends Template {
           }
 
           const {shareCodeAddOn} = data;
-          const currentShareCode = await api.doFormBody('initForFarm').then(data => data.farmUserPro.shareCode + shareCodeAddOn);
+          const currentShareCode = getEnv('JD_FRUIT_SELF_SHARE_CODE', api.getPin()) || await api.doFormBody('initForFarm').then(data => data.farmUserPro.shareCode + shareCodeAddOn);
           !self.shareCodeTaskList.includes(currentShareCode) && self.shareCodeTaskList.push(currentShareCode);
 
           let list = self.getShareCodeFn();

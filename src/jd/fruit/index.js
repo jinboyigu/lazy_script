@@ -1,4 +1,5 @@
 const Template = require('../base/template');
+const {updateEnv} = require('../../lib/env');
 const {getEnv} = require('../../lib/env');
 const {getMoment} = require('../../lib/moment');
 
@@ -438,6 +439,9 @@ class Fruit extends Template {
         const is404 = farmData.code === '404';
         if (i === 1 && is404) break;
         await sleep(is404 ? 30 : 5);
+      }
+      if (_.get(farmData, 'farmUserPro.shareCode')) {
+        updateEnv('JD_FRUIT_SELF_SHARE_CODE', _.get(farmData, 'farmUserPro.shareCode'), api.getPin());
       }
       if (_.get(farmData, 'todayGotWaterGoalTask.canPop')) {
         // 被水滴砸中
