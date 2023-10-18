@@ -29,10 +29,11 @@ async function main() {
     const result = await updateProductActionEnv(options);
     const {status} = result;
     if (status === 204) {
-      console.log(`[${actionName}] ${JSON.stringify(options)} 更新成功`);
+      console.log(`[${actionName}] 更新成功`);
     } else {
-      console.log(`[${actionName}] ${JSON.stringify(options)} 更新失败`);
+      console.log(options);
       console.log(result);
+      console.log(`[${actionName}] 更新失败`);
     }
   }
 
