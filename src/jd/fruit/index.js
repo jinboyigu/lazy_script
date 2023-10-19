@@ -266,10 +266,14 @@ class Fruit extends Template {
         if (limit === hadFinishedTimes) continue;
         await handleBrowse(advertId, time || 6, wxForm);
       }
-      const waterTimes = totalWaterTaskLimit - totalWaterTaskTimes;
-      waterTimes > 0 && await handleWaterGoodForFarm(waterTimes);
-      !firstWaterFinished && await api.doFormBody('firstWaterTaskForFarm');
-      !totalWaterTaskFinished && await api.doFormBody('totalWaterTaskForFarm');
+
+      // 只有种植且未成熟才需要浇水
+      if (treeState === 1) {
+        const waterTimes = totalWaterTaskLimit - totalWaterTaskTimes;
+        waterTimes > 0 && await handleWaterGoodForFarm(waterTimes);
+        !firstWaterFinished && await api.doFormBody('firstWaterTaskForFarm');
+        !totalWaterTaskFinished && await api.doFormBody('totalWaterTaskForFarm');
+      }
 
       await handleWaterRain(taskData);
       await handleWaterFriendForFarm(taskData);
@@ -349,7 +353,8 @@ class Fruit extends Template {
           await api.doFormBody('clockInForFarm', {type: 2});
         }
 
-        if (!signCardUseTimesLimit && signCard > 0 && !isLast) {
+        // TODO 这里的逻辑待确认. 先屏蔽
+        if (0 && !signCardUseTimesLimit && signCard > 0 && !isLast) {
           await handleUseCard('signCard');
           return handleClockIn(true);
         }
