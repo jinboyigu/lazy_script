@@ -37,9 +37,9 @@ const Harmony3 = require('./jd/wfh/harmony3');
 const Harmony4 = require('./jd/wfh/harmony4');
 const Harmony5 = require('./jd/wfh/harmony5');
 const SplitHongbao = require('./jd/wfh/splitHongbao');
-const Health =  TemporarilyOffline || require('./jd/wfh/Health');
-const HealthShare =  TemporarilyOffline || require('./jd/wfh/HealthShare');
-const HealthSign =  TemporarilyOffline || require('./jd/wfh/HealthSign');
+const Health = TemporarilyOffline || require('./jd/wfh/Health');
+const HealthShare = TemporarilyOffline || require('./jd/wfh/HealthShare');
+const HealthSign = TemporarilyOffline || require('./jd/wfh/HealthSign');
 const Cash = require('./jd/cash');
 const CashApplet = require('./jd/cash/applet');
 const CashShare = require('./jd/cash/share');
@@ -86,10 +86,10 @@ const ReceiveNecklaceCoupon = require('./jd/local/ReceiveNecklaceCoupon');
 
 const nowDate = getNowDate();
 const nowHour = getNowHour();
-const _send = sendNotify.bind(0, {
+const _send = processInAC() ? sendNotify.bind(0, {
   sendYesterdayLog: nowHour === 23,
   subjects: [void 0, nowDate, nowHour],
-});
+}) : _.noop;
 // 超时需自动退出
 const autoExit = async () => {
   await sleep(60 * 60 * 2);
@@ -310,6 +310,13 @@ async function main() {
       },
     },
   ];
+
+  if (!global.isRunHour && !processInAC()) {
+    // local dev
+    // do something
+    // await doRun();
+    return;
+  }
 
   await cronLoop();
 
