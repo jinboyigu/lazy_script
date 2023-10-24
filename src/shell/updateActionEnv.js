@@ -64,7 +64,7 @@ async function main() {
       }
 
       return octokit.request(route, _.assign(defaultOption, options)).then(result => {
-        console.log(result);
+        // console.log(result);
         const data = _.get(result, 'data');
         return data || result;
       });
