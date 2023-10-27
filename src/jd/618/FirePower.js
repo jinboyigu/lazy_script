@@ -4,6 +4,7 @@ const {sleep, writeFileJSON, singleRun, replaceObjectMethod} = require('../../li
 const {getMoment} = require('../../lib/moment');
 const {sleepTime} = require('../../lib/cron');
 const _ = require('lodash');
+const {getEnv} = require('../../lib/env');
 
 class FirePower extends Template {
   static scriptName = 'FirePower';
@@ -51,6 +52,8 @@ class FirePower extends Template {
       config: {
         queryFullGroupInfoMap: {appId: '7b74b'},
         doInteractiveAssignment: {appId: '7b74b'},
+        shareUnionCoupon: {appId: 'c10dc'},
+        unionShare: {appId: '18813'},
         getCoupons: {appId: 'c822a'},
       },
       signFromSecurity: true,
@@ -60,9 +63,11 @@ class FirePower extends Template {
   static async doMain(api, shareCodes) {
     const self = this;
 
+    const unionShareIds = getEnv('JD_FIREPOWER_UNIONSHAREIDS') || [];
+
     const unionActId = '31165';
     const actId = '27F8qXYtc6pi1sjybdSavaLjSvBL';
-    const d = ''; // 邀请码
+    const d = ''; // 短链接(?s=$d)
 
     const getCouponCronHour = _.first(self._command);
     if (getCouponCronHour) {
@@ -79,8 +84,9 @@ class FirePower extends Template {
 
     await handleDoTask();
 
-    const joinNum = await queryFullGroupInfoMap().then(_.property('longGroupData.joinNum'));
-    api.log(`当前火力值: ${joinNum || 0}`);
+    // TODO 本次不需要
+    // const joinNum = await queryFullGroupInfoMap().then(_.property('longGroupData.joinNum'));
+    // api.log(`当前火力值: ${joinNum || 0}`);
 
     async function handleDoTask() {
       const groupInfo = await queryFullGroupInfoMap().then(data => {
@@ -93,10 +99,66 @@ class FirePower extends Template {
         }
         return _.get(data, 'dayGroupData.groupInfo', []);
       });
+      const currentCookieTimes = api.currentCookieTimes;
+      // 随机生成7位
+      const wordRandom = (length = 7) => {
+        const words = [];
+        for (let i = 65; i < 90; i++) {
+          words.push(String.fromCharCode(i));
+        }
+        words.push(...words.map(v => v.toLowerCase()));
+        for (let i = 0; i < 10; i++) {
+          words.push(`${i}`);
+        }
+        return Array(length).fill().map(() => words[_.random(0, words.length - 1)]).join('');
+      };
+      const doShareTask = async taskId => {
+        const unionShareId = unionShareIds[currentCookieTimes];
+        if (!unionShareId) return;
+        const baseBody = {
+          unionActId,
+          'actId': 'nLQ8zK4k2dwaa7vasRKnEvoqnuf',
+          'platform': 4,
+          unionShareId,
+          'd': wordRandom(),
+          taskId,
+        };
+        // 生成的链接是假的
+        const plainUrl = await api.doGetBody('shareUnionCoupon', {
+          ...baseBody,
+          'supportPic': 2,
+        }).then(_.property('data.shareUrl'));
+        if (0) { // 目前不需要生成文字分享链接也可以完成任务
+          await api.doGetBody('unionShare', {
+            'funName': 'share',
+            'param': {'shareReq': [{'shareType': 5, plainUrl, 'command': 1}]},
+          });
+        }
+        if (plainUrl) {
+          await api.doFormBody('getCoupons', {
+            ...baseBody,
+            'type': 8,
+            'qdPageId': 'MO-J2011-1',
+            'mdClickId': 'jxhongbao_ck',
+            'agreeState': 0,
+          }).then(logGetCoupon);
+          // 获取每天任务红包. 暂时不开启 TODO
+          0 && await api.doFormBody('getCoupons', {
+            ...baseBody,
+            'type': 3,
+            'qdPageId': 'MO-J2011-1',
+            'mdClickId': 'jxhongbao_ck',
+          }).then(logGetCoupon);
+        }
+      };
 
       for (const {projectId: encryptProjectId, taskId: encryptAssignmentId, status, showInfo} of groupInfo) {
         if (status !== 1 || !encryptAssignmentId) continue;
-        if (showInfo.match('分享活动抽盲盒')) continue; // 不需要执行的任务(基本无收益)
+        // 分享任务
+        if (showInfo.match('分享活动抽盲盒')) {
+          await doShareTask(encryptAssignmentId);
+          continue;
+        }
         const body = {
           encryptProjectId,
           encryptAssignmentId,
@@ -136,20 +198,22 @@ class FirePower extends Template {
       // 先检查是否有次数
       const {code, msg} = await api.doFormBody('showCoupon', body, void 0, options);
       if (code !== 0) {
-        api.clog('可能是 CSID 失效了')
+        api.clog('可能是 CSID 失效了');
         return api.clog(msg);
       }
       await api.doFormBody('getCoupons', {
         ...body,
         'type': 1,
-      }, void 0, options).then(data => {
-        const coupon = _.get(data, 'data.couponList[0]');
-        if (!coupon) return api.clog(data.msg);
-        const typeLabel = ['', '红包', '', '优惠券'];
-        const label = typeLabel[coupon.type];
-        !label && api.log(coupon);
-        api.clog(`获得 ${coupon.discount}(${label || coupon.type})`);
-      });
+      }, void 0, options).then(logGetCoupon);
+    }
+
+    function logGetCoupon(data) {
+      const coupon = _.get(data, 'data.couponList[0]');
+      if (!coupon) return api.clog(data.msg);
+      const typeLabel = ['', '红包', '', '优惠券', '', '', '优惠券'];
+      const label = typeLabel[coupon.type];
+      !label && api.log(coupon);
+      api.clog(`获得 ${coupon.discount}(${label || coupon.type})`);
     }
   }
 }
