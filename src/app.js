@@ -121,7 +121,7 @@ async function main() {
   // 常驻活动
   const longTermActivity = [
     SignBeanHome, Sign,
-    Fruit, TurnTableFarm,
+    Fruit,
     FruitFarmPark, FruitCollect,
     Cash,
     CashApplet,
@@ -188,6 +188,7 @@ async function main() {
     {
       valid: 6,
       run: async () => {
+        await doRun(TurnTableFarm);
         await doCron(TurnTableFarm);
         await serialRun(Joy);
       },
