@@ -213,7 +213,7 @@ class FirePower extends Template {
       const typeLabel = ['', '红包', '', '优惠券', '', '', '优惠券'];
       const label = typeLabel[coupon.type];
       !label && api.log(coupon);
-      api.clog(`获得 ${coupon.discount}(${label || coupon.type})`);
+      api.logBoth(`获得 ${coupon.discount}(${label || coupon.type})`);
     }
   }
 }
