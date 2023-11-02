@@ -68,6 +68,7 @@ const SuperBrandProduct = require('./jd/superBrand/Product');
 const RubikSCube = TemporarilyOffline || require('./jd/rubikSCube');
 const PointsGasStation = require('./jd/dwapp/PointsGasStation');
 const ExplorePlanet = require('./jd/explorePlanet');
+const Machine = require('./jd/Machine');
 
 /* 极简模式 */
 const BSign = require('./jd/bSign');
@@ -149,6 +150,7 @@ async function main() {
     SuperBrandProduct,
     SplitHongbao,
     require('./jd/618/FirePower'),
+    Machine,
   ];
   const scheduleOptions = [
     {
