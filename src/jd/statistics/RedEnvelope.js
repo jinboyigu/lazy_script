@@ -13,7 +13,6 @@ class StatisticsRedEnvelope extends Template {
   static commonParamFn = () => ({});
   static needInApp = false;
   static times = 1;
-  static cookieKeys = ['wq_uin', 'wq_skey'];
 
   static async doMain(api, shareCodes) {
     const self = this;
@@ -23,19 +22,19 @@ class StatisticsRedEnvelope extends Template {
         'type': 1,
         'redBalanceFlag': 1,
         'page': 1,
-        'tenantCode': 'jgminise',
+        'tenantCode': 'jgm',
         'bizModelCode': '6',
-        'bizModeClientType': 'WxMiniProgram',
-        'externalLoginType': '2',
+        'bizModeClientType': 'M',
+        'externalLoginType': '1',
       }, {
         qs: {
           appid: 'jd-cphdeveloper-m',
-          loginType: 11,
-          client: 'wx',
-          g_login_type: 0,
-          g_tk: 501823847,
+          loginType: 2,
+          client: 'm',
+          sceneval: '2',
+          g_login_type: '1',
           g_ty: 'ajax',
-          appCode: 'msd95910c4',
+          appCode: 'ms0ca95114',
         },
         headers: {
           origin: 'https://wqs.jd.com',
