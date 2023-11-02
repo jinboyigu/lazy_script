@@ -13,29 +13,26 @@ class StatisticsBean extends Template {
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static commonParamFn = () => ({});
-  static cookieKeys = ['wq_uin', 'wq_skey'];
   static times = 1;
 
   static apiOptions() {
     return {
       options: {
         headers: {
-          origin: new URL(indexUrl).origin,
-          referer: indexUrl,
+          origin: 'https://wqs.jd.com',
+          referer: 'https://wqs.jd.com/',
         },
         qs: {
           appid: 'jd-cphdeveloper-m',
-          loginType: 11,
-          g_login_type: 0,
-          g_tk: 2433214,
+          body: {'sceneid': 80027},
+          tenantCode: 'jgm',
+          bizModelCode: 6,
+          bizModeClientType: 'M',
+          externalLoginType: '1',
+          sceneval: 2,
+          g_login_type: 1,
           g_ty: 'ajax',
-          appCode: 'msd95910c4',
-          body: {
-            'tenantCode': 'jgminise',
-            'bizModelCode': 6,
-            'bizModeClientType': 'WxMiniProgram',
-            'externalLoginType': 2,
-          },
+          appCode: 'ms0ca95114',
         },
       },
     };
