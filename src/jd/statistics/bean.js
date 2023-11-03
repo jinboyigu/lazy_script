@@ -46,6 +46,7 @@ class StatisticsBean extends Template {
     // 获取用户信息
     const total = await api.doGetBody('queryJDUserInfo').then(data => {
       if (data.retcode !== 0) {
+        api.log(data);
         api.logSignOut(!processInAC());
       }
       return _.get(data, 'base.jdNum');
