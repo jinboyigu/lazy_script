@@ -69,6 +69,7 @@ const RubikSCube = TemporarilyOffline || require('./jd/rubikSCube');
 const PointsGasStation = require('./jd/dwapp/PointsGasStation');
 const ExplorePlanet = require('./jd/explorePlanet');
 const Machine = require('./jd/Machine');
+const HuaFei = require('./jd/huafei');
 
 /* 极简模式 */
 const BSign = require('./jd/bSign');
@@ -151,6 +152,7 @@ async function main() {
     SplitHongbao,
     require('./jd/618/FirePower'),
     Machine,
+    HuaFei,
   ];
   const scheduleOptions = [
     {
