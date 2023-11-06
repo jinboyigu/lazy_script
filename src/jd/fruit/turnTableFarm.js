@@ -61,7 +61,11 @@ class TurntableFarm extends Template {
           }
 
           const {shareCodeAddOn} = data;
-          const currentShareCode = getEnv('JD_FRUIT_SELF_SHARE_CODE', api.getPin()) || await api.doFormBody('initForFarm').then(data => data.farmUserPro.shareCode + shareCodeAddOn);
+          const farmShareCode = getEnv('JD_FRUIT_SELF_SHARE_CODE', api.getPin()) || await api.doFormBody('initForFarm').then(_.property('farmUserPro.shareCode'));
+          if (!farmShareCode) {
+            return result;
+          }
+          const currentShareCode = `${farmShareCode}${shareCodeAddOn}`;
           !self.shareCodeTaskList.includes(currentShareCode) && self.shareCodeTaskList.push(currentShareCode);
 
           let list = self.getShareCodeFn();
