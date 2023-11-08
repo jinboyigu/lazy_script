@@ -46,13 +46,14 @@ class StatisticsBean extends Template {
     // 获取用户信息
     const total = await api.doGetBody('queryJDUserInfo').then(data => {
       if (data.retcode !== 0) {
-        api.log(data);
         api.logSignOut(!processInAC());
       }
       return _.get(data, 'base.jdNum');
     });
     // 获取所有列表
-    const {list: detailList, willExpireNum} = await api.doGetBody('myBean');
+    const beanData = await api.doGetBody('myBean');
+    api.log(beanData);
+    const {list: detailList, willExpireNum} = beanData;
     if (!detailList) {
       api.logSignOut(!processInAC());
     }
