@@ -70,14 +70,15 @@ class FirePower extends Template {
     const d = ''; // 短链接(?s=$d)
 
     const getCouponCronHour = _.first(self._command);
-    if (getCouponCronHour) {
+    const needGetCoupon = !_.isNil(getCouponCronHour);
+    if (needGetCoupon) {
       api.clog(`等待 ${getCouponCronHour} 点定时执行...`);
       await sleepTime(getCouponCronHour);
     }
 
     await self.beforeRequest(api);
 
-    if (getCouponCronHour) {
+    if (needGetCoupon) {
       await getCoupons();
       return;
     }
