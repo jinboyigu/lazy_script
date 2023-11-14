@@ -53,7 +53,7 @@ class HuaFei extends Template {
       // 签到
       const rewardItemDTOList = await api.doGetBody('huafei_sign_in', {paramData: {currSignCursorList: `${currSignCursor}`}}).then(_.property('data[0].rewardItemDTOList'));
       for (const rewardItem of rewardItemDTOList || []) {
-        const {signHongBaoDTO, signCouponDTO} = rewardItem.signHongBaoDTO;
+        const {signHongBaoDTO, signCouponDTO} = rewardItem;
         if (signHongBaoDTO) {
           api.log(`签到成功, 获得 ${signHongBaoDTO.discount}(${signHongBaoDTO.activityName})`);
         } else if (signCouponDTO) {
