@@ -97,8 +97,8 @@ class RichTree extends Template {
 
 
 async function handleDoWater(api) {
-  const {kettle: {currentCapacity}} = await api.doFormBody('richTreeHome').then(_.property('data'));
-  await api.doFormBody('richTreeWater', {'waterNum': currentCapacity, 'type': 0}).then(result => {
+  const currentCapacity = await api.doFormBody('richTreeHome').then(_.property('data.kettle.currentCapacity'));
+  currentCapacity && await api.doFormBody('richTreeWater', {'waterNum': currentCapacity, 'type': 0}).then(result => {
     if (result.success) {
       api.log(`成功浇水 ${result.data.waterNum}`);
     } else {
