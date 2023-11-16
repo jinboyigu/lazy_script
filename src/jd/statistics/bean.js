@@ -50,13 +50,13 @@ class StatisticsBean extends Template {
       }
       return _.get(data, 'base.jdNum');
     });
-    // 获取所有列表
-    const beanData = await api.doGetBody('myBean');
-    api.log(beanData);
-    const {list: detailList, willExpireNum} = beanData;
-    if (!detailList) {
-      api.logSignOut(!processInAC());
+    // 在 action 中请求返回 statusCode=403
+    if (processInAC()) {
+      return api.log(`总数: ${total}`);
     }
+    // 获取所有列表
+    const beanData = processInAC() || await api.doGetBody('myBean');
+    const {list: detailList, willExpireNum} = beanData;
     const prevDate = getMoment().subtract(1, 'days').formatDate();
     const preMount = _.map(detailList.filter(o => o['createDate'].replace(/\//g, '-').match(prevDate)), 'amount')
     .reduce(accumulateFn);
