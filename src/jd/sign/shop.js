@@ -54,17 +54,13 @@ class SignShop extends Template {
     // https://h5.m.jd.com/babelDiy/Zeus/2PAAf74aG3D61qvfKUM5dxUssJQ9/index.html?token=
 
     // 默认 tokens
-    const defaultShopInfos = [];
+    const defaultShopInfos = [
+    ];
 
     let signSucceedTokens = [];
 
     // token, venderId, id
     let shopInfos = [
-      'C7F1789BEFAC5948BE4FB901CB5FE3B5',
-      'E9F0C5D39F341DB5C0360EDC2EE8A726',
-      '2210E1E8D7984A81069143BC01973A35',
-      '23FB5DC23D51097A6C6BA4DC0719E4A9',
-      '6F02B8BCC7C1D39FD237906223F65758',
       // 脚本新增插入位置
     ].concat(defaultShopInfos);
 
