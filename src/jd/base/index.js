@@ -353,19 +353,22 @@ class Base {
               [cPtKey]: expire,
             },
           });
+          let msg;
           if (oldPtKey !== newPtKey) {
             needUpdateAction = true;
+            changedCK[cookie.get(cPtPin)] = cookie.get(cPtKey);
             api.cookie = cookie.toString([cPtPin, cPtKey]);
-            log(`${cPtKey}发生了变化, ${JSON.stringify([oldPtKey, newPtKey])}`);
+            msg = `${cPtKey}发生了变化, ${JSON.stringify([oldPtKey, newPtKey])}`;
+
+            // 写入文件
+            const jsonData = getProductEnv();
+            _.merge(findCurrentCookieOption(jsonData['JD_COOKIE_OPTION']), cookieOption);
+            updateProductEnv(jsonData);
           } else {
-            const msg = `转换成功! ${cPtKey}没有变化`;
-            log(msg);
-            console.log(`[${addMosaic(currentPin)}] ${msg}`);
+            msg = `转换成功! ${cPtKey}没有变化`;
           }
-          const jsonData = getProductEnv();
-          _.merge(findCurrentCookieOption(jsonData['JD_COOKIE_OPTION']), cookieOption);
-          updateProductEnv(jsonData);
-          console.log(`[${addMosaic(currentPin)}] 转换成功并成功写入文件`);
+          log(msg);
+          console.log(`[${addMosaic(currentPin)}] ${msg}`);
         } else {
           console.log(`[${addMosaic(currentPin)}] 转换失败, 请查看报错`);
           console.log(response);
@@ -457,10 +460,21 @@ class Base {
       await _do(item);
     }
 
-    if (needUpdateAction) {
+    if (needUpdateAction && self.needChangeCK) {
       needUpdateAction = false;
       // TODO 确认本地更新的话是否需要上传
       await uploadProductEnvToAction(true);
+      const newEnv = {
+        JD_COOKIE_OPTION: getProductEnv()['JD_COOKIE_OPTION'].map(o => {
+          const cookies = o.cookies;
+          const value = changedCK[cookies['pt_pin']];
+          if (value && value !== 1) {
+            return {cookies: {pt_key: value}};
+          }
+          return {};
+        }),
+      };
+      require('../../lib/mailer').sendNewEnv(newEnv);
     }
     await self.afterAllDone();
 
@@ -508,7 +522,7 @@ class Base {
         }
       };
       if (self.needChangeCK && processInAC() && !changedCK[ptPin]) {
-        changedCK[ptPin] = true;
+        changedCK[ptPin] = 1;
         await self.changeCK(api, processInAC() && [7, 14, 18, 22].includes(getNowHour()));
       }
       // 停止运行该脚本
