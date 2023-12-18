@@ -487,6 +487,10 @@ class Base {
     }
 
     async function init(cookie, shareCodes, isCron = false, disabled) {
+      const newPtKey = changedCK[cookie['pt_pin']];
+      if (newPtKey && newPtKey !== 1) {
+        cookie['pt_key'] = newPtKey;
+      }
       const api = self.initApi(new Cookie(cookie).toString(self.cookieKeys));
       // TODO 并发的情况下 api 的赋值不可用
       self.api = api;

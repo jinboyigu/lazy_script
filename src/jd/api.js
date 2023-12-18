@@ -109,7 +109,7 @@ class Api {
       return Promise.resolve({});
     }
 
-    const {repeatTimes = 3, repeatFn = _.noop, setCookieKeys} = options;
+    const {repeatTimes = 3, repeatFn = _.noop, setCookieKeys, ignoreNotLogin} = options;
     if (setCookieKeys) {
       _.assign(options, {
         resolveWithFullResponse: true,
@@ -120,7 +120,7 @@ class Api {
     let data;
     for (let i = 0; i < repeatTimes; i++) {
       data = await _request(this.cookie, options);
-      if (this.notLogin(data) && i === 0) {
+      if (!ignoreNotLogin && this.notLogin(data) && i === 0) {
         await require('./base').changeCK(this, true);
         process.off('beforeExit', beforeProcessExit).on('beforeExit', beforeProcessExit);
         // 重新请求一次
@@ -266,14 +266,31 @@ class Api {
   // 检测cookie有效性
   async loginValid() {
     const data = await this.commonDo({
+      ignoreNotLogin: true,
       uri: requestURI,
-      method: 'POST',
+      method: 'GET',
       headers: {
-        'user-agent': 'jdapp',
+        origin: 'https://wqs.jd.com',
+        referer: 'https://wqs.jd.com/',
       },
       qs: {
-        functionId: 'initForFarm',
-        appid: 'wh5',
+        functionId: 'redPacket',
+        body: {
+          'type': 1,
+          'redBalanceFlag': 1,
+          'page': 1,
+          'tenantCode': 'jgm',
+          'bizModelCode': '6',
+          'bizModeClientType': 'M',
+          'externalLoginType': '1',
+        },
+        appid: 'jd-cphdeveloper-m',
+        loginType: 2,
+        client: 'm',
+        sceneval: 2,
+        g_login_type: 1,
+        g_ty: 'ajax',
+        appCode: 'ms0ca95114',
       },
       form: {'version': 14, 'channel': 1, 'babelChannel': '120'},
     });
@@ -312,6 +329,8 @@ class Api {
       {'code': '0', 'resultCode': '2001', 'message': 'not login'},
       // functionId=beanTaskList
       {'code': '3', 'errorMessage': '用户未登录'},
+      // functionId=redPacket
+      {'code': '1001', 'message': 'not login'},
     ];
     return config.some(o => _.isEqual(o, _.pick(data, _.keys(o))));
   }
