@@ -21,9 +21,9 @@ const zipObject = fileContent => {
 function initEnv() {
   if (processInAC()) {
     // github action 从 env.ACTION_ENV 中读取
-    updateProductEnv(getEnv('ACTION_ENV'));
+    updateProductEnv(getEnv('ACTION_ENV'), void 0, void 0, false);
   }
-  const envs = ['.env.product.json', '.env.local', '.env.local.json'].map(name => {
+  const envs = ['.env.product.json', '.env.local', '.env.local.json', '.env.action.json'].map(name => {
     const filePath = path.resolve(__dirname, `../../${name}`);
     if (!fs.existsSync(filePath)) return;
     if (name.endsWith('json')) {
@@ -139,13 +139,13 @@ function getProductEnv() {
   return readFileJSON('../../.env.product.json', __dirname);
 }
 
-function updateProductEnv(data, cover = true, merge = false) {
+function updateProductEnv(data, cover = true, merge = false, inAC = processInAC()) {
   if (!cover) {
     const oldData = getProductEnv();
     data = merge ? _.merge(oldData, data) : _.assign(oldData, data);
   }
   _updateEnv(data);
-  writeFileJSON(data, '../../.env.product.json', __dirname);
+  writeFileJSON(data, `../../.env.${inAC ? 'action' : 'product'}.json`, __dirname);
 }
 
 async function uploadProductEnvToAction(needInAction) {
