@@ -3,6 +3,7 @@ const {getNowDate, getNowHour} = require('./lib/moment');
 const {getCookieData, updateProcessEnv, processInAC, getEnv} = require('./lib/env');
 const {sleepTime} = require('./lib/cron');
 const {sleep} = require('./lib/common');
+require('../src/lib/common').exec('node src/shell/updateEnvFromMail.js');
 updateProcessEnv();
 const {
   multipleRun,
@@ -45,15 +46,13 @@ async function main() {
     return;
   }
 
-  await require('./lib/mailer').updateEnvFromMail();
-
   if ([10, 15, 21].includes(nowHour)) {
     await doRun(require('./jd/lite/EarnCoins'));
   }
 
-  if ([0, 7, 12, 18, 22, 23].includes(nowHour)) {
-    await doRun(Fruit);
-  }
+  // if ([0, 7, 12, 18, 22, 23].includes(nowHour)) {
+  //   await doRun(Fruit);
+  // }
 
   // if (nowHour === 23) {
   //   await sleepTime(24);
