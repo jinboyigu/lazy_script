@@ -10,16 +10,16 @@ class BSign extends Template {
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static commonParamFn = () => ({
-    body: {'activityId': 'FIz2zkvbepstVFm3uqLOUA', 'linkId': 'FIz2zkvbepstVFm3uqLOUA'},
+    body: {'linkId': 'FIz2zkvbepstVFm3uqLOUA'},
     appid: 'activities_platform',
     client: 'ios',
-    clientVersion: '12.1.0',
-    'x-api-eid-token': 'jdd03ZPNNW3TV6YVBDF6LALDR2XZXJIOXG7DOZCOE5KWDM52NKDQPTVI2DNJBTLINK7PEB5D6KDHQSFP3ME3ELYDTW3PZHQAAAAMKQ3IWJWYAAAAACR6VHNAIZBQJJUX',
+    clientVersion: '12.3.1',
+    'x-api-eid-token': 'jdd03ZPNNW3TV6YVBDF6LALDR2XZXJIOXG7DOZCOE5KWDM52NKDQPTVI2DNJBTLINK7PEB5D6KDHQSFP3ME3ELYDTW3PZHQAAAAMM2ISO63IAAAAADB2RJIL4N2RMLUX',
   });
   static keepIndependence = true;
   static needInAppComplete1 = true;
   static times = 1;
-  static activityEndTime = '2023-12-31';
+  static activityEndTime = '2024-12-31';
 
   static apiOptions() {
     return {
@@ -40,6 +40,7 @@ class BSign extends Template {
         bSignInDo: {appId: '61e2b'},
         apsDoTask: {appId: '54ed7'},
         apTaskDrawAward: {appId: '6f2b6'},
+        apDoLimitTimeTask: {appId: 'ebecc'},
       },
       signFromSecurity: true,
     });
@@ -77,6 +78,7 @@ class BSign extends Template {
         taskSourceUrl: itemId,
         taskTitle,
         taskFinished,
+        timeLimitPeriod,
         canDrawAwardNum
       } of taskList || []) {
         if (taskTitle.match('下单') || (taskFinished && !canDrawAwardNum)) continue;
@@ -85,7 +87,11 @@ class BSign extends Template {
           taskId,
           itemId,
         };
-        !canDrawAwardNum && await api.doFormBody('apsDoTask', body);
+        if (!canDrawAwardNum) {
+          await api.doFormBody('apStartTaskTime', {taskId, itemId});
+          await sleep(timeLimitPeriod);
+          await api.doFormBody('apDoLimitTimeTask');
+        }
         await sleep(2);
         await api.doFormBody('apTaskDrawAward', body);
       }

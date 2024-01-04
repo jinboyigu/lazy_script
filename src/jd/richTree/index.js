@@ -13,13 +13,13 @@ class RichTree extends Template {
     body: {'linkId': '_LN1l_4Nv5mTEsWhs3hIMA'},
     appid: 'activities_platform',
     client: 'ios',
-    clientVersion: '12.1.0',
-    'x-api-eid-token': 'jdd03ZPNNW3TV6YVBDF6LALDR2XZXJIOXG7DOZCOE5KWDM52NKDQPTVI2DNJBTLINK7PEB5D6KDHQSFP3ME3ELYDTW3PZHQAAAAMKQ6EXMLIAAAAADTMR36FLEQGPGAX',
+    clientVersion: '12.3.1',
+    'x-api-eid-token': 'jdd03ZPNNW3TV6YVBDF6LALDR2XZXJIOXG7DOZCOE5KWDM52NKDQPTVI2DNJBTLINK7PEB5D6KDHQSFP3ME3ELYDTW3PZHQAAAAMM2IGD57AAAAAACHMY3WBE7XQ3UAX',
   });
   static keepIndependence = true;
   static needInAppComplete1 = true;
   static times = 1;
-  static activityEndTime = '2023-12-31';
+  static activityEndTime = '2024-12-31';
 
   static apiOptions() {
     return {
@@ -41,6 +41,7 @@ class RichTree extends Template {
         richTreeOpen: {appId: '34e92'},
         apsDoTask: {appId: '54ed7'},
         apTaskDrawAward: {appId: '6f2b6'},
+        apDoLimitTimeTask: {appId: 'ebecc'},
       },
       signFromSecurity: true,
     });
@@ -73,6 +74,7 @@ class RichTree extends Template {
         taskSourceUrl: itemId,
         taskTitle,
         taskFinished,
+        timeLimitPeriod,
         canDrawAwardNum
       } of taskList || []) {
         if (taskTitle.match('下单') || taskFinished) continue;
@@ -81,7 +83,10 @@ class RichTree extends Template {
           taskId,
           itemId,
         };
-        await api.doFormBody('apsDoTask', body);
+        // await api.doFormBody('apsDoTask', body);
+        await api.doFormBody('apStartTaskTime', body);
+        await sleep(timeLimitPeriod);
+        await api.doFormBody('apDoLimitTimeTask');
       }
     }
 

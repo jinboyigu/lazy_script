@@ -13,12 +13,12 @@ class Lhb4b extends Template {
     body: {'linkId': 'l-yLvQMhLwCqYy6_nXUBgg'},
     appid: 'activities_platform',
     client: 'ios',
-    clientVersion: '12.1.0',
+    clientVersion: '12.3.1',
   });
   static keepIndependence = true;
   static needInAppComplete1 = true;
   static times = 1;
-  static activityEndTime = '2023-12-31';
+  static activityEndTime = '2024-12-31';
 
   static apiOptions() {
     return {
@@ -40,6 +40,7 @@ class Lhb4b extends Template {
         lhb4b_open: {appId: '7af4f'},
         apsDoTask: {appId: '54ed7'},
         apTaskDrawAward: {appId: '6f2b6'},
+        apDoLimitTimeTask: {appId: 'ebecc'},
       },
       signFromSecurity: true,
     });
@@ -76,15 +77,17 @@ class Lhb4b extends Template {
         taskSourceUrl: itemId,
         taskTitle,
         taskFinished,
+        timeLimitPeriod,
         canDrawAwardNum
       } of taskList || []) {
         if (taskTitle.match('下单') || taskFinished) continue;
         const body = {
-          taskType,
           taskId,
           itemId,
         };
-        await api.doFormBody('apsDoTask', body);
+        await api.doFormBody('apStartTaskTime', body);
+        await sleep(timeLimitPeriod);
+        await api.doFormBody('apDoLimitTimeTask');
       }
     }
 
