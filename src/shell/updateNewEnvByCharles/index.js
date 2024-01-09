@@ -1,11 +1,11 @@
-const {readFileJSON, writeFileJSON} = require('../../lib/common');
+const {readFileJSON, writeFileJSON, sleep, exec} = require('../../lib/common');
 const {readDirJSON} = require('../../lib/charles');
 const Cookie = require('../../lib/cookie');
 const _ = require('lodash');
 
 // 从 Charles 抓包文件中获取 cookie 并自动更新
 // Charles可以设置自动保存来自动存储 json 格式文件
-function updateNewEnvByCharles() {
+async function updateNewEnvByCharles() {
   const {JD_COOKIE_OPTION} = readFileJSON('../../../.env.product.json', __dirname);
   if (!JD_COOKIE_OPTION) return console.log('无需更新');
   const result = readDirJSON(__dirname);
@@ -51,12 +51,14 @@ function updateNewEnvByCharles() {
   writeFileJSON(data, '../../../.env.new.json', __dirname);
   console.log(require('util').inspect(data, {depth: null}));
   console.log('成功写入文件 .env.new.json');
-  console.log('自动执行sendNewEnvByMail');
-  require('../../lib/common').exec('npm run shell:sendNewEnvByMail');
-  console.log('自动执行updateEnvFromMail');
-  require('../../lib/common').exec('npm run shell:updateEnvFromMail');
-  console.log('自动执行ChangeCK');
-  require('../../lib/common').exec('npm run build:ChangeCK');
+  console.log('执行sendNewEnvByMail');
+  await exec('npm run shell:sendNewEnvByMail');
+  await sleep(5);
+  console.log('5s后执行updateEnvFromMail');
+  await exec('npm run shell:updateEnvFromMail');
+  await sleep(2);
+  console.log('执行ChangeCK');
+  await exec('npm run build:ChangeCK');
 }
 
-updateNewEnvByCharles();
+updateNewEnvByCharles().then();
