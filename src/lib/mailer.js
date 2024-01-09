@@ -201,7 +201,7 @@ function sendNewEnv(content, fileName = '.env.new.json') {
 /**
  * @description 获取邮件信息更新本地 env
  */
-async function updateEnvFromMail(day = 2) {
+async function updateEnvFromMail(day = 7) {
   const nowMoment = getMoment();
   const getNewEnvs = () => search({
     since: nowMoment.subtract(day, 'day'),
