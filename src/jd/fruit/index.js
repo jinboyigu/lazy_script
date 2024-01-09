@@ -17,7 +17,7 @@ class Fruit extends Template {
     client: 'apple',
     clientVersion: '12.3.1',
     body: {'version': 26, 'channel': 1, 'babelChannel': '522'},
-    'x-api-eid-token': 'jdd03ZPNNW3TV6YVBDF6LALDR2XZXJIOXG7DOZCOE5KWDM52NKDQPTVI2DNJBTLINK7PEB5D6KDHQSFP3ME3ELYDTW3PZHQAAAAMM3CHBK5YAAAAACER4GOXVSX6BVQX',
+    // 'x-api-eid-token': 'jdd03ZPNNW3TV6YVBDF6LALDR2XZXJIOXG7DOZCOE5KWDM52NKDQPTVI2DNJBTLINK7PEB5D6KDHQSFP3ME3ELYDTW3PZHQAAAAMM3CHBK5YAAAAACER4GOXVSX6BVQX',
   });
   static apiOptions = {
     options: {
@@ -440,6 +440,10 @@ class Fruit extends Template {
         if (self.isSuccess(farmData)) {
           api.cacheFarm = farmData;
           break;
+        }
+        if (farmData.code === '6') {
+          api.logBoth('太火爆了');
+          throw '';
         }
         const is404 = farmData.code === '404';
         if (i === 1 && is404) break;
