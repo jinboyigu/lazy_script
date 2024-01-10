@@ -114,17 +114,21 @@ class Fruit extends Template {
 
   static async doMain(api, shareCodes) {
     const self = this;
-    const needHarvest = _.get(self._command, 0); // node src/jd/fruit/index.js start 0 1
+    const waterToMature = _.get(self._command, 0); // node src/jd/fruit/index.js start 0 1
     // 快速浇水默认关闭
     const enableFastWater = _.get(self._command, 1);
+    // 收获兑换成红包
+    const getHongBao = waterToMature || _.get(self._command, 2);
+    // 强制浇水到收获
+    const forceHarvest = _.get(self._command, 3);
     const waterTimes = 0;
 
     await self.beforeRequest(api);
     // 指定浇水次数
     if (waterTimes) await handleWaterGoodForFarm(waterTimes);
     // 浇水到成熟
-    if (needHarvest) {
-      api.clog('开始自动浇水至收获');
+    if (waterToMature) {
+      api.clog('开始自动浇水至成熟');
       return logFarmInfo(true);
     }
 
@@ -139,9 +143,6 @@ class Fruit extends Template {
     }
 
     const {shareCode: currentShareCode, treeState} = farmUserPro;
-
-    // TODO 获取浇水阶段性奖励
-    false && await api.doFormBody('gotStageAwardForFarm', {type: 1});
 
     // 新手任务获取水滴
     if (canGotNewUserToday) {
@@ -362,31 +363,41 @@ class Fruit extends Template {
     }
 
     // 输出日志
-    async function logFarmInfo(needHarvest = false) {
-      return handleInitForFarm().then(async data => {
+    async function logFarmInfo(autoWater = false, fromCache) {
+      return handleInitForFarm(fromCache).then(async data => {
         const {
-          farmUserPro: {treeEnergy, treeTotalEnergy, totalEnergy, treeState},
+          farmUserPro: {treeEnergy, treeTotalEnergy, totalEnergy, treeState, createTime},
           farmWinGoods,
           funCollectionHasLimit,
         } = data;
         if (treeState === 2) {
+          if (getHongBao) {
+            return api.doFormBody('gotCouponForFarm').then(data => {
+              if (self.isSuccess(data)) {
+                const {balance, endTime} = _.get(data, 'hongbaoResult.hongBao');
+                api.log(`获取红包: ${balance}, 过期时间为: ${getMoment(endTime).format()}`);
+                return logFarmInfo(autoWater, false);
+              } else {
+                api.log('收获失败, 请在 app 中收获');
+              }
+            });
+          }
           return api.log('当前水果已经成熟, 请在app中兑换红包');
         }
-        if (!treeTotalEnergy) {
-          // TODO 种植水果
+        if (treeState === 3) {
+          // 种植水果
           const targetGood = _.maxBy(farmWinGoods, 'prizeLevel');
-          false && targetGood && await handleChoiceGoodsForFarm(targetGood.type);
-          return api.log('目前没有种植水果');
+          targetGood && await handleChoiceGoodsForFarm(targetGood.type);
+          return logFarmInfo(autoWater, false);
         }
         const remainEnergy = treeTotalEnergy - treeEnergy;
         let msg = `需要总水滴数为: ${treeTotalEnergy}, 收成还差水滴数: ${remainEnergy}, 当前水滴数: ${totalEnergy}`;
         const canHarvest = remainEnergy <= totalEnergy;
         canHarvest && (msg += ', 可以收成了!!!');
         api.log(msg);
-        if (needHarvest && canHarvest) {
-          // TODO 判断有误, 先忽略
-          if (funCollectionHasLimit && false) {
-            return api.log('这个月已经兑换过了, 请下个月再来');
+        if (autoWater && canHarvest) {
+          if (!forceHarvest && getMoment(createTime).formatDate() === getMoment().formatDate()) {
+            return api.log('今天已经兑换了, 请明天再来');
           }
           const maxTimes = Math.floor(remainEnergy / 100);
           if (maxTimes > 0 && enableFastWater) {
@@ -396,13 +407,15 @@ class Fruit extends Template {
               delete card.returnLimit;
               api.logBoth(`使用快速浇水卡 ${limit} 次, 在 ${getMoment().add(limit * 3, 's').format()} 之后可以完成`);
               await handleUseCard(card);
-              return logFarmInfo(true);
+              return logFarmInfo(true, false);
             }
           }
           const waterTimes = remainEnergy / 10;
           const time = getMoment().add(waterTimes * 3, 's');
           api.logBoth(`完成需浇水 ${waterTimes} 次, 在 ${time.format()} 之后可以完成`);
           await handleWaterGoodForFarm(waterTimes);
+          // 兑换红包
+          return logFarmInfo(false, false);
         }
       });
     }
@@ -419,9 +432,15 @@ class Fruit extends Template {
       let successTimes = 0;
       for (let i = 0; i < times; i++) {
         await sleep(2);
-        const canNext = await api.doFormBody('waterGoodForFarm').then(data => {
+        const canNext = await api.doFormBody('waterGoodForFarm').then(async data => {
           if (self.isSuccess(data)) {
             successTimes++;
+            if ([1].includes(data.treeEnergy / 10)) {
+              await api.doFormBody('gotStageAwardForFarm', {type: 1}).then(data => {
+                api.log(`浇水阶段性奖励: ${JSON.stringify(data)}`);
+                return data;
+              });
+            }
             return true;
           }
         });
@@ -474,8 +493,16 @@ class Fruit extends Template {
         'shareCode': '',
         goodsType,
         'type': '0',
-      }).then(data => {
-        api.log(JSON.stringify(data));
+      }).then(async data => {
+        if (self.isSuccess(data)) {
+          const {name, prizeLevel} = data.farmUserPro;
+          api.log(`"${name}" 种植成功(等级: ${prizeLevel})`);
+          if (data.choiceEnergy) {
+            await api.doFormBody('gotStageAwardForFarm', {type: 4});
+          }
+        } else {
+          api.log(JSON.stringify(data));
+        }
       });
     }
   }
