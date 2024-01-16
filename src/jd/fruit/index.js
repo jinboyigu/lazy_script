@@ -401,19 +401,19 @@ class Fruit extends Template {
             return api.log('今天已经兑换了, 请明天再来');
           }
           const maxTimes = Math.floor(remainEnergy / 100);
+          const formatFinishTime = number => getMoment().add(number * 3.2, 's').format();
           if (maxTimes > 0 && enableFastWater) {
             const card = {type: 'fastCard', maxTimes, returnLimit: true};
             const [{limit}] = await handleUseCard(card);
             if (limit > 0) {
               delete card.returnLimit;
-              api.logBoth(`使用快速浇水卡 ${limit} 次, 在 ${getMoment().add(limit * 3, 's').format()} 之后可以完成`);
+              api.logBoth(`使用快速浇水卡 ${limit} 次, 在 ${formatFinishTime(limit)} 之后可以完成`);
               await handleUseCard(card);
               return logFarmInfo(true, false);
             }
           }
           const waterTimes = remainEnergy / 10;
-          const time = getMoment().add(waterTimes * 3, 's');
-          api.logBoth(`完成需浇水 ${waterTimes} 次, 在 ${time.format()} 之后可以完成`);
+          api.logBoth(`完成需浇水 ${waterTimes} 次, 在 ${formatFinishTime(waterTimes)} 之后可以完成`);
           await handleWaterGoodForFarm(waterTimes);
           // 兑换红包
           return logFarmInfo(false, false);
