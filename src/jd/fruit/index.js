@@ -367,7 +367,7 @@ class Fruit extends Template {
     async function logFarmInfo(autoWater = false, fromCache) {
       return handleInitForFarm(fromCache).then(async data => {
         const {
-          farmUserPro: {treeEnergy, treeTotalEnergy, totalEnergy, treeState, createTime},
+          farmUserPro: {treeEnergy, treeTotalEnergy, totalEnergy, treeState},
           farmWinGoods,
           funCollectionHasLimit,
         } = data;
@@ -376,10 +376,10 @@ class Fruit extends Template {
             return api.doFormBody('gotCouponForFarm').then(data => {
               if (self.isSuccess(data)) {
                 const {balance, endTime} = _.get(data, 'hongbaoResult.hongBao');
-                api.log(`获取红包: ${balance}, 过期时间为: ${getMoment(endTime).format()}`);
+                api.log(`收获成功, 获取红包: ${balance}, 过期时间为: ${getMoment(endTime).format()}`);
                 return logFarmInfo(autoWater, false);
               } else {
-                api.log('收获失败, 请在 app 中收获');
+                api.logBoth(`收获失败, 可能是今天已兑换过, data: ${JSON.stringify(data)}`);
               }
             });
           }
@@ -397,8 +397,8 @@ class Fruit extends Template {
         canHarvest && (msg += ', 可以收成了!!!');
         api.log(msg);
         if (autoWater && canHarvest) {
-          if (!forceHarvest && getMoment(createTime).formatDate() === getMoment().formatDate()) {
-            return api.log('今天已经兑换了, 请明天再来');
+          if (!forceHarvest && 0/* TODO 找不到具体的判断逻辑 */) {
+            return api.logBoth('今天已经兑换了, 请明天再来');
           }
           const maxTimes = Math.floor(remainEnergy / 100);
           const formatFinishTime = number => getMoment().add(number * 3.2, 's').format();
