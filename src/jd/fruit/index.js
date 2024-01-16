@@ -172,6 +172,7 @@ class Fruit extends Template {
         '2886e4326e104eecb117f7a32732cda3',
         '599767762e104f77a3980598fab16a99',
         '4569adc9a868457fb35c14e8db3572a1',
+        '1e3d7edad2854ef8b24af27df550bf19',
       ];
       const otherDefaultShareCodes = defaultShareCodes.filter(code => code !== currentShareCode);
       if (onlyDefault) return otherDefaultShareCodes;
