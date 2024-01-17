@@ -118,7 +118,8 @@ class Fruit extends Template {
     // 快速浇水默认关闭
     const enableFastWater = _.get(self._command, 1);
     // 收获兑换成红包
-    const getHongBao = waterToMature || _.get(self._command, 2);
+    let getHongBao = _.get(self._command, 2);
+    _.isNil(getHongBao) && (getHongBao = waterToMature);
     // 强制浇水到收获
     const forceHarvest = _.get(self._command, 3);
     const waterTimes = 0;
@@ -376,7 +377,7 @@ class Fruit extends Template {
             return api.doFormBody('gotCouponForFarm').then(data => {
               if (self.isSuccess(data)) {
                 const {balance, endTime} = _.get(data, 'hongbaoResult.hongBao');
-                api.log(`收获成功, 获取红包: ${balance}, 过期时间为: ${getMoment(endTime).format()}`);
+                api.logBoth(`收获成功, 获取红包: ${balance}, 过期时间为: ${getMoment(endTime).format()}`);
                 return logFarmInfo(autoWater, false);
               } else {
                 api.logBoth(`收获失败, 可能是今天已兑换过, data: ${JSON.stringify(data)}`);
