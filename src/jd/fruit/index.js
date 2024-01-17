@@ -47,6 +47,7 @@ class Fruit extends Template {
 
   static async handleDoShare(api, shareCodes) {
     const self = this;
+    getEnv('JD_FRUIT_DO_SHARE_REVERSE') && (shareCodes = shareCodes.reverse());
     for (const shareCode of shareCodes) {
       await sleep(2);
       await self.doApiInitForFarm(api, shareCode).then(data => {
