@@ -17,9 +17,9 @@ class FirePower extends Template {
     appid: 'u_hongbao',
     loginType: 2,
     client: 'apple',
-    clientVersion: '12.1.6',
+    clientVersion: '12.3.1',
   });
-  static activityEndTime = '2023-11-11';
+  static activityEndTime = '2024-02-03';
   static concurrent = () => this._command[0];
 
   static apiOptions() {
@@ -40,10 +40,10 @@ class FirePower extends Template {
     //   setCookieKeys: ['CSID'],
     // });
     // CSID 需从 charles 中获取, 不然可能会无效
-    api.cookieInstance.set('CSID', 'RG1qGCNQWAtcQQBcWU9cQlAwdHl9LF8NFQtUBRFZWwVqe3Z7d3hxchVWVS1TWlRWWnZmYA5SRBRvZBhzXFldOkdRXkNHV0BGYHVmdXtS');
-    await api.doGetUrl('https://u.jd.com/jda?e=99_1|1_28|||&p=JF8BAPEJK1olXDYDZBoCUBVIMzZNXhpXVhgcFR0DFxcIWDoXSQVJQ1pSCQNDWBlSWyhcBV5pVXRBMgkieiwVYApUaQhGPVVECFw1YCBcRAYWQwRACU8dDRsBVUVTXDdWRCtHGH5XWFxdCEwTMytURRNXJ2d2MT1HTDBgGSthbDtrD0AOWG5cOEsWAm0LHVgcXAYyZF5ZOAB5Al8JK1sSVQAKXFxfDksSB2g4G10liImugdHxCkgTB2wKK2sXXQYFUG5eOEMfbW9FGzUWVEtPGW5tCEwnAF84GFoUXAYyZIDQuC5iYTULaA8WBnBlFjwDcUnJjt84&a=fCg9UgoiAwwHO1BcXkQYFFljf3B1e1FWQFozVRBSUll%2bAQAPDSwjLw%3d%3d&refer=norefer&d=0ivOeC8&h5st=952551976', {
+    api.cookieInstance.set('CSID', 'Rjw%2fS3VSWF4CFwZYWURZQFFldSt0eVFdSFlWVUAKCwFqe3Z7d3hxchVWVS1TWlRRWndnYA1eRBVnZBl3XFtfOkBSQFxCWllZYXFmc3k%3d');
+    await api.doGetUrl('https://u.jd.com/jda?e=618%7Cpc%7C&p=JF8BAQMJK1olXDYDZBoCUBVIMzZNXhpXVhgcFR0DFxcIWDoXSQVJQ1pSCQNDWBlSWyhcBVhqAVJBDB1ZDU5lAxhRbj1vDgZVDj5efS1lCxIWQwRACU8dDRsBVUVTXDdWRCtHGH5XWFxdCEweM2x_WihDR01mNlojQAxBBG5uTR0TPUAOWG5YCEoWB2sOHlgTbQYDVVxeDkgeAm84K1sWbU1sVW5fCEoWA2gLGl8WbQYEVVpYCEMSAWkOElMlWgYLZIvSpJ6Yr20LH18WXzYyVl5dD0InAF8PG1IBW3RDBkpbensnA2g4GGslXwcDUFdtOJWZlwwAfAJsWnsFMx07SzFxQTfWlc8l&a=fCg9UgoiAwwHO1BcXkQYFFlidn1xfldWQlgzVRBSUll%2bAQAPDSwjLw%3d%3d&refer=norefer&d=limDYo5&h5st=1977529226', {
       headers: {
-        referer: 'https://u.jd.com/0ivOeC8',
+        referer: 'https://u.jd.com/limDYo5',
       },
       setCookieKeys: ['unpl'],
     });
@@ -65,8 +65,8 @@ class FirePower extends Template {
 
     const unionShareIds = getEnv('JD_FIREPOWER_UNIONSHAREIDS') || [];
 
-    const unionActId = '31165';
-    const actId = '27F8qXYtc6pi1sjybdSavaLjSvBL';
+    const unionActId = '31168';
+    const actId = 'fCxuTPqcKwygVyFDSeP57u281gV';
     const d = ''; // 短链接(?s=$d)
 
     const getCouponCronHour = _.first(self._command);
@@ -92,7 +92,7 @@ class FirePower extends Template {
     async function handleDoTask() {
       const groupInfo = await queryFullGroupInfoMap().then(data => {
         if (data.code === 1) {
-          throw api.clog(data.msg, false);
+          throw api.logBoth(data.msg, false);
         }
         const {status, joinNum} = _.last(_.get(data, 'longGroupData.groupInfo', [])) || {};
         if (status === 2) {
@@ -118,7 +118,7 @@ class FirePower extends Template {
         if (!unionShareId) return;
         const baseBody = {
           unionActId,
-          'actId': 'nLQ8zK4k2dwaa7vasRKnEvoqnuf',
+          'actId': 'EXsgwGSVfFhZESxY3Zkha4Hoe6n',
           'platform': 4,
           unionShareId,
           'd': wordRandom(),
@@ -142,17 +142,18 @@ class FirePower extends Template {
             'qdPageId': 'MO-J2011-1',
             'mdClickId': 'jxhongbao_ck',
             'agreeState': 0,
-          }).then(logGetCoupon);
+          }).then(logGetCoupon.bind(0, '分享抽奖'));
           // 获取每天任务红包. 暂时不开启 TODO
           0 && await api.doFormBody('getCoupons', {
             ...baseBody,
             'type': 3,
             'qdPageId': 'MO-J2011-1',
             'mdClickId': 'jxhongbao_ck',
-          }).then(logGetCoupon);
+          }).then(logGetCoupon.bind(0, '每天打卡'));
         }
       };
 
+      let successTimes = 0;
       for (const {projectId: encryptProjectId, taskId: encryptAssignmentId, status, showInfo} of groupInfo) {
         if (status !== 1 || !encryptAssignmentId) continue;
         // 分享任务
@@ -171,7 +172,18 @@ class FirePower extends Template {
         await api.doGetBody('doInteractiveAssignment', body);
         body.actionType = 0;
         await sleep(waitDuration);
-        await api.doGetBody('doInteractiveAssignment', body);
+        await api.doGetBody('doInteractiveAssignment', body).then(data => {
+          if (data.msg === '任务完成') {
+            successTimes++;
+          } else {
+            throw api.clog(data.msg, false);
+          }
+        });
+      }
+      if (successTimes) {
+        api.log(`成功完成任务 ${successTimes} 次`);
+      } else if (!_.isEmpty(groupInfo)) {
+        api.logBoth(`今天任务已完成`);
       }
     }
 
@@ -208,13 +220,17 @@ class FirePower extends Template {
       }, void 0, options).then(logGetCoupon);
     }
 
-    function logGetCoupon(data) {
+    function logGetCoupon(name = '', data) {
+      if (_.isPlainObject(name)) {
+        data = name;
+        name = '';
+      }
       const coupon = _.get(data, 'data.couponList[0]');
       if (!coupon) return api.clog(data.msg);
       const typeLabel = ['', '红包', '', '优惠券', '', '', '优惠券'];
       const label = typeLabel[coupon.type];
       !label && api.log(coupon);
-      api.logBoth(`获得 ${coupon.discount}(${label || coupon.type})`);
+      api.logBoth(`${name}获得 ${coupon.discount}(${label || coupon.type})`);
     }
   }
 }
