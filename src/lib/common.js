@@ -215,6 +215,7 @@ async function singleRun(target, method = 'start', runFn = null) {
 
   for (const m of _.concat(method)) {
     if (command1 === m && isCurrentFile) {
+      exec('node src/shell/updateEnvFromMail.js');
       updateProcessEnv();
       const _getCookie = _.wrap(getCookieData(), data => [undefined, '*', '.'].includes(command2) ? data : _.pullAt(data, command2.split(',')));
       try {
@@ -315,7 +316,7 @@ function formatFullPath(config, action) {
  * @param options {Object}
  * @return {Promise|undefined}
  */
-const exec = async (command, options = {}) => {
+async function exec(command, options = {}) {
   let args;
 
   [command, ...args] = _.isArray(command) ? command : splitCommand(command);
