@@ -61,7 +61,11 @@ function patchCookieOption() {
 // 判断是否可以配置代理
 function updateProxyConf(result) {
   const proxyKey = ['http_proxy', 'https_proxy'];
-  if (!Object.keys(result).some(key => proxyKey.includes(key))) return result;
+  if (!Object.keys(result).some(key => proxyKey.includes(key))) {
+    delete result['NODE_TLS_REJECT_UNAUTHORIZED'];
+    return result;
+  }
+  result['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
   if (['darwin', 'win32'].includes(process.platform)) {
     const isWin = process.platform === 'win32';
     const proxyApps = ['Charles'];
@@ -74,6 +78,7 @@ function updateProxyConf(result) {
       proxyKey.forEach(key => {
         delete result[key];
       });
+      delete result['NODE_TLS_REJECT_UNAUTHORIZED'];
     }
   }
   return result;
