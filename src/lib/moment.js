@@ -13,13 +13,14 @@ _.assign(moment.prototype, {
   },
 });
 
+// 设置默认时区
+moment.tz.setDefault('Asia/Shanghai');
 // 定义默认format
 moment.defaultFormat = FORMAT_FULL_DATE;
 
 const defaultData = {};
 
-// TODO 更改为 moment.tz.setDefault
-const getMoment = (date = void 0, tz = 'Asia/Shanghai') => moment.tz(date, tz);
+const getMoment = (date = void 0, tz) => tz ? moment.tz(date, tz) : moment(date);
 const getOnlyHourMoment = (hour = 0) => getMoment().hour(hour).minute(0).second(0).millisecond(0);
 const getNowDate = (format = 'YYYY-MM-DD') => getMoment().format(format);
 const getNowHour = () => {
