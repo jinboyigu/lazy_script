@@ -18,7 +18,7 @@ class Lhb4b extends Template {
   static keepIndependence = true;
   static needInAppComplete1 = true;
   static times = 1;
-  static activityEndTime = '2024-12-31';
+  static activityEndTime = '2024-02-29';
 
   static apiOptions() {
     return {
