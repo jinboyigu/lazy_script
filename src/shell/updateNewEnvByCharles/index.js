@@ -13,7 +13,13 @@ async function updateNewEnvByCharles() {
     // 标识, 需更新的cookie 字段, [header 值(默认为 cookie), 判断方法]
     ['wq_uin', 'wq_skey'],
     ['pt_pin', 'pt_key'],
-    ['', 'wskey', ['j-e-c', v => JSON.parse(decodeURIComponent(v)).cipher.pin]],
+    ['', 'wskey', ['j-e-c', v => {
+      let pin;
+      try {
+        pin = JSON.parse(decodeURIComponent(v)).cipher.pin;
+      } catch (e) {}
+      return pin;
+    }]],
   ];
   const newCookieOption = JD_COOKIE_OPTION.map(cookieOption => {
     // TODO 后续可能要支持更新 loginConfig.headers
