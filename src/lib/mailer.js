@@ -43,7 +43,7 @@ const search = promisify(_search);
 const searchSeen = options => search({seen: true, ...options});
 const searchSeenAndDel = options => searchSeen({realDelFn: (message, isSeen) => isSeen, ...options});
 
-function _search({subject, since, seen, realDelFn = _.noop}, callback) {
+function _search({subject, since, seen, realDelFn = _.noop, boxName = 'INBOX'}, callback) {
   const imapOption = getImapOption();
   if (!imapOption) return;
   // 默认不开启debug模式
@@ -55,7 +55,7 @@ function _search({subject, since, seen, realDelFn = _.noop}, callback) {
   const _call = (path, ...options) => promisify(_.get(imap, path).bind(imap))(...options);
   imap.once('ready', async () => {
     await _call('id', {name: `custom_${getMoment().valueOf()}`});
-    const boxInfo = await _call('openBox', 'INBOX', false);
+    const boxInfo = await _call('openBox', boxName, false);
     if (!boxInfo) {
       throw boxInfo;
     }
@@ -205,6 +205,7 @@ async function updateEnvFromMail(day = 7) {
   const nowMoment = getMoment();
   const getNewEnvs = () => search({
     since: nowMoment.subtract(day, 'day'),
+    boxName: _.get(getEnv('MAIL_BOX_NAME'), 'updateEnvFromMail'),
   }).then(messages =>
     messages.filter(o => o.subject.startsWith(newEnvSubject)).map(({text}) => {
       let result;
