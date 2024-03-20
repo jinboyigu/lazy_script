@@ -8,7 +8,7 @@ const nodemailer = require('nodemailer');
 const MailParser = require('mailparser').MailParser;
 const {getEnv, updateProductEnv, getProductEnv} = require('./env');
 const {getMoment} = require('./moment');
-const {readFileJSON, writeFileJSON, formatJSONOutput} = require('./common');
+const {readFileJSON, writeFileJSON, formatJSONOutput, sleep} = require('./common');
 const Imap = require('imap');
 const {inspect, promisify} = require('util');
 
@@ -30,8 +30,15 @@ function send(option) {
   const transport = createTransport();
   if (!transport) return;
   const from = getUser();
-  return transport.sendMail(_.defaults(option, {from, to: from})).then(result => {
+  return transport.sendMail(_.defaults(option, {from, to: from})).then(async result => {
     console.log('邮件发送成功');
+    const sentBox = _.get(getEnv('MAIL_BOX_NAME'), 'autoDeleteSentMail');
+    const {subject} = option;
+    if (subject && sentBox) {
+      console.log(`准备删除[${sentBox}]中的${subject}`);
+      await sleep(2);
+      await search({realDelFn: message => message.subject === subject, boxName: sentBox});
+    }
     return result;
   }).catch(error => {
     console.log(error);
@@ -66,7 +73,7 @@ function _search({subject, since, seen, realDelFn = _.noop, boxName = 'INBOX'}, 
     /**
      * @type {Array}
      */
-    let searchResult = await _call('search', searchParams);
+    let searchResult = await _call('search', _.isEmpty(searchParams) ? ['ALL'] : searchParams);
     // TODO subject 一般是搜索不精确的, 所以需要再重新搜索
     if (_.isEmpty(searchResult) && !since) {
       searchParams[0] = 'ALL';
@@ -87,7 +94,7 @@ function _search({subject, since, seen, realDelFn = _.noop, boxName = 'INBOX'}, 
       if (realDelFn(message, isSeen)) {
         const {subject, attrs: {uid}} = message;
         await _call('addFlags', uid, ['\\Deleted']).then(() => {
-          console.log(`邮件删除成功(uid: ${uid}, subject: ${subject[0]})`);
+          console.log(`邮件删除成功(uid: ${uid}, subject: ${subject})`);
         });
       }
     }
@@ -151,8 +158,7 @@ function _search({subject, since, seen, realDelFn = _.noop, boxName = 'INBOX'}, 
           });
         });
         msg.once('attributes', function (attrs) {
-          // TODO 后面有需要再打开
-          // _.assign(msgInfo, {attrs});
+          _.assign(msgInfo, {attrs});
           debug && console.log(prefix + 'Attributes: %s', inspect(attrs, false, 8));
         });
         msg.once('end', function () {
