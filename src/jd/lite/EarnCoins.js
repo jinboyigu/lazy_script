@@ -4,7 +4,7 @@ const {sleep, writeFileJSON, singleRun} = require('../../lib/common');
 const _ = require('lodash');
 const {getMoment} = require('../../lib/moment');
 
-const {encrypt, clientHandleService} = require('./api');
+const {doForm: _doForm, doFormWithClientTime: _doFormWithClientTime} = require('./api');
 
 class LiteEarnCoins extends Template {
   static scriptName = 'LiteEarnCoins';
@@ -14,6 +14,7 @@ class LiteEarnCoins extends Template {
   static needInSpeedApp = true;
   static times = 1;
   static concurrent = true;
+  static activityEndTime = '2024-05-07';
 
   static isSuccess(data) {
     return data['code'] === 0;
@@ -21,14 +22,8 @@ class LiteEarnCoins extends Template {
 
   static async doMain(api) {
     const self = this;
-    const doForm = (method, data = {}, others, t) => {
-      const {functionId, form} = clientHandleService(method, _.assign({'channel': '1'}, data), others, t);
-      return api.doForm(functionId, form);
-    };
-    const doFromWithClientTime = (method, data = {}, others) => {
-      const clientTime = getMoment().valueOf();
-      return doForm(method, _.assign({clientTime: `${clientTime}`}, data), others, clientTime);
-    };
+    const doForm = _doForm.bind(0, api);
+    const doFormWithClientTime = _doFormWithClientTime.bind(0, api);
 
     await handleDoTask();
     await getBubbles();
@@ -44,7 +39,7 @@ class LiteEarnCoins extends Template {
         if ([1, 2, 3].includes(activeType)) {
           await doTask(activeType);
         } else {
-          await doFromWithClientTime('marketTaskRewardPayment', {activeType});
+          await doFormWithClientTime('marketTaskRewardPayment', {activeType});
         }
       }
 
@@ -61,7 +56,7 @@ class LiteEarnCoins extends Template {
           code,
           data: enterAndLeaveData,
           message,
-        } = await doFromWithClientTime('enterAndLeave', _.assign({messageType: '1'}, commonData));
+        } = await doFormWithClientTime('enterAndLeave', _.assign({messageType: '1'}, commonData));
         let {
           uuid,
           taskInfo,
@@ -75,22 +70,22 @@ class LiteEarnCoins extends Template {
           } else if (message === '当前任务已完成') {
             commonData.activeType = `${activeType}`;
           }
-          uuid = await doFromWithClientTime('enterAndLeave', _.assign({messageType: '1'}, commonData)).then(_.property('data.uuid'));
+          uuid = await doFormWithClientTime('enterAndLeave', _.assign({messageType: '1'}, commonData)).then(_.property('data.uuid'));
         }
         if (!taskInfo) return;
         const videoTimeLength = taskInfo['videoBrowsing'] || '';
         await sleep(videoTimeLength || 10);
         const nextData = _.assign({messageType: '2', uuid, videoTimeLength}, commonData);
-        await doFromWithClientTime('enterAndLeave', nextData).then(data => {
+        await doFormWithClientTime('enterAndLeave', nextData).then(data => {
           if (data.message === '当前任务已完成') {
             nextData.activeType = `${activeType}`;
           }
-          return doFromWithClientTime('enterAndLeave', nextData);
+          return doFormWithClientTime('enterAndLeave', nextData);
         });
-        let rewardPaymentData = await doFromWithClientTime('rewardPayment', nextData);
+        let rewardPaymentData = await doFormWithClientTime('rewardPayment', nextData);
         if ([901/*当前任务已完成*/, 906/*奖励非法*/].includes(rewardPaymentData.code) && uuid) {
           await sleep();
-          rewardPaymentData = await doFromWithClientTime('rewardPayment', nextData);
+          rewardPaymentData = await doFormWithClientTime('rewardPayment', nextData);
         } else if (!self.isSuccess(rewardPaymentData)) {
           return;
         }
@@ -110,7 +105,7 @@ class LiteEarnCoins extends Template {
       const {taskBubbles} = await doForm('queryJoyPage').then(data => data.data) || {};
       if (!taskBubbles) return;
       for (const {id, activeType} of taskBubbles) {
-        await doFromWithClientTime('joyTaskReward', {id, activeType});
+        await doFormWithClientTime('joyTaskReward', {id, activeType});
       }
     }
 

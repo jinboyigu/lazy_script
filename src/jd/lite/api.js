@@ -1,5 +1,6 @@
 const CryptoJS = require('crypto-js');
 const {getMoment} = require('../../lib/moment');
+const _ = require('lodash');
 
 /**
  * @description 对请求参数进行加密后返回
@@ -26,7 +27,8 @@ function encrypt(functionId, body = {}, t = getMoment().valueOf()) {
 }
 
 function clientHandleService(method, data = {}, others = {}, t) {
-  const functionId = 'ClientHandleService.execute';
+  const functionId = others.functionId || 'ClientHandleService.execute';
+  delete others.functionId;
   return {functionId, form: encrypt(functionId, {method, data, ...others}, t)};
 }
 
@@ -34,9 +36,21 @@ function doFormBody(api, functionId, method, data, body = {}) {
   return api.doFormBody(functionId, _.assign({method, data}, body));
 }
 
+function doForm(api, method, data = {}, others, t, options) {
+  const {functionId, form} = clientHandleService(method, _.assign({'channel': '1'}, data), others, t);
+  return api.doForm(functionId, form, options);
+}
+
+function doFormWithClientTime(api, method, data = {}, others, options) {
+  const clientTime = getMoment().valueOf();
+  return doForm(api, method, _.assign({clientTime: `${clientTime}`}, data), others, clientTime, options);
+}
+
 module.exports = {
   encrypt,
 
   clientHandleService,
   doFormBody,
+  doForm,
+  doFormWithClientTime,
 };
