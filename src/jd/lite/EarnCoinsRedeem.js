@@ -27,15 +27,13 @@ class EarnCoinsRedeem extends EarnCoins {
 
     if (self.getNowHour() === 23) {
       // 定时兑换
-      api.logBoth('准备 24 点兑换');
-      await sleepTime(24);
-      await doExchange([{order: 5}, {order: 3}]);
+      await handleRedExchange(24);
     }
     await handleRedExchange();
 
     // 兑换红包, 一天只能兑换一次
-    async function handleRedExchange() {
-      const redEnvelopes = [0, 0.3/*新人专享*/, 3, 5, 240];
+    async function handleRedExchange(cronHour) {
+      const redEnvelopes = [0, 0.3/*新人专享*/, 3, 5, 8, 20, 240];
       // 要兑换那个就更改下标
       const minRedEnvelopes = redEnvelopes[2];
       if (!minRedEnvelopes) return api.logBoth('请选择正确的参数');
@@ -48,10 +46,17 @@ class EarnCoinsRedeem extends EarnCoins {
       if (!balanceVO) return api.logBoth('接口请求错误');
       gears = gears.reverse().filter(o => {
         const amount = +o['amount'];
-        return amount >= minRedEnvelopes && o['status'] === 1 && +balanceVO['estimatedAmount'] >= amount;
+        const enable = amount >= minRedEnvelopes && +balanceVO['estimatedAmount'] >= amount;
+        if (cronHour) {
+          return enable;
+        }
+        return enable && o['status'] === 1;
       });
       if (_.isEmpty(gears)) return api.logBoth(`没有找到要替换的红包, 请进行修正参数`);
-      api.logBoth(JSON.stringify(gears));
+      if (cronHour) {
+        api.logBoth(`准备 ${cronHour} 点兑换`);
+        await sleepTime(cronHour);
+      }
       await doExchange(gears);
     }
 
@@ -61,7 +66,7 @@ class EarnCoinsRedeem extends EarnCoins {
         const stop = await apiExecute('cashOutBySendHongBao', {hongBaoOrder, type: 1}, false).then(data => {
           const success = self.isSuccess(data);
           if (success) {
-            api.logBoth(`兑换 ${hongBaoOrder} 红包成功`);
+            api.logBoth(`兑换 ${_.get(data, 'result.data.amount')} 红包成功`);
           }
           return success;
         });
