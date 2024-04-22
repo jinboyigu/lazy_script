@@ -60,7 +60,7 @@ class StatisticsRedEnvelope extends Template {
         limitName: '京喜',
       },
       lite: {
-        limitName: '极速版',
+        limitName: '京东特价版',
       },
       noLimit: {
         limitName: '',
@@ -100,7 +100,7 @@ class StatisticsRedEnvelope extends Template {
 
       for (const [key, object] of Object.entries(redSorted)) {
         const {limitName, number, expire, msgs, label} = object;
-        if (['jx', 'lite', 'noLimit'].includes(key)) continue;
+        if (['jx', 'noLimit'].includes(key)) continue;
         const name = limitName ? `${label || limitName}(仅限)` : '无限制';
         const needSum = key !== 'noLimit';
         if (_.isEmpty(msgs)) {
