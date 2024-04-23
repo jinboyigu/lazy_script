@@ -42,7 +42,7 @@ function initEnv() {
 // 将 JD_COOKIE 更新成 JD_COOKIE_OPTION, 只支持全覆盖, 不支持合并
 function patchCookieOption() {
   let cookieOption = getEnv('JD_COOKIE_OPTION') || [];
-  const cookieList = getEnvList('JD_COOKIE').map((cookie, index) => {
+  const cookieList = getEnvList('JD_COOKIE', _.toInteger(getEnv('JD_COOKIE_LIMIT')) || void 0).map((cookie, index) => {
     const earnCookie = getEnv('JD_EARN_COOKIE', index);
     const cO = new Cookie(cookie).toObject();
     if (earnCookie) {

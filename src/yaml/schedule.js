@@ -24,6 +24,7 @@ const envSecrets = _.fromPairs(_.flatten([
 
   // TODO 暂时保留, 后续会移除, 最终只保留 ACTION_ENV
   'JD_COOKIE',
+  ['JD_COOKIE_LIMIT', 1],
   ['SEVER_CHAN_KEY', 1],
   ['MAILER_TRANSPORTER_OPTION', 1],
   ['JD_COOKIE_CONFIG', 1],

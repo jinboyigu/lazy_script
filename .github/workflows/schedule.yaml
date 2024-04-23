@@ -35,6 +35,7 @@ jobs:
           JD_COOKIE_3: '${{ secrets.JD_COOKIE_3 }}'
           JD_COOKIE_4: '${{ secrets.JD_COOKIE_4 }}'
           JD_COOKIE_5: '${{ secrets.JD_COOKIE_5 }}'
+          JD_COOKIE_LIMIT: '${{ secrets.JD_COOKIE_LIMIT }}'
           SEVER_CHAN_KEY: '${{ secrets.SEVER_CHAN_KEY }}'
           MAILER_TRANSPORTER_OPTION: '${{ secrets.MAILER_TRANSPORTER_OPTION }}'
           JD_COOKIE_CONFIG: '${{ secrets.JD_COOKIE_CONFIG }}'
