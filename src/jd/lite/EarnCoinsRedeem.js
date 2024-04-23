@@ -42,8 +42,10 @@ class EarnCoinsRedeem extends EarnCoins {
         balanceVO,
         gears,
       } = await apiExecute('goldShopPage').then(data => data.data) || {};
-      if (isGetCoupon) return api.logBoth('今天已经兑换了, 请明天再来');
-      if (!balanceVO) return api.logBoth('接口请求错误');
+      if (!cronHour) {
+        if (isGetCoupon) return api.logBoth('今天已经兑换了, 请明天再来');
+        if (!balanceVO) return api.logBoth('接口请求错误');
+      }
       gears = gears.reverse().filter(o => {
         const amount = +o['amount'];
         const enable = amount >= minRedEnvelopes && +balanceVO['estimatedAmount'] >= amount;
@@ -52,8 +54,9 @@ class EarnCoinsRedeem extends EarnCoins {
         }
         return enable && o['status'] === 1;
       });
-      if (_.isEmpty(gears)) return api.logBoth(`没有找到要替换的红包, 请进行修正参数`);
-      if (cronHour) {
+      if (_.isEmpty(gears)) {
+        return api.logBoth('金额不足, 无法进行兑换');
+      } else if (cronHour) {
         api.logBoth(`准备 ${cronHour} 点兑换`);
         await sleepTime(cronHour);
       }
@@ -66,7 +69,7 @@ class EarnCoinsRedeem extends EarnCoins {
         const stop = await apiExecute('cashOutBySendHongBao', {hongBaoOrder, type: 1}, false).then(data => {
           const success = self.isSuccess(data);
           if (success) {
-            api.logBoth(`兑换 ${_.get(data, 'result.data.amount')} 红包成功`);
+            api.logBoth(`兑换 ${_.get(data, 'data.amount')} 红包成功`);
           }
           return success;
         });
