@@ -89,7 +89,7 @@ class PointsGasStation extends Template {
     async function handleSign() {
       let {signInfo: {signStatus}, totalNum} = await api.doBodyPath('dwSignInfo').then(getData);
       signStatus === 0 && await api.doFormBody('DATAWALLET_USER_SIGN').then(data => {
-        totalNum = _.get(data, 'data.totalNum');
+        totalNum = _.get(data, 'data.totalNum') || totalNum;
       });
 
       api.log(`当前积分: ${totalNum}`);
@@ -98,7 +98,7 @@ class PointsGasStation extends Template {
     async function handleDoTask() {
       const taskList = await api.doFormBody('dwapp_task_dwList').then(getData);
       for (let {startDate, endDate, viewStatus, id, taskType, taskFlowChannelId} of taskList) {
-        if (getMoment().isBefore(startDate) || getMoment().isAfter(endDate) || viewStatus === 1) continue;
+        if (getMoment().isBefore(startDate) || getMoment().isAfter(endDate) || viewStatus === 1 || viewStatus === 3) continue;
         await api.doBodyPath('dwRecord', {
           id, taskType,
           taskFlowChannelId,
