@@ -64,17 +64,12 @@ const BeanSmallBean = require('./jd/sign/beanSmallBean');
 const GoldCreator = TemporarilyOffline || require('./jd/goldCreator');
 const Joy20210805 = require('./jd/joy/20210805');
 const SuperBrandDay = require('./jd/superBrand/day');
-const SuperBrandProduct = require('./jd/superBrand/Product');
+const SuperBrandProduct = TemporarilyOffline || require('./jd/superBrand/Product');
 const RubikSCube = TemporarilyOffline || require('./jd/rubikSCube');
 const PointsGasStation = require('./jd/dwapp/PointsGasStation');
 const ExplorePlanet = require('./jd/explorePlanet');
-const Machine = require('./jd/Machine');
-const HuaFei = require('./jd/huafei');
 
 /* 极简模式 */
-const BSign = require('./jd/bSign');
-const RichTree = require('./jd/richTree');
-const Lhb4b = require('./jd/lhb4b');
 
 /* 极速版 */
 const LiteSpringReward = TemporarilyOffline || require('./jd/lite/SpringReward');
@@ -137,9 +132,6 @@ async function main() {
     PointsGasStation,
     BeanSignApplet,
     ExplorePlanet,
-    BSign,
-    RichTree,
-    Lhb4b,
   ];
   // 极速版
   const lites = [
@@ -151,8 +143,6 @@ async function main() {
     SuperBrandProduct,
     SplitHongbao,
     require('./jd/618/FirePower'),
-    Machine,
-    HuaFei,
   ];
   const scheduleOptions = [
     {
@@ -334,7 +324,6 @@ async function main() {
   async function cronLoop() {
     await serialRun([
       PlantBean,
-      RichTree,
       Health,
     ], doCron);
 
