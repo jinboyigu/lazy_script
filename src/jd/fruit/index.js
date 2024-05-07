@@ -385,9 +385,7 @@ class Fruit extends Template {
               }
             });
           }
-          return api.log('当前水果已经成熟, 请在app中兑换红包');
-        }
-        if (treeState === 3) {
+        } else if (treeState === 3) {
           // 种植水果
           const targetGood = _.maxBy(farmWinGoods, 'prizeLevel');
           targetGood && await handleChoiceGoodsForFarm(targetGood.type);
