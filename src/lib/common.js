@@ -319,6 +319,9 @@ function formatFullPath(config, action) {
 async function exec(command, options = {}) {
   let args;
 
+  // disable node warnings
+  command = command.replace(/^node/, 'node --no-warnings');
+
   [command, ...args] = _.isArray(command) ? command : splitCommand(command);
 
   if (process.platform === 'win32') {
