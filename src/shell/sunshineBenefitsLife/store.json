@@ -1,18 +1,22 @@
 {
   "travel": {
-    "index": 0,
     "originCurls": [
       "curl xxx"
     ],
     "goTravel": {
-      "enabled": 0,
-      "city_id": "1",
-      "shiPu": 0,
+      "enabled": 1,
+      "city_id": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "shiPu": 1,
       "jnp": 0,
       "limit": 10
     },
     "recycleOrder": {
-      "enabled": 0
+      "enabled": 1
     }
   }
 }

@@ -5,65 +5,137 @@
  */
 
 const _ = require('lodash');
-const {exec, sleep} = require('../../lib/common');
+const {sleep, writeFileJSON} = require('../../lib/common');
 const {updateProcessEnv} = require('../../lib/env');
-const store = require('./store.json').travel;
+const allStore = require('./store.json');
+const store = allStore.travel;
+const rp = require('request-promise');
+const {formatPasteData, readDirJSON} = require('../../lib/charles');
+const {getMoment} = require('../../lib/moment');
+
+function getDataFromJSON() {
+  return _.uniq(_.filter(readDirJSON(__dirname).filter(o => o.host === 'ceb-ay.sinodoc.cn').map(o => _.get(o.request.header.headers.find(o => o.name === 'authorization'), 'value', ''))));
+}
 
 async function main() {
   updateProcessEnv();
-  const {index, originCurls} = store;
-  const originCurl = originCurls[index];
-  const Authorization = originCurl.match(/Authorization: (\w*)"/i)[1];
-  const PHPSID = originCurl.match(/"Cookie: PHPSID=(\w*)"/i)[1];
+  const tokens = getDataFromJSON();
+  if (!_.isEmpty(tokens)) {
+    store.originCurls = tokens;
+    writeFileJSON(allStore, './store.json', __dirname);
+  }
+  const {originCurls} = store;
+  for (const originCurl of originCurls) {
+    await travel(originCurl);
+    await sleep(3);
+  }
+  console.log(`[${getMoment().format()}] 等待 1 小时后再次执行`);
+  await sleep(60 * 60);
+  return main();
+}
+
+async function travel(originCurl) {
+  const Authorization = _.get(originCurl.match(/Authorization: (\w*)["']/i), 1, originCurl);
+  const PHPSID = _.get(originCurl.match(/"Cookie: PHPSID=(\w*)"/i), 1, '');
   console.log(`Authorization: ${Authorization}, PHPSID: ${PHPSID}`);
-  if (!Authorization || !PHPSID) {
+  if (!Authorization) {
     return;
   }
 
-  const doFunc = async (func, data) => {
-    const url = `curl -H "Host: ceb-ay.sinodoc.cn:9020" -H "Accept: */*" -H "Authorization: ${Authorization}" -H "Sec-Fetch-Site: same-site" -H "Accept-Language: zh-CN,zh-Hans;q=0.9" -H "Sec-Fetch-Mode: cors" -H "Content-Type: applicationjson;charset=utf-8" -H "Origin: https://ceb-ay.sinodoc.cn" -H "User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/21E236 NebulaSDK/1.8.100112 Nebula yghsh/8.6.0WK PSDType(1) mPaaSClient/(null)" -H "Referer: https://ceb-ay.sinodoc.cn/" -H "Sec-Fetch-Dest: empty" -H "Cookie: PHPSID=${PHPSID}" --data-binary "${_.toPairs(data).map(array => array.join('=')).join('&')}" --compressed "https://ceb-ay.sinodoc.cn:9020/guangda/${func}"`;
-    const result = JSON.parse(await exec(url, {stdio: void 0}));
+  const doFunc = async (func, data, options) => {
+    const {msg, ignoreError} = options || {};
+    const result = JSON.parse((await rp({
+      uri: `https://ceb-ay.sinodoc.cn:9020/guangda/${func}`,
+      method: 'POST',
+      encoding: null,
+      body: _.toPairs(data).map(array => array.join('=')).join('&'),
+      headers: {
+        ...formatPasteData(`authorization\t${Authorization}
+sec-fetch-site\tsame-site
+accept-language\tzh-CN,zh-Hans;q=0.9
+sec-fetch-mode\tcors
+content-type\tapplicationjson;charset=utf-8
+origin\thttps://ceb-ay.sinodoc.cn
+user-agent\tMozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/21E236 NebulaSDK/1.8.100112 Nebula yghsh/8.6.0WK PSDType(1) mPaaSClient/(null)
+referer\thttps://ceb-ay.sinodoc.cn/
+cookie\tPHPSID=${PHPSID}`),
+      },
+    })).toString());
     const code = _.get(result, 'code');
-    if (code !== '200') {
-      if (code !== '300') {
+    const isSuccess = code === '200';
+    if (!isSuccess && !ignoreError) {
+      if (code === '300') {/* token 过期 */
+        throw new Error(result.msg);
+      } else {
         console.log(result);
       }
-      throw new Error(result.msg);
+    } else if (msg) {
+      console.log(msg);
     }
 
-    return result.data;
+    return isSuccess ? result.data : result;
   };
 
   const opList = [
-    goTravel,
     recycleOrder,
+    goTravel,
   ];
+
+  // 日常
+  await sign();
+  await buyPlane();
 
   for (const op of opList) {
     store[op.name].enabled && await op(store[op.name]);
   }
 
+  // 签到
+  async function sign() {
+    const {signList} = await doFunc('sign/lists');
+    if (_.find(signList, {day: getMoment().format('MM.DD')})?.status !== 1) {
+      await doFunc('sign/sign', {}, {msg: '签到成功'});
+    }
+  }
+
+  // 购买机票
+  async function buyPlane() {
+    const {lists} = await doFunc('travel/planeLists');
+    for (const {id, num, state} of lists) {
+      if (state === 1) continue;
+      await doFunc('travel/buyPlane', {id}, {msg: `购买机票(${num}张)成功`});
+      await sleep(1);
+    }
+  }
+
   // 旅行
   async function goTravel(option = {}) {
     const {shiPu, jnp, limit = 50, city_id} = option;
-    for (let i = 0; i < ((shiPu || jnp) ? Infinity : limit); i++) {
-      const result = await doFunc('travel/goTravel', {city_id});
-      if (_.get(result, 'user_info.plane_num', '0') === '0') {
-        console.log('已无机票');
-        break;
-      }
-      const shipuList = _.get(result, 'lists.cityInfo.shipu_lists', []);
-      const jnp_lists = _.get(result, 'lists.cityInfo.jnp_lists', []);
-      if (shiPu && _.every(shipuList, o => +o.num === o.sum_num)) {
-        console.log('食谱已收集完毕');
-        break;
-      }
-      if (jnp && _.every(jnp_lists, o => +o.num === o.sum_num)) {
-        console.log('jnp 已收集完毕');
-        break;
-      }
-      console.log(`成功执行${i + 1}次 goTravel`);
+
+    for (const id of [].concat(city_id)) {
+      await _do(id);
       await sleep(5);
+    }
+
+    async function _do(cityId) {
+      for (let i = 0; i < ((shiPu || jnp) ? Infinity : limit); i++) {
+        const result = await doFunc('travel/goTravel', {city_id: cityId});
+        if (_.get(result, 'user_info.plane_num', '0') === '0') {
+          console.log('已无机票');
+          break;
+        }
+        const shipuList = _.get(result, 'lists.cityInfo.shipu_lists', []);
+        const jnp_lists = _.get(result, 'lists.cityInfo.jnp_lists', []);
+        if (shiPu && _.every(shipuList, o => +o.num === o.sum_num)) {
+          console.log('食谱已收集完毕');
+          break;
+        }
+        if (jnp && _.every(jnp_lists, o => +o.num === o.sum_num)) {
+          console.log('jnp 已收集完毕');
+          break;
+        }
+        console.log(`成功执行${i + 1}次 goTravel(city_id=${cityId})`);
+        await sleep(5);
+      }
     }
   }
 
@@ -71,15 +143,30 @@ async function main() {
     for (let level = 1; level < 6; level++) {
       const {lists} = await doFunc('award/recycleOrder', {level});
       let stop = false;
-      for (const {state, num, user_num, is_foods, foods_id} of lists) {
+      for (const {state, num, user_num, is_foods, foods_id, id} of lists) {
         if (state === '1') {
           continue;
         }
         const limit = num - user_num;
-        if (is_foods && limit > 0) {
-          const _stop = await cookFood(foods_id, limit);
-          stop = _stop;
-          if (_stop) break;
+        if (is_foods) {
+          if (limit > 0) {
+            const _stop = await cookFood(foods_id, limit);
+            stop = _stop;
+            if (_stop) break;
+          } else if (state === '0') {
+            const msg = `提交订单成功(${id})`;
+            const submitOrder = type => doFunc('award/submitOrder', {id, type}, {
+              ignoreError: true,
+              ...type && {msg},
+            });
+            const result = await submitOrder();
+            if (result.code === '300') {
+              await sleep();
+              await submitOrder(1);
+            } else {
+              console.log(msg);
+            }
+          }
         }
       }
       if (stop) break;
@@ -103,15 +190,15 @@ async function main() {
     }
     let stop = false;
     for (let i = 0; i < limit; i++) {
-      await doFunc('cookbook/cookFood', {id});
-      console.log(`烹饪成功${i + 1}次 ${target.name}(id: ${id})`);
-      await sleep(6);
       const {lists: {life_val}} = await doFunc('cookbook/vitalityData');
       if (life_val < 1) {
         console.log('已经没有精力了');
         stop = true;
         break;
       }
+      await doFunc('cookbook/cookFood', {id});
+      console.log(`烹饪成功${i + 1}次 ${target.name}(id: ${id})`);
+      await sleep(6);
     }
 
     return stop;
