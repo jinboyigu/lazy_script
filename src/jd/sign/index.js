@@ -1,6 +1,6 @@
 const Template = require('../base/template');
 
-const {sleep, writeFileJSON} = require('../../lib/common');
+const {sleep, writeFileJSON, singleRun} = require('../../lib/common');
 const {getMoment} = require('../../lib/moment');
 
 class Sign extends Template {
@@ -32,17 +32,18 @@ class Sign extends Template {
       name: 'app京豆签到',
       url: 'https://api.m.jd.com/client.action',
       options: {
-        qs: {
-          functionId: 'signBeanAct',
-          body: {"fp":"-1","shshshfp":"-1","shshshfpa":"-1","referUrl":"-1","userAgent":"-1","jda":"-1","rnVersion":"3.9"},
-          appid: 'ld',
-          client: 'apple',
-          clientVersion: '11.3.6',
-          networkType: 'wifi',
-          osVersion: '16.1.2',
-          uuid: 'c6993893af46e44aa14818543914768cf2509fbf',
-          openudid: 'c6993893af46e44aa14818543914768cf2509fbf',
+        form: {
+          'functionId': 'signBeanAct',
+          'body': '{}',
+          'appid': 'signed_wh5_ihub',
+          'client': 'apple',
+          'clientVersion': '13.0.2',
+          h5st: '20240528100518226;5iy5yi6zngmi9yy4;9d49c;tk03w8a731b9741lMisyKzMrMjR382m8OHl6CME_42gdIK27Ztj59og7qFiXW6ANYumVHShrpZ3_ZS0YdGWqK3iY4Ppz;a791835d42061f132ff014304320d32c1e961322573832c7224985fdbbdb4a80;4.7;1716861918226;TKmWymVS34wMWdBCuoFxiVU9ZqmOQttKGrKnVObP83GJZYMza1mupKRvk-ZU6Nj4VdHOVgWbZu9qpwinIhHDWj703eS-Lz7cpZSUJmuAoevLoTGJlVk6nrDCJdsEqPdA9VL9QQJR-PzYFJipNAfyfKvauarIRTW7fGPA3pkTLjrAv_LsOFwkARWPBstGvW-pydLMlupoMyLwh15Je73wD50dMGxrcZXqP7KOLYCx4Hx-qv2YVtqPIE7qCyGHs292qExyfL-Qs_zDVBv1VTC1WM4xDMmWUHeHJUS_WWDFGYnOuVooASH9TGgekE09b_Aj42dBNZkEFasDO7ahC5QYbLg43mTNIeOt1gtErtxLkus9fR6JaZOlgE5dzuZ_tAfhzDpmY2LQb1zwv8oA91VEmsQRYtqe3KzB7K89QdjAvxWa1hwGxzRNDtBwYXJoTMRJ0YDA',
           // jsonp: 'jsonp_1671169374621_49843',
+        },
+        'headers': {
+          'User-Agent': 'jdapp',
+          'Referer': 'https://pro.m.jd.com',
         },
       },
       isSuccessFn: data => _.get(data, 'code') === '0',
@@ -267,5 +268,7 @@ class Sign extends Template {
     }
   };
 }
+
+singleRun(Sign).then();
 
 module.exports = Sign;

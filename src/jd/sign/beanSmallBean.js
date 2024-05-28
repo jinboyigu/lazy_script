@@ -1,6 +1,6 @@
 const Template = require('../base/template');
 
-const {sleep, writeFileJSON} = require('../../lib/common');
+const {sleep, writeFileJSON, singleRun} = require('../../lib/common');
 const _ = require('lodash');
 
 const {smallBean} = require('../../../charles/api');
@@ -53,6 +53,8 @@ class BeanSmallBean extends Template {
     }
 
     async function findBeanScene() {
+      // 接口 404
+      return;
       return api.doFormBody('findBeanScene', {
         'source': null,
         'orderId': null,
@@ -75,5 +77,7 @@ class BeanSmallBean extends Template {
     }
   }
 }
+
+singleRun(BeanSmallBean).then();
 
 module.exports = BeanSmallBean;
