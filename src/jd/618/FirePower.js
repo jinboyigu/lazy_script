@@ -19,7 +19,7 @@ class FirePower extends Template {
     client: 'apple',
     clientVersion: '12.3.1',
   });
-  static activityEndTime = '2024-02-03';
+  static activityEndTime = '2024-06-18';
   static concurrent = () => this._command[0];
 
   static apiOptions() {
@@ -40,10 +40,10 @@ class FirePower extends Template {
     //   setCookieKeys: ['CSID'],
     // });
     // CSID 需从 charles 中获取, 不然可能会无效
-    api.cookieInstance.set('CSID', 'Rjw%2fS3VSWF4CFwZYWURZQFFldSt0eVFdSFlWVUAKCwFqe3Z7d3hxchVWVS1TWlRRWndnYA1eRBVnZBl3XFtfOkBSQFxCWllZYXFmc3k%3d');
-    await api.doGetUrl('https://u.jd.com/jda?e=618%7Cpc%7C&p=JF8BAQMJK1olXDYDZBoCUBVIMzZNXhpXVhgcFR0DFxcIWDoXSQVJQ1pSCQNDWBlSWyhcBVhqAVJBDB1ZDU5lAxhRbj1vDgZVDj5efS1lCxIWQwRACU8dDRsBVUVTXDdWRCtHGH5XWFxdCEweM2x_WihDR01mNlojQAxBBG5uTR0TPUAOWG5YCEoWB2sOHlgTbQYDVVxeDkgeAm84K1sWbU1sVW5fCEoWA2gLGl8WbQYEVVpYCEMSAWkOElMlWgYLZIvSpJ6Yr20LH18WXzYyVl5dD0InAF8PG1IBW3RDBkpbensnA2g4GGslXwcDUFdtOJWZlwwAfAJsWnsFMx07SzFxQTfWlc8l&a=fCg9UgoiAwwHO1BcXkQYFFlidn1xfldWQlgzVRBSUll%2bAQAPDSwjLw%3d%3d&refer=norefer&d=limDYo5&h5st=1977529226', {
+    api.cookieInstance.set('CSID', 'RmtqGXQADw0GF1RXWRNeQVBkc3pwKwcKEgtUUUMODlZqe3Z7d3hxchVWVS1TWlRRWndjYA5eRBRsZBtxXFtZOkdRXkNHV0BGYHVmdXtS');
+    await api.doGetUrl('https://u.jd.com/jda?e=99_1|1_28|||&p=JF8BAPIJK1olXDYDZBoCUBVIMzZNXhpXVhgcFR0DFxcIWDoXSQVJQ1pSCQNDWBlSWyhcBVl9HFh2UDsqD0lydjpjfh1gC3RdJic6DS5CYy4WQwRACU8dDRsBVUVTXDdWRCtHGH5XWFxdCE0RM2ZcaztSQ0daNygjfi1Ieip6QVhXNEAOWG5cOEsWAm0LHVgcXAYyZF5ZOAB5Al8JK1sTXQELU11ZCksWAWw4G10liImugdHxCkgTB2wKK2sXXQYEUm5eOEMfbW9FGzUWVEtPGW5tCEwnAF84GFoUXAYyZIDQuCoWBBF6bg5JPlh7LV8vXQvJjt84Kw&a=fCg9UgoiAwwHO1BcXkQYFFlid358fF9aRl4zVRBSUll%2bAQAPDSwjLw%3d%3d&refer=norefer&d=kqOVbr1&h5st=934221452', {
       headers: {
-        referer: 'https://u.jd.com/limDYo5',
+        referer: 'https://u.jd.com/kqOVbr1',
       },
       setCookieKeys: ['unpl'],
     });
@@ -55,6 +55,8 @@ class FirePower extends Template {
         shareUnionCoupon: {appId: 'c10dc'},
         unionShare: {appId: '18813'},
         getCoupons: {appId: 'c822a'},
+        completeUnionTask: {appId: '66248'},
+        apStartTiming: {appId: '0d977'},
       },
       signFromSecurity: true,
     });
@@ -65,8 +67,8 @@ class FirePower extends Template {
 
     const unionShareIds = getEnv('JD_FIREPOWER_UNIONSHAREIDS') || [];
 
-    const unionActId = '31168';
-    const actId = 'fCxuTPqcKwygVyFDSeP57u281gV';
+    const unionActId = '31177';
+    const actId = '2K8GP9xPm3JdFtP3teH3SjCWtdiB';
     const d = ''; // 短链接(?s=$d)
 
     const getCouponCronHour = _.first(self._command);
@@ -83,7 +85,8 @@ class FirePower extends Template {
       return;
     }
 
-    await handleDoTask();
+    // TODO 未完成
+    // await handleDoTask();
 
     // TODO 本次不需要
     // const joinNum = await queryFullGroupInfoMap().then(_.property('longGroupData.joinNum'));
@@ -118,7 +121,7 @@ class FirePower extends Template {
         if (!unionShareId) return;
         const baseBody = {
           unionActId,
-          'actId': 'EXsgwGSVfFhZESxY3Zkha4Hoe6n',
+          'actId': 'ahzKcXspskaU1aRUQvrTBehkrHk',
           'platform': 4,
           unionShareId,
           'd': wordRandom(),
@@ -154,8 +157,8 @@ class FirePower extends Template {
       };
 
       let successTimes = 0;
-      for (const {projectId: encryptProjectId, taskId: encryptAssignmentId, status, showInfo} of groupInfo) {
-        if (status !== 1 || !encryptAssignmentId) continue;
+      for (const {projectId: encryptProjectId, taskId: encryptAssignmentId, status, showInfo, adInfo} of groupInfo) {
+        if (!adInfo || status !== 1 || !encryptAssignmentId) continue;
         // 分享任务
         if (showInfo.match('分享活动抽盲盒')) {
           await doShareTask(encryptAssignmentId);
@@ -169,16 +172,24 @@ class FirePower extends Template {
           'itemId': '1',
         };
         const waitDuration = _.last(showInfo.match(/(\d+)秒/));
-        await api.doGetBody('doInteractiveAssignment', body);
-        body.actionType = 0;
-        await sleep(waitDuration);
-        await api.doGetBody('doInteractiveAssignment', body).then(data => {
-          if (data.msg === '任务完成') {
-            successTimes++;
-          } else {
-            throw api.clog(data.msg, false);
-          }
+        await api.doFormBody('apStartTiming', {
+          'timerId': 'bJEwwhJl',
+          'uniqueId': encryptAssignmentId,
+          'jumpUrl': adInfo.target_url,
+          'jumpType': 1,
         });
+        await sleep(waitDuration);
+        // TODO 完成任务接口未知
+        // await api.doGetBody('doInteractiveAssignment', body);
+        // body.actionType = 0;
+        // await sleep(waitDuration);
+        // await api.doGetBody('doInteractiveAssignment', body).then(data => {
+        //   if (data.msg === '任务完成') {
+        //     successTimes++;
+        //   } else {
+        //     throw api.clog(data.msg, false);
+        //   }
+        // });
       }
       if (successTimes) {
         api.log(`成功完成任务 ${successTimes} 次`);
