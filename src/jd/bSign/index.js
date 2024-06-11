@@ -10,16 +10,16 @@ class BSign extends Template {
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static commonParamFn = () => ({
-    body: {'linkId': 'FIz2zkvbepstVFm3uqLOUA'},
+    body: {'linkId': 'Fl1LmxG_f0poD7w1ycZqnw'},
     appid: 'activities_platform',
     client: 'ios',
-    clientVersion: '12.3.1',
-    'x-api-eid-token': 'jdd03ZPNNW3TV6YVBDF6LALDR2XZXJIOXG7DOZCOE5KWDM52NKDQPTVI2DNJBTLINK7PEB5D6KDHQSFP3ME3ELYDTW3PZHQAAAAMM2ISO63IAAAAADB2RJIL4N2RMLUX',
+    clientVersion: '6.26.0',
+    'x-api-eid-token': 'jdd03M7UO6SRTFR5GQS7SPKPOGT7ZZB6KH2I7CUXZGVFSPJ5773VII5RHNSVRM4FK4RSLDCBRG3QQUS4WNC5PZ2767E6D3QAAAAMQATOVBOAAAAAADCW6QOOKT36XUUX',
   });
   static keepIndependence = true;
-  static needInAppComplete1 = true;
+  static needInSpeedApp1 = true;
   static times = 1;
-  static activityEndTime = '2024-02-29';
+  static activityEndTime = '2024-12-31';
 
   static apiOptions() {
     return {

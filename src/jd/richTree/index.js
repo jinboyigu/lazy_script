@@ -10,16 +10,16 @@ class RichTree extends Template {
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static commonParamFn = () => ({
-    body: {'linkId': '_LN1l_4Nv5mTEsWhs3hIMA'},
+    body: {'linkId': 'Zo2V3cM1MM6mVgjjsX3pCQ'},
     appid: 'activities_platform',
     client: 'ios',
-    clientVersion: '12.3.1',
-    'x-api-eid-token': 'jdd03ZPNNW3TV6YVBDF6LALDR2XZXJIOXG7DOZCOE5KWDM52NKDQPTVI2DNJBTLINK7PEB5D6KDHQSFP3ME3ELYDTW3PZHQAAAAMM2IGD57AAAAAACHMY3WBE7XQ3UAX',
+    clientVersion: '6.26.0',
+    'x-api-eid-token': 'jdd03M7UO6SRTFR5GQS7SPKPOGT7ZZB6KH2I7CUXZGVFSPJ5773VII5RHNSVRM4FK4RSLDCBRG3QQUS4WNC5PZ2767E6D3QAAAAMQATRJ3SYAAAAACJU473ADRJA2RQX',
   });
   static keepIndependence = true;
-  static needInAppComplete1 = true;
+  static needInSpeedApp1 = true;
   static times = 1;
-  static activityEndTime = '2024-02-29';
+  static activityEndTime = '2024-12-31';
 
   static apiOptions() {
     return {

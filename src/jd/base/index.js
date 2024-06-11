@@ -44,6 +44,7 @@ class Base {
   static needInAppComplete1 = false; // 添加 userAgent
   static appCompleteUserAgent = appCompleteUserAgent;
   static needInSpeedApp = false; // 添加 userAgent
+  static needInSpeedApp1 = false; // 添加 userAgent
   static needInJxApp = false; // 添加 userAgent
   static needOriginH5 = false; // 添加 headers.origin
   static needInPhone = false; // 添加 userAgent
@@ -233,6 +234,10 @@ class Base {
     if (this.needInSpeedApp) {
       this.needInApp = false;
       _.merge(options, {headers: {'user-agent': 'jdltapp'}});
+    }
+    if (this.needInSpeedApp1) {
+      this.needInApp = false;
+      _.merge(options, {headers: {'user-agent': 'jdltapp;iPhone;6.26.0;17.5;362209a87559b31c2dad7860c2728b5f398d1ee6;M/5.0;network/wifi;ADID/;hasUPPay/0;pushNoticeIsOpen/0;lang/zh_CN;model/iPhone13,3;hasOCPay/0;appBuild/1676;supportBestPay/0;jdSupportDarkMode/0;jxtj/tj;pv/958.39;apprpd/Home_Main;ref/https%3A%2F%2Fh5platform.jd.com%2Fswm-stable%2FBVersion-rich-tree%2Findex%3FactivityId%3DZo2V3cM1MM6mVgjjsX3pCQ%26channel%3D1%26lng%3D0.000000%26lat%3D0.000000%26sid%3D25c369ddbc18dc5ca7beb2fc3ecfdcdw%26un_area%3D19_1601_36953_50400;psq/20;ads/;psn/362209a87559b31c2dad7860c2728b5f398d1ee6|1790;jdv/0|kong|t_1003272801_|jingfen|f844021c69594669b830783189aff16f|1693885048706|1693885057;adk/;app_device/IOS;pap/JA2020_3112531|6.26.0|IOS 17.5;Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1;'}});
     }
     this.needInApp && _.merge(options, {headers: {'user-agent': 'jdapp'}});
     this.needInAppComplete && _.merge(options, {headers: {'user-agent': this.appCompleteUserAgent}});

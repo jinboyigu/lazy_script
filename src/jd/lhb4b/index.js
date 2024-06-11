@@ -10,15 +10,15 @@ class Lhb4b extends Template {
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static commonParamFn = () => ({
-    body: {'linkId': 'l-yLvQMhLwCqYy6_nXUBgg'},
+    body: {'linkId': 'stBUShGT7qfg1aQEqpn7TQ'},
     appid: 'activities_platform',
     client: 'ios',
-    clientVersion: '12.3.1',
+    clientVersion: '6.26.0',
   });
   static keepIndependence = true;
-  static needInAppComplete1 = true;
+  static needInSpeedApp1 = true;
   static times = 1;
-  static activityEndTime = '2024-02-29';
+  static activityEndTime = '2024-12-31';
 
   static apiOptions() {
     return {
