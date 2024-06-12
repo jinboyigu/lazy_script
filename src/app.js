@@ -68,6 +68,7 @@ const SuperBrandProduct = TemporarilyOffline || require('./jd/superBrand/Product
 const RubikSCube = TemporarilyOffline || require('./jd/rubikSCube');
 const PointsGasStation = require('./jd/dwapp/PointsGasStation');
 const ExplorePlanet = require('./jd/explorePlanet');
+const WanYiWan = require('./jd/turnHappy/WanYiWan');
 
 /* 极简模式 */
 const BSign = require('./jd/bSign');
@@ -135,6 +136,7 @@ async function main() {
     PointsGasStation,
     BeanSignApplet,
     ExplorePlanet,
+    WanYiWan,
     BSign,
     RichTree,
     Lhb4b,

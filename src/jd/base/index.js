@@ -42,6 +42,7 @@ class Base {
   static needInApp = true; // 添加 userAgent
   static needInAppComplete = false; // 添加 userAgent
   static needInAppComplete1 = false; // 添加 userAgent
+  static needInAppDynamicTime = false; // 添加 userAgent
   static appCompleteUserAgent = appCompleteUserAgent;
   static needInSpeedApp = false; // 添加 userAgent
   static needInSpeedApp1 = false; // 添加 userAgent
@@ -242,6 +243,9 @@ class Base {
     this.needInApp && _.merge(options, {headers: {'user-agent': 'jdapp'}});
     this.needInAppComplete && _.merge(options, {headers: {'user-agent': this.appCompleteUserAgent}});
     this.needInAppComplete1 && _.merge(options, {headers: {'user-agent': appUserAgentNotUUID}});
+    this.needInAppDynamicTime && (options.genUserAgent = options => {
+      _.merge(options.headers, {'user-agent': `jdapp;iPhone;13.1.0;;;M/5.0;appBuild/169370;jdSupportDarkMode/0;ef/1;ep/%7B%22ciphertype%22%3A5%2C%22cipher%22%3A%7B%22ud%22%3A%22YzY5EJC4EJDrZtG2ZJG0YWOnDNqnENU0CzunDNc2EQDwCtUmEWZsZq%3D%3D%22%2C%22sv%22%3A%22CJckDG%3D%3D%22%2C%22iad%22%3A%22%22%7D%2C%22ts%22%3A${Math.floor(getMoment().valueOf() / 1000)}%2C%22hdid%22%3A%22JM9F1ywUPwflvMIpYPok0tt5k9kW4ArJEU3lfLhxBqw%3D%22%2C%22version%22%3A%221.0.3%22%2C%22appname%22%3A%22com.360buy.jdmobile%22%2C%22ridx%22%3A-1%7D;Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1;`})
+    });
     this.needInPhone && _.merge(options, {headers: {'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'}});
     this.needOriginH5 && _.merge(options, {headers: {origin: 'https://h5.m.jd.com'}});
     this.needOriginProMd && _.merge(options, {

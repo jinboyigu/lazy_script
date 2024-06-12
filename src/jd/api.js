@@ -109,12 +109,16 @@ class Api {
       return Promise.resolve({});
     }
 
-    const {repeatTimes = 3, repeatFn = _.noop, setCookieKeys, ignoreNotLogin} = options;
+    const {repeatTimes = 3, repeatFn = _.noop, setCookieKeys, ignoreNotLogin, genUserAgent} = options;
     if (setCookieKeys) {
       _.assign(options, {
         resolveWithFullResponse: true,
         followRedirect: false,
       });
+    }
+
+    if (genUserAgent) {
+      genUserAgent(options);
     }
 
     let data;
