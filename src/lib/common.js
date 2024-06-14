@@ -218,9 +218,15 @@ async function singleRun(target, method = 'start', runFn = null) {
       exec('node src/shell/updateEnvFromMail.js');
       updateProcessEnv();
       const _getCookie = _.wrap(getCookieData(), data => [undefined, '*', '.'].includes(command2) ? data : _.pullAt(data, command2.split(',')));
-      try {
-        command3[0] = JSON.parse(command3[0]);
-      } catch (e) {}
+      command3.forEach((v, i) => {
+        if (/\d+/.test(v)) {
+          command3[i] = +command3[i];
+        } else {
+          try {
+            command3[i] = JSON.parse(v);
+          } catch (e) {}
+        }
+      });
       target._command = command3;
       promise = await (runFn ? runFn(m, _getCookie) : target[m](_getCookie()));
     }

@@ -18,7 +18,7 @@ class WanYiWan extends Template {
   });
   static needInAppDynamicTime = true;
   static keepIndependence = true;
-  static times = 1;
+  static times = this.getNowHour() === 7 ? 2 : 1;
   static activityEndTime = '2024-08-31';
 
   static apiOptions() {
@@ -76,20 +76,35 @@ class WanYiWan extends Template {
           }
         });
       }
-      for (const {encryptAssignmentId: assignmentId, taskDetail, taskType, subtitle} of taskBoard || []) {
-        if (/下单|助力/.test(subtitle)) continue;
-        /* TODO 先忽略助力任务 */
+      for (const {
+        encryptAssignmentId: assignmentId,
+        taskDetail,
+        taskType,
+        subtitle,
+        status,
+        finishTimes
+      } of taskBoard || []) {
         const isShareTask = /助力/.test(subtitle);
-        if (isShareTask && self.isFirstLoop()) {
-          const inviteCode = self.getShareCodeFn()[0];
-          inviteCode && await api.doFormBody('wanyiwan_assist', {inviteCode}).then(data => {
-            if (self.isSuccess(data)) {
-              api.log(`助力成功`);
-            } else {
-              api.log(`助力失败: ${_.get(data, 'data.bizMsg')}`);
+        const enableDoShare = self.getNowHour() === 7;
+        if (/下单/.test(subtitle)) continue;
+        if (isShareTask) {
+          if (enableDoShare && self.isFirstLoop()) {
+            const inviteCode = self.getShareCodeFn()[0];
+            inviteCode && await api.doFormBody('wanyiwan_assist', {inviteCode}).then(data => {
+              if (self.isSuccess(data)) {
+                api.log(`助力成功`);
+              } else {
+                api.log(`助力失败: ${_.get(data, 'data.bizMsg')}`);
+              }
+            });
+            self.updateShareCodeFn(taskDetail[0].itemId);
+          }
+          if (status === 2) {
+            for (let i = 0; i < finishTimes; i++) {
+              await handleReceive();
+              await sleep();
             }
-          });
-          self.updateShareCodeFn(taskDetail[0].itemId);
+          }
         }
 
         const waitDuration = +_.get(subtitle.match(/\d/), 0, 0);
@@ -110,14 +125,17 @@ class WanYiWan extends Template {
             ++status;
           }
           if (status === 2) {
-            await api.doFormBody('wanyiwan_task_receive_award', {taskType, assignmentId}).then(data => {
-              if (self.isSuccess(data)) {
-                api.log(`获得奖券: ${_.get(data, 'data.result.rewardCount')}`);
-              }
-            });
+            await handleReceive();
           }
         }
 
+        async function handleReceive() {
+          await api.doFormBody('wanyiwan_task_receive_award', {taskType, assignmentId}).then(data => {
+            if (self.isSuccess(data)) {
+              api.log(`获得奖券: ${_.get(data, 'data.result.rewardCount')}`);
+            }
+          });
+        }
       }
     }
 

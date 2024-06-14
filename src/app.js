@@ -203,6 +203,7 @@ async function main() {
           Fruit,
           LiteEarnCoins,
           Family,
+          WanYiWan,
         ]);
       },
     },
@@ -224,6 +225,7 @@ async function main() {
         await serialRun([
           Fruit,
           PlantBean,
+          WanYiWan,
         ]);
       },
     },
