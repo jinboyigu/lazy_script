@@ -70,6 +70,7 @@ const PointsGasStation = require('./jd/dwapp/PointsGasStation');
 const ExplorePlanet = require('./jd/explorePlanet');
 const WanYiWan = require('./jd/turnHappy/WanYiWan');
 const SuperLeague = require('./jd/superLeague');
+const NewTry = require('./jd/newtry');
 
 /* 极简模式 */
 const BSign = require('./jd/bSign');
@@ -139,6 +140,7 @@ async function main() {
     ExplorePlanet,
     WanYiWan,
     SuperLeague,
+    NewTry,
     BSign,
     RichTree,
     Lhb4b,
