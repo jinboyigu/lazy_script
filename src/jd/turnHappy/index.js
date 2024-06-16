@@ -51,8 +51,8 @@ class TurnHappy extends Template {
     await self.beforeRequest(api);
 
     let {leftTime, reachDayLimit, usable, joinTimes} = await api.doFormBody('turnHappyHome').then(_.property('data'));
-    if (self.currentCookieTimes === 0) {
-      api.clog(`现在时间: ${getMoment().format()}`);
+    if (api.currentCookieTimes === 0) {
+      console.log(`现在时间: ${getMoment().format()}`);
     }
     if (reachDayLimit > 0) {
       return api.logBoth('今天翻倍次数已达上限');
