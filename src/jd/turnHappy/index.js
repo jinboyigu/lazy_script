@@ -68,6 +68,9 @@ class TurnHappy extends Template {
     api.logBoth(`现有奖券: ${usable}`);
 
     async function turnHappyDouble(turnNum, times = 1) {
+      if (turnNum === 0) {
+        return;
+      }
       if (turnNum > 100) {
         turnNum = 100;
       }
