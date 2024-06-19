@@ -10,7 +10,7 @@ class SuperLeague extends Template {
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static commonParamFn = () => ({
-    body: {'linkId': 'QEiwQnSIGZU8-gf7Z0It2g'},
+    body: {'linkId': 'kKf0fO1O_28HF2Ff0hucCw'},
     appid: 'activities_platform',
     client: 'ios',
     clientVersion: '13.1.0',
@@ -19,7 +19,7 @@ class SuperLeague extends Template {
   static times = 1;
   static needInAppDynamicTime = true;
   static needOriginProMd = true;
-  static activityEndTime = '2024-06-18';
+  static activityEndTime = '2024-06-20';
 
   static apiOptions() {
     return {};
