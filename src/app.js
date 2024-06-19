@@ -79,8 +79,8 @@ const Lhb4b = require('./jd/lhb4b');
 
 /* 极速版 */
 const LiteSpringReward = TemporarilyOffline || require('./jd/lite/SpringReward');
-const LiteEarnCoins = require('./jd/lite/EarnCoins');
-const LiteCashSign = require('./jd/lite/CashSign');
+const LiteEarnCoins = TemporarilyOffline || require('./jd/lite/EarnCoins');
+const LiteCashSign = TemporarilyOffline || require('./jd/lite/CashSign');
 const LiteHappyDig = TemporarilyOffline || require('./jd/lite/HappyDig');
 const LiteJoyPark = require('./jd/lite/JoyPark');
 
