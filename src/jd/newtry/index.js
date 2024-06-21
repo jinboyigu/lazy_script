@@ -82,7 +82,11 @@ class NewTry extends Template {
     }
 
     async function handleLottery() {
-      const {lotteryConfigs: {chances: maxTimes, used: times}} = await qryH5BabelFloors();
+      const {lotteryConfigs} = await qryH5BabelFloors();
+      if (!lotteryConfigs) {
+        return;
+      }
+      const {chances: maxTimes, used: times} = lotteryConfigs;
       for (let i = times; i < maxTimes; i++) {
         await api.doFormBody('luban_executeWorkflow', {
           'workflowId': '5b7b7ba0683542e3838798b04e2d8e92',
