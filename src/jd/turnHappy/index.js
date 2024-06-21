@@ -50,6 +50,8 @@ class TurnHappy extends Template {
 
     await self.beforeRequest(api);
 
+    const fourTimes = _.first(self._command);
+
     let {leftTime, reachDayLimit, usable, joinTimes} = await api.doFormBody('turnHappyHome').then(_.property('data'));
     if (api.currentCookieTimes === 0) {
       console.log(`现在时间: ${getMoment().format()}`);
@@ -63,7 +65,7 @@ class TurnHappy extends Template {
       await sleep(seconds);
     }
     await sleep(2);
-    await turnHappyDouble(usable, [2, 4].includes(joinTimes + 1) ? 2 : 1);
+    await turnHappyDouble(usable, (fourTimes || '2,4').split(',').map(v => +v).includes(joinTimes + 1) ? 2 : 1);
     await sleep(2);
     api.logBoth(`现有奖券: ${usable}`);
 
