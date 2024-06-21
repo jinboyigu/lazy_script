@@ -22,7 +22,7 @@ class SuperRedBagDraw extends Template {
   static needInAppDynamicTime = true;
   static keepIndependence = true;
   static times = 1;
-  static activityEndTime = '2024-08-31';
+  static activityEndTime = '2024-06-20';
   static needOriginProMd = true;
   static concurrent = true;
   static concurrentOnceDelay = 20;
