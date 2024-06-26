@@ -4,6 +4,7 @@ const {sleep, writeFileJSON, replaceObjectMethod} = require('../../lib/common');
 const EncryptH5st = require('../../lib/EncryptH5st');
 const {getMoment} = require('../../lib/moment');
 const {genParamsSign} = require('../../lib/security');
+const Algo = require('../../lib/others/kedaya');
 
 class Template extends Base {
   static scriptName = 'Template';
@@ -171,8 +172,11 @@ class Template extends Base {
     afterEncryptFn = _.noop,
     signKeys = [],
     signFromSecurity = false,
+    signFromKEDAYA = false,
+    algoOptions = {},
   }) {
     const origin = _.get(api, 'options.headers.origin');
+    const algo = signFromKEDAYA ? Algo(algoOptions) : _.noop;
 
     replaceMethods.forEach(method => {
       replaceObjectMethod(api, method, async data => {
@@ -193,7 +197,7 @@ class Template extends Base {
         // TODO 整理成通用方法
         if (functionId in config) {
           let {encryptH5st, appId, fingerprint, algoData, platform, disableAutoUpdate, version} = config[functionId];
-          !encryptH5st && (config[functionId]['encryptH5st'] = encryptH5st = signFromSecurity ? genParamsSign({
+          !encryptH5st && (config[functionId]['encryptH5st'] = encryptH5st = signFromKEDAYA ? algo : signFromSecurity ? genParamsSign({
             userAgent: api.options.headers['user-agent'],
             appId,
             fp: fingerprint,
@@ -211,7 +215,20 @@ class Template extends Base {
             notSignForm = _.omit(form, signKeys);
             form = _.pick(form, signKeys);
           }
-          if (signFromSecurity) {
+          /* TODO 可能只适用于 client=apple/android */
+          if (signFromKEDAYA) {
+            const result = await encryptH5st.sign({
+              url: api.options.url || options.url,
+              appId,
+              form: {functionId, client: 'apple', clientVersion: '13.1.0', ...form},
+            });
+            form = result.form;
+            _.assign(options, {
+              headers: {
+                'user-agent': result.headers['user-agent'],
+              },
+            });
+          } else if (signFromSecurity) {
             const result = await encryptH5st.sign({functionId, ...form});
             _.assign(form, _.pick(result, ['h5st', '_stk', '_ste']));
           } else {

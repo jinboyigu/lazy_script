@@ -227,7 +227,6 @@ async function main() {
         await serialRun([
           Fruit,
           PlantBean,
-          WanYiWan,
         ]);
       },
     },
@@ -283,6 +282,7 @@ async function main() {
           LiteHappyDig,
           SuperBrandDay,
           SplitHongbao,
+          WanYiWan,
         ]);
       },
     },
