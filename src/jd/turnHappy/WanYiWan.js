@@ -84,13 +84,16 @@ class WanYiWan extends Template {
         encryptAssignmentId: assignmentId,
         taskDetail,
         taskType,
+        title,
         subtitle,
         status,
         finishTimes
       } of taskBoard || []) {
         const isShareTask = /助力/.test(subtitle);
+        const isBowerTask = /浏览/.test(subtitle);
         const enableDoShare = notSign;
-        if (/下单|开启定位权限/.test(subtitle)) continue;
+        if (/下单|定位权限|关注/.test(title)) continue;
+        if (!(isShareTask || isBowerTask)) continue;
         if (isShareTask) {
           if (enableDoShare) {
             const currentShareCode = taskDetail[0].itemId;
