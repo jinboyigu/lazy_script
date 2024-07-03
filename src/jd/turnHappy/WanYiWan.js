@@ -92,7 +92,13 @@ class WanYiWan extends Template {
         const isShareTask = /助力/.test(subtitle);
         const isBowerTask = /浏览/.test(subtitle);
         const enableDoShare = notSign;
-        if (/下单|定位权限|关注/.test(title)) continue;
+        if (/下单|关注/.test(title)) continue;
+        if (/定位权限/.test(title)) {
+          await api.doFormBody('wanyiwan_do_task', {taskType, assignmentId});
+          await sleep(2);
+          await handleReceive();
+          continue;
+        }
         if (!(isShareTask || isBowerTask)) continue;
         if (isShareTask) {
           if (enableDoShare) {
