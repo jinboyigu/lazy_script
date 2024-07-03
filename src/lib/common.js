@@ -87,12 +87,24 @@ function getSortLogContent(groupType, content) {
 }
 
 async function parallelRun({list, runFn, onceNumber = list.length, onceDelaySecond = 0}) {
-  return Promise.all(list.map((item, index) => new Promise(async resolve => {
-    const delaySecond = Math.floor(index / onceNumber) * onceDelaySecond;
-    delaySecond && await sleep(delaySecond);
-    const result = await runFn(item);
-    resolve(result);
-  })));
+  let invalidIndex = 0;
+  let delaySecond = 0;
+  return Promise.all(list.map((item, index) => {
+    let second = delaySecond;
+    if (item && (index + 1) % onceNumber === 0) {
+      if (invalidIndex++ > 0) {
+        second += onceDelaySecond;
+      }
+    } else if (!item) {
+      // 增加点差别
+      second += 0.001;
+    }
+    delaySecond = second;
+    return new Promise(async resolve => {
+      await sleep(second);
+      resolve(await runFn(item));
+    });
+  }));
 }
 
 /**
@@ -217,9 +229,9 @@ async function singleRun(target, method = 'start', runFn = null) {
     if (command1 === m && isCurrentFile) {
       exec('node src/shell/updateEnvFromMail.js');
       updateProcessEnv();
-      const _getCookie = _.wrap(getCookieData(), data => [undefined, '*', '.'].includes(command2) ? data : _.pullAt(data, command2.split(',')));
+      const _getCookie = _.wrap(getCookieData(), data => [undefined, '*', '.'].includes(command2) ? data : data.map((o, index) => command2.split(',').map(v => +v).includes(index) ? o : 0));
       command3.forEach((v, i) => {
-        if (/\d+/.test(v)) {
+        if (/^\d+$/.test(v)) {
           command3[i] = +command3[i];
         } else {
           try {

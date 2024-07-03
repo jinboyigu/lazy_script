@@ -488,9 +488,10 @@ class Base {
     await self.afterAllDone();
 
     async function _do(data) {
+      self.currentCookieTimes = currentCookieTimes++;
+      if (!data) return;
       patchData(data);
       const {cookie, shareCodes, disabled} = data;
-      self.currentCookieTimes = currentCookieTimes;
       await self.beforeInit();
       await init(cookie, self.isFirstLoop() ? _.filter(_.concat(shareCodes)) : void 0, isCron, disabled);
     }
@@ -503,11 +504,12 @@ class Base {
       const api = self.initApi(new Cookie(cookie).toString(self.cookieKeys));
       // TODO 并发的情况下 api 的赋值不可用
       self.api = api;
-      if (currentCookieTimes === 0) {
+      const currentCookieIndex = currentCookieTimes - 1;
+      if (currentCookieIndex === 0) {
         api.isFirst = true;
       }
       // TODO 先用 currentCookieIndex 后面再整体改名
-      api.currentCookieIndex = api.currentCookieTimes = currentCookieTimes++;
+      api.currentCookieIndex = api.currentCookieTimes = currentCookieIndex;
       const ptPin = cookie['pt_pin'];
       const pinLabel = addMosaic(ptPin);
       api.log = (output, fileName, name) => self.log(output, fileName, `${api.currentCookieTimes}] [${pinLabel}`, name);
