@@ -1,6 +1,6 @@
 const Template = require('../base/template');
 
-const {sleep, writeFileJSON, singleRun, replaceObjectMethod} = require('../../lib/common');
+const {sleep, writeFileJSON, singleRun, getLogFile, extractLogToObject} = require('../../lib/common');
 const {getMoment} = require('../../lib/moment');
 const _ = require('lodash');
 
@@ -57,7 +57,9 @@ class TurnHappy extends Template {
       console.log(`现在时间: ${getMoment().format()}`);
     }
     if (reachDayLimit > 0) {
-      return api.logBoth('今天翻倍次数已达上限');
+      api.logBoth('今天翻倍次数已达上限');
+      log();
+      return;
     }
     if (leftTime > 0) {
       const seconds = Math.floor(leftTime / 1000 + 1);
@@ -65,7 +67,7 @@ class TurnHappy extends Template {
       await sleep(seconds);
     }
     await sleep(2);
-    await turnHappyDouble(usable, (fourTimes || '2,4').split(',').map(v => +v).includes(joinTimes + 1) ? 2 : 1);
+    await turnHappyDouble(usable, `${(fourTimes || '2,4')}`.split(',').map(v => +v).includes(joinTimes + 1) ? 2 : 1);
     await sleep(2);
     api.logBoth(`现有奖券: ${usable}`);
 
@@ -101,6 +103,15 @@ class TurnHappy extends Template {
         usable -= _.max([turnNum, 100]);
         api.logBoth(`翻倍失败!`);
       }
+    }
+
+    function log() {
+      const logData = _.filter(getLogFile('app', void 0, true).split(/[\n|\r]/)).map(extractLogToObject).filter(o => o && (o.name === self.scriptNameDesc) && o.cookieName === api.pinLabel);
+      const totalData = logData.filter(o => o.msg.startsWith('现有奖券'));
+      const reward = _.subtract(...[_.last(totalData), _.first(totalData)].map(o => +o.msg.match(/\d+/)));
+      const doubleSuccess = logData.filter(o => o.msg.startsWith('成功翻倍')).length;
+      const doubleFail = logData.filter(o => o.msg.startsWith('翻倍失败')).length;
+      api.logBoth(`${_.last(totalData).msg}, 今天获得: ${reward}, 成功翻倍次数: ${doubleSuccess}(共${doubleSuccess + doubleFail}次)`);
     }
   }
 }

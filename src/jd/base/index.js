@@ -512,6 +512,7 @@ class Base {
       api.currentCookieIndex = api.currentCookieTimes = currentCookieIndex;
       const ptPin = cookie['pt_pin'];
       const pinLabel = addMosaic(ptPin);
+      api.pinLabel = pinLabel;
       api.log = (output, fileName, name) => self.log(output, fileName, `${api.currentCookieTimes}] [${pinLabel}`, name);
       api.clog = (msg, output = true) => {
         const str = `[${pinLabel}] ${msg}`;

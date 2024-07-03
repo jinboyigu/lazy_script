@@ -15,7 +15,10 @@ const sleep = (seconds = 1) => _sleep(seconds * 1000);
 const formatJSONOutput = object => JSON.stringify(object, void 0, 2);
 
 const logPath = path.resolve(__dirname, '../../logs');
-const getLogFile = (fileName, date = getNowDate()) => path.resolve(logPath, `${fileName}${date ? '.' : ''}${date || ''}.log`);
+const getLogFile = (fileName, date = getNowDate(), returnContent = false) => {
+  const filePath = path.resolve(logPath, `${fileName}${date ? '.' : ''}${date || ''}.log`);
+  return returnContent ? getFileContent(filePath, '').toString() : filePath;
+};
 const cacheWriteStream = {};
 const printLog = (scriptName = '', fileName = 'app', output, type = 'info', maxLength) => {
   const filePath = path.extname(fileName) ? fileName : getLogFile(fileName);
@@ -44,8 +47,16 @@ const cleanLog = (fileName) => {
 };
 const extractLogToObject = str => {
   if (!str) return;
-  const [, time, name, type, cookie, msg] = /^(\d{2}:\d{2}:\d{2}) \[(.*)] \[(\w*)] \[(\d)] (.*)/.exec(str);
-  return {time, name, type, cookie, msg, origin: str};
+  let result = /^(\d{2}:\d{2}:\d{2}) \[(.*)] \[(\w*)] \[(\d)] \[(.\*\*\*.)] (.*)/.exec(str);
+  if (!result) {
+    result = /^(\d{2}:\d{2}:\d{2}) \[(.*)] \[(\w*)] \[(\d)] (.*)/.exec(str);
+  }
+  let [, time, name, type, cookie, cookieName, msg] = result;
+  if (!cookieName) {
+    msg = cookieName;
+    cookieName = cookie;
+  }
+  return {time, name, type, cookie, cookieName, msg, origin: str};
 };
 
 const getFileContent = (filePath, defaultValue = '') => fs.existsSync(filePath) ? fs.readFileSync(filePath) : defaultValue;
