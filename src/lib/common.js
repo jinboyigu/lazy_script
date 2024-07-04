@@ -58,6 +58,7 @@ const extractLogToObject = str => {
   }
   return {time, name, type, cookie, cookieName, msg, origin: str};
 };
+const getLogs = (...args) => _.filter(getLogFile(...args).split(/[\n|\r]/)).map(extractLogToObject);
 
 const getFileContent = (filePath, defaultValue = '') => fs.existsSync(filePath) ? fs.readFileSync(filePath) : defaultValue;
 const _getAbsolutePath = (fileName, dirname) => dirname ? path.resolve(dirname, fileName) : fileName;
@@ -407,6 +408,7 @@ module.exports = {
   sleep,
 
   getLogFile,
+  getLogs,
   printLog,
   cleanLog,
   extractLogToObject,

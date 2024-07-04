@@ -1,6 +1,6 @@
 const Template = require('../base/template');
 
-const {sleep, writeFileJSON, singleRun, getLogFile, extractLogToObject} = require('../../lib/common');
+const {sleep, writeFileJSON, singleRun, getLogs} = require('../../lib/common');
 const {getMoment} = require('../../lib/moment');
 const _ = require('lodash');
 
@@ -106,8 +106,8 @@ class TurnHappy extends Template {
     }
 
     function log() {
-      const logData = _.filter(getLogFile('app', void 0, true).split(/[\n|\r]/)).map(extractLogToObject).filter(o => o && (o.name === self.scriptNameDesc) && o.cookieName === api.pinLabel);
-      const totalData = logData.filter(o => o.msg.startsWith('现有奖券'));
+      const logData = getLogs('app', void 0, true).filter(o => o.name === self.scriptNameDesc && o.cookieName === api.pinLabel);
+      const totalData = logData.filter(o => o.msg.match(/^现有奖券: \d+$/));
       const reward = _.subtract(...[_.last(totalData), _.first(totalData)].map(o => +o.msg.match(/\d+/)));
       const doubleSuccess = logData.filter(o => o.msg.startsWith('成功翻倍')).length;
       const doubleFail = logData.filter(o => o.msg.startsWith('翻倍失败')).length;

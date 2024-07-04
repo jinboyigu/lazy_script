@@ -49,6 +49,7 @@
     "shell:sendNewEnvByMail": "node ./run.js src/shell/sendNewEnvByMail.js",
     "shell:updateEnvFromMail": "node ./run.js src/shell/updateEnvFromMail.js",
     "shell:updateNewEnv": "node ./run.js src/shell/updateNewEnvByCharles/index.js",
+    "log": "node ./run.js src/shell/outputLog.js",
     "test": "mocha --recursive"
   },
   "repository": {

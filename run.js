@@ -1,8 +1,10 @@
 /**
- * 用来执行脚本(忽略警告)
+ * @description 用来执行脚本(忽略警告)
  */
-const [nodePath, selfPath, filePath, command1/*method*/, command2/*cookie index*/, ...command3/*other params*/] = process.argv;
+
+const _ = require('lodash');
 const {exec} = require('./src/lib/common');
+const [nodePath, selfPath, filePath, command1/*method*/, command2/*cookie index*/, ...command3/*other params*/] = process.argv;
 
 function run() {
   let method = command1;
@@ -13,10 +15,12 @@ function run() {
     if (filePath.match('src/jd')) {
       method = 'start';
     }
-    others.unshift(command1);
+    if (method !== command1) {
+      others.unshift(command1);
+    }
   }
 
-  const command = `node ${filePath} ${method} ${others.join(' ')}`;
+  const command = `node ${filePath} ${_.filter([method, ...others]).join(' ')}`;
   console.log(`real > ${command}`);
   exec(command);
 }
