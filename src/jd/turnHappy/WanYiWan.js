@@ -60,7 +60,10 @@ class WanYiWan extends Template {
     if (exchange) {
       await handleExchange(exchange);
     } else {
-      await handleDoTask();
+      for (let i = 0; i < 3; i++) {
+        await handleDoTask();
+        await sleep(2);
+      }
     }
 
     async function handleDoTask() {
@@ -68,8 +71,8 @@ class WanYiWan extends Template {
         'outsite': 0,
         'firstCall': 0,
         'lbsSwitch': false,
-      }).then(_.property('data.result'));
-      const notSign = signBoard.status === 0;
+      }).then(_.property('data.result')) || {};
+      const notSign = signBoard && signBoard.status === 0;
       if (notSign) {
         await api.doFormBody('wanyiwan_sign').then(data => {
           if (self.isSuccess(data)) {
