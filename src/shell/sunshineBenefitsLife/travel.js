@@ -25,13 +25,22 @@ async function main() {
     writeFileJSON(allStore, './store.json', __dirname);
   }
   const {originCurls} = store;
+  let needContinue = false;
   for (const originCurl of originCurls) {
-    await travel(originCurl);
+    const result = await travel(originCurl);
+    if (result) {
+      needContinue = true;
+    }
     await sleep(3);
   }
-  console.log(`[${getMoment().format()}] 等待 1 小时后再次执行`);
-  await sleep(60 * 60);
-  return main();
+  if (needContinue) {
+    console.log(`[${getMoment().format()}] 等待 1 小时后再次执行`);
+    await sleep(60 * 60);
+    return main();
+  } else {
+    console.log(`[${getMoment().format()}] 今天任务完成!`);
+  }
+
 }
 
 async function travel(originCurl) {
@@ -76,7 +85,10 @@ cookie\tPHPSID=${PHPSID}`),
     return isSuccess ? result.data : result;
   };
 
+
+  let needContinue = false;
   const opList = [
+    ttkbx,
     recycleOrder,
     goTravel,
   ];
@@ -88,6 +100,8 @@ cookie\tPHPSID=${PHPSID}`),
   for (const op of opList) {
     store[op.name].enabled && await op(store[op.name]);
   }
+
+  return needContinue;
 
   // 签到
   async function sign() {
@@ -125,12 +139,13 @@ cookie\tPHPSID=${PHPSID}`),
         }
         const shipuList = _.get(result, 'lists.cityInfo.shipu_lists', []);
         const jnp_lists = _.get(result, 'lists.cityInfo.jnp_lists', []);
+        const name = `${_.get(result, 'lists.cityInfo.city_info.name')}`;
         if (shiPu && _.every(shipuList, o => +o.num === o.sum_num)) {
-          console.log('食谱已收集完毕');
+          console.log(`${name}的食谱已收集完毕`);
           break;
         }
         if (jnp && _.every(jnp_lists, o => +o.num === o.sum_num)) {
-          console.log('jnp 已收集完毕');
+          console.log(`${name}的 jnp 已收集完毕`);
           break;
         }
         console.log(`成功执行${i + 1}次 goTravel(city_id=${cityId})`);
@@ -150,7 +165,7 @@ cookie\tPHPSID=${PHPSID}`),
         const limit = num - user_num;
         if (is_foods) {
           if (limit > 0) {
-            const _stop = await cookFood(foods_id, limit);
+            const _stop = await cookFood({id: foods_id}, limit);
             stop = _stop;
             if (_stop) break;
           } else if (state === '0') {
@@ -174,8 +189,31 @@ cookie\tPHPSID=${PHPSID}`),
     }
   }
 
+  async function ttkbx() {
+    const {foods_img, box_data, today_finish_num} = await doFunc('ttkbx/index');
+    const limit = _.last(box_data).num - today_finish_num;
+    limit && await cookFood({name: foods_img[0].name}, limit);
+    await sleep(2);
+    await openBox();
+
+    async function openBox() {
+      const {award_num} = await doFunc('ttkbx/index');
+      if (_.last(box_data).state !== '1') {
+        needContinue = true;
+      }
+      for (let i = 0; i < award_num; i++) {
+        await sleep(2);
+        await doFunc('ttkbx/openBox').then(data => {
+          const {name, intro} = _.get(data, 'lists.prize_info');
+          console.log(`开宝箱获得 ${name}(${intro})`);
+        });
+      }
+    }
+  }
+
   // 烹饪
-  async function cookFood(id, limit = 1) {
+  async function cookFood(food = {}, limit = 1) {
+    const {id, name} = food;
     const {lists: recipeList} = await doFunc('cookbook/RecipeList', {
       order_type: 0,
       food_type: 0,
@@ -183,9 +221,9 @@ cookie\tPHPSID=${PHPSID}`),
       city: 0,
       is_enough: 1,
     });
-    const target = recipeList.find(o => o.id === `${id}`);
+    const target = recipeList.find(o => o.id === `${id}` || o.name === name);
     if (!target) {
-      console.log(`未找到 foodId: ${id}`);
+      console.log(`未找到 food: ${id || name}`);
       return;
     }
     let stop = false;
@@ -196,8 +234,8 @@ cookie\tPHPSID=${PHPSID}`),
         stop = true;
         break;
       }
-      await doFunc('cookbook/cookFood', {id});
-      console.log(`烹饪成功${i + 1}次 ${target.name}(id: ${id})`);
+      await doFunc('cookbook/cookFood', {id: target.id});
+      console.log(`烹饪成功${i + 1}次 ${target.name}(id: ${target.id})`);
       await sleep(6);
     }
 
