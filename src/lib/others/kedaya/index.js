@@ -46,5 +46,6 @@ module.exports = function Algo(algoOptions) {
         }
       ));
     },
+    userAgent: () => process.communal.userAgents(),
   };
 };

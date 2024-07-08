@@ -5,6 +5,7 @@ const EncryptH5st = require('../../lib/EncryptH5st');
 const {getMoment} = require('../../lib/moment');
 const {genParamsSign} = require('../../lib/security');
 const Algo = require('../../lib/others/kedaya');
+const algoCaches = {};
 
 class Template extends Base {
   static scriptName = 'Template';
@@ -169,6 +170,7 @@ class Template extends Base {
     config,
     removeEncryptKeys = ['_stk', '_ste'],
     replaceMethods = ['doFormBody', 'doGetBody'],
+    beforeEncryptFn,
     afterEncryptFn = _.noop,
     signKeys = [],
     signFromSecurity = false,
@@ -176,7 +178,15 @@ class Template extends Base {
     algoOptions = {},
   }) {
     const origin = _.get(api, 'options.headers.origin');
-    const algo = signFromKEDAYA ? Algo(algoOptions) : _.noop;
+    let algo;
+    if (signFromKEDAYA) {
+      const key = `${api.currentCookieIndex}${JSON.stringify(algoOptions)}`;
+      if (algoCaches[key]) {
+        algo = algoCaches[key];
+      } else {
+        algo = algoCaches[key] = Algo(algoOptions);
+      }
+    }
 
     replaceMethods.forEach(method => {
       replaceObjectMethod(api, method, async data => {
@@ -194,6 +204,7 @@ class Template extends Base {
         }
         const t = getMoment().valueOf();
         let form = _.merge({}, defaultData, body && {body}, {t}, options.qs || options.form);
+        beforeEncryptFn && (form = beforeEncryptFn(functionId, form));
         // TODO 整理成通用方法
         if (functionId in config) {
           let {encryptH5st, appId, fingerprint, algoData, platform, disableAutoUpdate, version} = config[functionId];
@@ -238,6 +249,14 @@ class Template extends Base {
             delete form[key];
           });
           _.merge(form, notSignForm);
+        } else {
+          if (signFromKEDAYA) {
+            _.assign(options, {
+              headers: {
+                'user-agent': algo.userAgent().app,
+              },
+            });
+          }
         }
         await afterEncryptFn(form);
         if (['doGetBody', 'doGet'].includes(method)) {

@@ -1,23 +1,21 @@
 const Template = require('../base/template');
 
-const {sleep, writeFileJSON} = require('../../lib/common');
+const {sleep, writeFileJSON, singleRun} = require('../../lib/common');
 
 class PlantBean extends Template {
-  static scriptName = 'Bean';
+  static scriptName = 'PlantBean';
   static scriptNameDesc = '种豆得豆';
   static shareCodeTaskList = [];
   static times = 2;
   static concurrent = false;
-  static needInAppComplete1 = true;
+  static needInApp = false;
   static defaultShareCodes = [
     'i7zarrja6jbtvgu2smlqd24e7y3h7wlwy7o5jii',
     'hxpwjlakoy4pxmtejjqf4gpvke',
   ];
   static commonParamFn = () => ({
     appid: 'signed_wh5',
-    client: 'apple',
-    clientVersion: '12.0.4',
-    body: {'version': '9.2.4.3'},
+    body: {monitor_source: 'plant_app_plant_index', 'version': '9.2.4.5'},
   });
 
   static apiOptions = {
@@ -25,6 +23,7 @@ class PlantBean extends Template {
       headers: {
         referer: 'https://plantearth.m.jd.com/',
       },
+      needDelay: 3,
     },
   };
 
@@ -33,6 +32,18 @@ class PlantBean extends Template {
   };
 
   static async beforeRequest(api) {
+    const monitorReferConfig = {
+      plantBeanIndex: '',
+      shopTaskList: 'plant_shopList',
+      collectHistoryByFriend: 'collectHistoryByFriend',
+      shopNutrientsTask: 'plant_shopNutrientsTask',
+      productNutrientsTask: 'plant_productNutrientsTask',
+      productTaskList: 'plant_productTaskList',
+      plantFriendList: 'plantFriendList',
+      collectUserNutr: 'collectUserNutr',
+      cultureBean: 'plant_index',
+      receivedBean: 'receivedBean',
+    };
     this.injectEncryptH5st(api, {
       config: {
         plantBeanIndex: {appId: 'd246a'},
@@ -43,8 +54,18 @@ class PlantBean extends Template {
         shopNutrientsTask: {appId: '19c88'},
         productTaskList: {appId: '7351b'},
         productNutrientsTask: {appId: 'a4e2d'},
+        collectUserNutr: {appId: '14357'},
       },
-      signFromSecurity: true,
+      signFromKEDAYA: true,
+      algoOptions: {
+        version: '3.1',
+      },
+      beforeEncryptFn: (functionId, form) => {
+        if (functionId in monitorReferConfig) {
+          form.body = {monitor_refer: monitorReferConfig[functionId], ...form.body};
+        }
+        return form;
+      },
     });
   }
 
@@ -147,10 +168,15 @@ class PlantBean extends Template {
         successFn: async (data, api) => {
           if (!self.isSuccess(data)) return false;
           const {roundId, bubbleInfos = [], growth} = getCurrentRound(data.data);
+          let stop = false;
           for (const {nutrientsType} of bubbleInfos) {
-            await api.doFormBody('cultureBean', {roundId, nutrientsType});
+            await api.doFormBody('cultureBean', {roundId, nutrientsType}).then(data => {
+              if (!self.isSuccess(data)) {
+                stop = true;
+              }
+            });
           }
-          const stop = _.isEmpty(bubbleInfos);
+          stop = stop || _.isEmpty(bubbleInfos);
           if (stop) {
             api.log(`成长值为: ${growth}`);
             return false;
@@ -203,7 +229,6 @@ class PlantBean extends Template {
       const friendInfoList = await api.doFormBody('plantFriendList', {'pageNum': '1'}).then(data => _.property('data.friendInfoList')(data).filter(o => o.nutrCount));
       if (_.isEmpty(friendInfoList)) return;
       for (const {paradiseUuid} of friendInfoList) {
-        await sleep(2);
         const loop = await api.doFormBody('collectUserNutr', {
           roundId,
           paradiseUuid,
@@ -227,5 +252,7 @@ function getCurrentRound(data) {
   const {roundList = []} = data;
   return roundList.find(o => o['roundState'] === '2') || {};
 }
+
+singleRun(PlantBean).then();
 
 module.exports = PlantBean;

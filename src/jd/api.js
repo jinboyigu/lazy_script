@@ -159,7 +159,7 @@ class Api {
 
   async do(options = {}) {
     const newOptions = _.merge({}, !options['ignoreDefault'] && this.options, _.omit(options, 'ignoreDefault'));
-    (newOptions.needDelay !== false) && await sleep();
+    (newOptions.needDelay !== false) && await sleep(newOptions.needDelay || 1);
     delete newOptions.needDelay;
     return this.commonDo(newOptions).then(data => {
       data = data || {};
