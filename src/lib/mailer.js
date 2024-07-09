@@ -37,7 +37,11 @@ function send(option) {
     if (subject && sentBox) {
       console.log(`准备删除[${sentBox}]中的${subject}`);
       await sleep(2);
-      await search({realDelFn: message => message.subject === subject, boxName: sentBox});
+      await search({
+        since: getMoment().format('LL'),
+        realDelFn: message => message.subject === subject,
+        boxName: sentBox,
+      });
     }
     return result;
   }).catch(error => {
@@ -78,6 +82,9 @@ function _search({subject, since, seen, realDelFn = _.noop, boxName = 'INBOX'}, 
     if (_.isEmpty(searchResult) && !since) {
       searchParams[0] = 'ALL';
       searchResult = await _call('search', searchParams);
+    }
+    if (realDelFn) {
+      searchResult = _.takeRight(searchResult, 5);
     }
     if (_.isEmpty(searchResult)) {
       imap.end();
