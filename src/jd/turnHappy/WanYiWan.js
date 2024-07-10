@@ -60,10 +60,7 @@ class WanYiWan extends Template {
     if (exchange) {
       await handleExchange(exchange);
     } else {
-      for (let i = 0; i < 3; i++) {
-        await handleDoTask();
-        await sleep(2);
-      }
+      await handleDoTask();
     }
 
     async function handleDoTask() {

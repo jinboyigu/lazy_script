@@ -2,7 +2,8 @@
  * 获取 jdAlgo 输出结果
  */
 
-const axios = require('axios');
+const _ = require('lodash');
+const Api = require('../../../../jd/api');
 
 module.exports = function (params) {
   // 返回加密数据
@@ -16,18 +17,8 @@ module.exports = function (params) {
     form['osVersion'] = '17.5';
     return Promise.resolve({data: {form, headers: params.headers}});
   }
-  const proxy = process.env.http_proxy;
-  return axios({
-    ...params,
-    proxy: false,
-    ...proxy && {
-      httpsAgent: require('tunnel').httpsOverHttp({
-        proxy: {
-          host: new URL(proxy).hostname,
-          port: new URL(proxy).port,
-        },
-        rejectUnauthorized: false,
-      }),
-    },
-  });
+  return new Api().commonDo({
+    ..._.pick(params, ['url', 'headers', 'json']),
+    needDelay: params.delay,
+  }).then(data => ({data}));
 };

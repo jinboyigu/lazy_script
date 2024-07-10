@@ -34,8 +34,12 @@ const _request = (cookie, {form, body, qs, headers = {}, ...others}) => {
   delete options['ignorePrintLog'];
   delete options['errorTryMaxTimes'];
 
+  const defaultOption = {...DEFAULT_OPTION};
+  if (others.url) {
+    delete defaultOption.uri;
+  }
   const rpOptions = _.assign({
-    ...DEFAULT_OPTION,
+    ...defaultOption,
     headers: {cookie, ...headers},
   }, options);
 
@@ -47,7 +51,7 @@ const _request = (cookie, {form, body, qs, headers = {}, ...others}) => {
 
   const _printLog = (result, type) => {
     printLog('jdAPI', 'request', {
-      url: rpOptions.uri,
+      url: rpOptions.uri || rpOptions.url,
       result, ..._.pick(rpOptions, ['qs', 'form']),
     }, type, processInAC ? void 0 : 300);
   };

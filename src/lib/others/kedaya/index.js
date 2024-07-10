@@ -35,7 +35,7 @@ module.exports = function Algo(algoOptions) {
       let {url = `https://api.m.jd.com/client.action`, appId, form} = options || {};
       let formStr = Object.keys(form).map(key => {
         const value = form[key];
-        return `${key}=${_.isObject(value) ? JSON.stringify(value) : value}`;
+        return `${key}=${encodeURIComponent(_.isObject(value) ? JSON.stringify(value) : value)}`;
       }).join('&');
       return algo.curl(({
           url,
