@@ -72,6 +72,7 @@ const WanYiWan = require('./jd/turnHappy/WanYiWan');
 const SuperLeague = require('./jd/superLeague');
 const NewTry = require('./jd/newtry');
 const SecKillView = require('./jd/seckillView');
+const Fission = require('./jd/fission');
 
 /* 极简模式 */
 const BSign = require('./jd/bSign');
@@ -143,6 +144,7 @@ async function main() {
     SuperLeague,
     NewTry,
     SecKillView,
+    Fission,
     BSign,
     RichTree,
     Lhb4b,

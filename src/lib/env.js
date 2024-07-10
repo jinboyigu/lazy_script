@@ -65,6 +65,7 @@ function updateProxyConf(result) {
     delete result['NODE_TLS_REJECT_UNAUTHORIZED'];
     return result;
   }
+  process.isProxy = true;
   result['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
   if (['darwin', 'win32'].includes(process.platform)) {
     const isWin = process.platform === 'win32';
