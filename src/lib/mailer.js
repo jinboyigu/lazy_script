@@ -37,11 +37,16 @@ function send(option) {
     if (subject && sentBox) {
       console.log(`准备删除[${sentBox}]中的${subject}`);
       await sleep(2);
-      await search({
-        since: getMoment().format('LL'),
-        realDelFn: message => message.subject === subject,
-        boxName: sentBox,
-      });
+      try {
+        await search({
+          since: getMoment().format('LL'),
+          realDelFn: message => message.subject === subject,
+          boxName: sentBox,
+        });
+      } catch (e) {
+        console.log('删除报错')
+        console.log(e);
+      }
     }
     return result;
   }).catch(error => {
