@@ -4,27 +4,27 @@ const {sleep, writeFileJSON, singleRun} = require('../../lib/common');
 const _ = require('lodash');
 
 const appid = 'activities_platform';
-const linkId = 'pTTvJeSTrpthgk9ASBVGsw';
+const linkId = 'Bn1VWXtvgTv5ewPoMR-X8A';
 const origin = 'https://bnzf.jd.com';
 
 class LiteHappyDig extends Template {
   static scriptName = 'LiteHappyDig';
-  static scriptNameDesc = '发财挖宝';
+  static scriptNameDesc = '欢乐淘金';
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static commonParamFn = () => ({
     body: {linkId},
     appid,
-    client: 'H5',
-    clientVersion: '1.0.0',
+    client: 'ios',
+    clientVersion: '13.1.1',
   });
-  static needInSpeedApp = true;
+  static needInApp = false;
   static shareCodeUniqIteratee = o => o['inviter'];
   static doneShareTask = this.getNowHour() < 22;
 
   static apiOptions = {
     options: {
-      uri: 'https://api.m.jd.com/',
+      uri: 'https://api.m.jd.com/api',
       headers: {
         origin,
         referer: `${origin}/?activityId=${linkId}`,
@@ -37,14 +37,13 @@ class LiteHappyDig extends Template {
 
     this.injectEncryptH5st(api, {
       config: {
-        happyDigHome: {
-          appId: 'ce6c2',
-          fingerprint: '5021033254897033',
-        },
-        happyDigHelp: {
-          appId: '8dd95',
-        },
+        happyDigHome: {appId: 'ce6c2'},
+        happyDigHelp: {appId: '8dd95'},
+        apDoTask: {appId: 'cd949'},
+        happyDigDo: {appId: 'f7674'},
+        superRedBagList: {appId: 'f2b1d'},
       },
+      signFromKEDAYA: true,
     });
   }
 
@@ -141,7 +140,7 @@ class LiteHappyDig extends Template {
         if (taskFinished || taskShowTitle.match(/下单|购券|买一元/)) continue;
         blood += _.reduce(configBaseList.map(o => +o['awardGivenNumber']), (a, b) => a + b);
         if (getTaskBlood) continue;
-        if (taskShowTitle.match(/逛会场/)) {
+        if (taskShowTitle.match(/玩一玩/) && maxTimes > 1) {
           await handleDoTaskDetail(taskType, taskId);
         } else {
           for (let i = times; i < maxTimes; i++) {
@@ -165,19 +164,15 @@ class LiteHappyDig extends Template {
         } = await api.doGetBody('apTaskDetail', {taskType, taskId, channel}).then(_.property('data'));
         if (finished) return;
         for (const {itemId} of taskItemList) {
-          const {
-            timePeriod,
-            userFinishedTimes,
-            finishNeed,
-          } = await api.doGetBody('apTaskTimeRecord', {taskId}).then(_.property('data'));
-          if (userFinishedTimes >= finishNeed) continue;
-          await sleep(timePeriod || 30);
           await doTask({taskType, taskId, itemId});
+          await sleep(5);
         }
       }
     }
 
     async function handleCash() {
+      /* TODO 暂时未用到 */
+      return;
       await api.doGetBody('spring_reward_list', {
         'pageNum': 1,
         'pageSize': 10,

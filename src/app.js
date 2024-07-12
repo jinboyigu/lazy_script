@@ -83,7 +83,7 @@ const Lhb4b = require('./jd/lhb4b');
 const LiteSpringReward = TemporarilyOffline || require('./jd/lite/SpringReward');
 const LiteEarnCoins = TemporarilyOffline || require('./jd/lite/EarnCoins');
 const LiteCashSign = TemporarilyOffline || require('./jd/lite/CashSign');
-const LiteHappyDig = TemporarilyOffline || require('./jd/lite/HappyDig');
+const LiteHappyDig = require('./jd/lite/HappyDig');
 const LiteJoyPark = require('./jd/lite/JoyPark');
 
 /* 本地执行 */
