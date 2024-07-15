@@ -35,8 +35,8 @@ function send(option) {
     const sentBox = _.get(getEnv('MAIL_BOX_NAME'), 'autoDeleteSentMail');
     const {subject} = option;
     if (subject && sentBox) {
-      console.log(`准备删除[${sentBox}]中的${subject}`);
-      await sleep(2);
+      console.log(`准备删除[${sentBox}]中的${subject}, 等待 10s`);
+      await sleep(10);
       try {
         await search({
           since: getMoment().format('LL'),
@@ -44,7 +44,7 @@ function send(option) {
           boxName: sentBox,
         });
       } catch (e) {
-        console.log('删除报错')
+        console.log('删除报错');
         console.log(e);
       }
     }
@@ -88,8 +88,8 @@ function _search({subject, since, seen, realDelFn = _.noop, boxName = 'INBOX'}, 
       searchParams[0] = 'ALL';
       searchResult = await _call('search', searchParams);
     }
-    if (realDelFn) {
-      searchResult = _.takeRight(searchResult, 5);
+    if (realDelFn !== _.noop) {
+      searchResult = [_.last(searchResult)];
     }
     if (_.isEmpty(searchResult)) {
       imap.end();
@@ -132,6 +132,10 @@ function _search({subject, since, seen, realDelFn = _.noop, boxName = 'INBOX'}, 
         const prefix = '(#' + seqNo + ') ';
         const msgInfo = {};
         msg.on('body', function (stream, info) {
+          // 1MB 的邮件以上不做加载
+          if (info.size > 1024 * 1024) {
+            return;
+          }
           const mailParser = new MailParser();
           stream.pipe(mailParser);//将为解析的数据流pipe到 mailparser
           mailParser.on('headers', headers => {
@@ -208,11 +212,11 @@ function sendNewEnv(content, fileName = '.env.new.json') {
   const newEnvPath = require('path').resolve(__dirname, `../../${fileName}`);
   content = content || readFileJSON(newEnvPath);
   if (_.isEmpty(content)) return console.log('无需更新内容');
+  // 先更新文件内容, 避免 send 过长时间
+  writeFileJSON({}, newEnvPath);
   send({
     subject: `${newEnvSubject}_${getMoment().formatDate()}`,
     text: formatJSONOutput(content),
-  }).then(() => {
-    writeFileJSON({}, newEnvPath);
   });
 }
 
