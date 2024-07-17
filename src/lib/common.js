@@ -51,14 +51,24 @@ const extractLogToObject = str => {
   if (!result) {
     result = /^(\d{2}:\d{2}:\d{2}) \[(.*)] \[(\w*)] \[(\d)] (.*)/.exec(str);
   }
-  let [, time, name, type, cookie, cookieName, msg] = result;
-  if (!cookieName) {
-    msg = cookieName;
-    cookieName = cookie;
+  if (!result) {
+    result = /^(\d{2}:\d{2}:\d{2}) \[(.*)] \[(\w*)] (.*)/.exec(str);
   }
-  return {time, name, type, cookie, cookieName, msg, origin: str};
+  if (result) {
+    let [, time, name, type, cookie, cookieName, msg] = result;
+    if (!cookieName) {
+      msg = cookieName;
+      cookieName = cookie;
+    }
+    return {time, name, type, cookie, cookieName, msg, origin: str};
+  } else {
+    return {origin: str};
+  }
 };
-const getLogs = (...args) => _.filter(getLogFile(...args).split(/[\n|\r]/)).map(extractLogToObject);
+const getLogs = (...args) => {
+  args[2] = true;
+  return _.filter(getLogFile(...args).split(/[\n|\r]/)).filter(v => args[0] === 'error' ? v.match(/^\d+/) : v).map(extractLogToObject);
+};
 
 const getFileContent = (filePath, defaultValue = '') => fs.existsSync(filePath) ? fs.readFileSync(filePath) : defaultValue;
 const _getAbsolutePath = (fileName, dirname) => dirname ? path.resolve(dirname, fileName) : fileName;

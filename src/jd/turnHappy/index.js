@@ -106,7 +106,7 @@ class TurnHappy extends Template {
     }
 
     function log() {
-      const logData = getLogs('app', void 0, true).filter(o => o.name === self.scriptNameDesc && o.cookieName === api.pinLabel);
+      const logData = getLogs('app').filter(o => o.name === self.scriptNameDesc && o.cookieName === api.pinLabel);
       const totalData = logData.filter(o => o.msg.match(/^现有奖券: \d+$/));
       const reward = _.subtract(...[_.last(totalData), _.first(totalData)].map(o => +o.msg.match(/\d+/)));
       const doubleSuccess = logData.filter(o => o.msg.startsWith('成功翻倍')).length;

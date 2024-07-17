@@ -5,7 +5,7 @@
 const _ = require('lodash');
 const path = require('path');
 const fs = require('fs');
-const {getLogFile, sleep, parallelRun, getFileContent, getSortLogContent} = require('./lib/common');
+const {getLogFile, sleep, parallelRun, getFileContent, getSortLogContent, getLogs} = require('./lib/common');
 const {getNowDate, getMoment} = require('./lib/moment');
 const {getCookieData} = require('./lib/env');
 const {doPolling} = require('./lib/cron');
@@ -85,24 +85,30 @@ async function sendNotify({sendYesterdayLog = false, subjects = []}) {
   const getSubject = (str = mainSubject) => [str].concat(otherSubject).join('_');
 
   const errorLogs = _.filter([
-    sendYesterdayLog && getFileContent(getLogFile('error', yDay)).toString(),
-    getFileContent(getLogFile('error')).toString(),
+    ...sendYesterdayLog ? getLogs('error', yDay) : [],
+    ...getLogs('error'),
   ]);
+  const getMsgs = array => array.map(o => o.origin);
   if (!_.isEmpty(errorLogs)) {
     errorOutput.unshift(...[
       'error.log\n',
-      ...errorLogs,
+      ...getMsgs(errorLogs),
       '----------------------',
       '\ndoRun error\n',
     ]);
   }
   if (!_.isEmpty(errorOutput)) {
     errorOutput.push('\n\nrequest.log\n');
-    sendYesterdayLog && errorOutput.push(getFileContent(getLogFile('request', yDay)));
-    errorOutput.push(getFileContent(getLogFile('request')));
+    const requestLogs = _.filter([
+      ...sendYesterdayLog ? getLogs('request', yDay) : [],
+      ...getLogs('request'),
+    ]);
     mailer.send({
       subject: getSubject(`${mainSubject}_error`),
-      text: errorOutput.join('\n'),
+      text: errorOutput
+      // TODO 先精确到分的请求
+      .concat(getMsgs(requestLogs.filter(o => errorLogs.map(o => o.time.replace(/:\d\d$/, '')).includes(o.time.replace(/:\d\d$/, '')))))
+      .join('\n'),
     });
     errorOutput = [];
   }
