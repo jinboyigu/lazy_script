@@ -6,18 +6,18 @@ const {getEnv} = require('../../../lib/env');
 const {formatPasteData} = require('../../../lib/charles');
 const _ = require('lodash');
 
-// 获取数据并清空
-const originBodyPath = require('path').resolve(__dirname, './originBody.json');
-// 读取 charles 复制过来的数据
-const bodyStr = formatPasteData(require('fs').readFileSync(originBodyPath).toString()).body;
-const originBody = bodyStr ? JSON.parse(bodyStr) : readFileJSON(originBodyPath);
-require('fs').writeFileSync(originBodyPath, '');
+// TODO 从邮件中获取
+const groupConfig = [
+  // {activeId: 'sfc_202407170850225aeae'},
+  // {activeId: 'sfc_20240717231659d1254'},
+  {activeId: 'sfc_20240718163613b635e'},
+];
 
 class EarnJoinGroup extends Template {
   static scriptName = 'EarnJoinGroup';
   static scriptNameDesc = '参团(小程序)';
   static dirname = __dirname;
-  static times = 1;
+  static times = 2;
   static commonParamFn = () => ({});
   static cookieKeys = ['wq_uin', 'wq_skey'];
   static needInApp = false;
@@ -27,15 +27,18 @@ class EarnJoinGroup extends Template {
       uri: 'https://api.m.jd.com/superFission',
       qs: {
         g_ty: 'ls',
-        g_tk: '1844967756',
+        g_tk: '1874212660',
       },
       form: {
+        client: 'apple',
+        clientVersion: '9.19.100',
         appid: 'hot_channel',
         loginType: 11,
       },
       headers: {
+        referer: 'https://servicewechat.com/wx91d27dbf599dff74/755/page-frame.html',
         // TODO user-agent 应该是不用的, 先用着
-        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_8 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.16(0x18001028) NetType/WIFI Language/zh_CN miniProgram',
+        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.49(0x18003137) NetType/WIFI Language/zh_CN',
       },
     },
   };
@@ -56,85 +59,132 @@ class EarnJoinGroup extends Template {
   static async doMain(api, shareCodes) {
     const self = this;
 
-    const shareCookieIndex = getEnv('JD_EARNJOINGROUP_SHARE_COOKIE_INDEX', 0, -1);
-
-    if (shareCookieIndex < 0) return console.log('请手动指定 cookie index');
-
-    const {activeId, groupId} = originBody;
-
-    // /openGroup 开团接口
-
-    if (!activeId || !groupId) {
-      return api.log('活动不存在');
-    }
-
     await self.beforeRequest(api);
 
-    _.merge(api.options, {
-      form: {
-        body: {activeId, groupId},
-      },
-      headers: {referer: 'https://servicewechat.com/wx91d27dbf599dff74/665/page-frame.html'},
+    const mainPageBody = (activeId, groupId = '') => ({
+      activeId,
+      groupId,
+      'orderNo': '',
+      'pdMiniappId': '',
+      'pdVenderId': '',
+      'pdProjectId': '',
+      'pdTaskId': '',
+      'venueUrl': '',
     });
 
-    const mainPageResult = await api.doPath('mainPage');
-    if (!self.isSuccess(mainPageResult)) {
-      return api.log(`mainPage 获取失败: ${mainPageResult['msg']}`);
-    }
+    const shareCookieIndex = _.first(self._command) || getEnv('JD_EARNJOINGROUP_SHARE_COOKIE_INDEX', 0, -1);
 
-    const {
-      activityInfo: {
-        shareInfo: {
-          shareTitle,
-        },
-        showContent: {
-          browseCreateTaskDuration,
-          browseTaskDuration,
-          taskStatus,
-        },
-      },
-      groupInfo = {},
-      basicGroupInfo: {
-        groupStatus,
-      },
-      prizeEnough,
-      prizeRemain,
-      userInfo: {
-        canJoinGroup,
-        canJoinGroupUserLabel,
-        noJoinGroupReason,
-      },
-    } = _.get(mainPageResult, 'data');
-
-    const log = str => api.log(`[${shareTitle}-${groupId}] ${str}`);
-
-    if (groupStatus === 3) {
-      return log(`已成功`);
-    }
-    const {groupType} = groupInfo;
-    if ([1/*团长*/, 2/*团员*/].includes(groupType)) {
-      return log(`已在团中, 无需重复参加`);
-    }
-    if (noJoinGroupReason === '1024' || canJoinGroup < canJoinGroupUserLabel || canJoinGroup === 0) {
-      return log(`已没次数参加`);
-    }
-    // if (!prizeRemain || !prizeEnough) {
-    //   return log(`已结束`);
-    // }
-    // 参团
-    // await sleep(browseCreateTaskDuration || 2);
-    // const doTaskSucceed = await api.doPath('doTask').then(self.isSuccess);
-    // if (!doTaskSucceed) return log('doTask 失败');
-    await sleep(browseTaskDuration + 2);
-    // 参团
-    await api.doPath('joinGroup').then(data => {
-      if (self.isSuccess(data)) {
-        log('参团成功');
-      } else {
-        log(`参团失败(subCode: ${data.subCode}, message: ${data.message})`);
+    if (shareCookieIndex < 0) return api.logBoth('请手动指定 cookie index');
+    if (self.isFirstLoop() && api.currentCookieIndex === shareCookieIndex) {
+      for (const groupData of groupConfig) {
+        const {activeId} = groupData;
+        const mainPageResult = await api.doPath('mainPage', {
+          body: mainPageBody(activeId),
+        });
+        if (!self.isSuccess(mainPageResult)) {
+          api.log(`mainPage 获取失败: ${mainPageResult['msg']}`);
+          continue;
+        }
+        const groupId = _.get(data, 'data.basicGroupInfo.groupId');
+        // 已开团
+        if (groupId) {
+          groupData.groupId = groupId;
+          continue;
+        }
+        // 开团
+        await api.doPath('openGroup', {
+          body: {
+            activeId,
+            'orderNo': '',
+            'pdMiniappId': '',
+            'pdVenderId': '',
+            'pdProjectId': '',
+            'pdTaskId': '',
+          },
+        }).then(data => {
+          if (self.isSuccess(data)) {
+            groupData.groupId = data.data.groupId;
+          }
+        });
+        await sleep(3);
       }
-    });
+    }
+
+    for (const groupData of groupConfig) {
+      await handleJoinGroup(groupData);
+    }
+
+    async function handleJoinGroup(groupData) {
+      const {activeId, groupId} = groupData;
+
+      if (!activeId || !groupId) {
+        return api.log(`${activeId}活动不存在`);
+      }
+
+      const mainPageResult = await api.doPath('mainPage', {
+        body: mainPageBody(activeId, groupId),
+      });
+      if (!self.isSuccess(mainPageResult)) {
+        return api.log(`mainPage 获取失败: ${mainPageResult['msg']}`);
+      }
+
+      const {
+        activityInfo: {
+          shareInfo: {
+            shareTitle,
+          },
+          showContent: {
+            browseCreateTaskDuration,
+            browseTaskDuration,
+            taskStatus,
+          },
+        },
+        groupInfo = {},
+        basicGroupInfo: {
+          groupStatus,
+        },
+        prizeEnough,
+        prizeRemain,
+        userInfo: {
+          canJoinGroup,
+          canJoinGroupUserLabel,
+          noJoinGroupReason,
+        },
+      } = _.get(mainPageResult, 'data');
+
+      const log = str => api.log(`[${shareTitle}-${groupId}] ${str}`);
+
+      if (groupStatus === 3) {
+        return log(`已成功`);
+      }
+      const {groupType} = groupInfo;
+      if ([1/*团长*/, 2/*团员*/].includes(groupType)) {
+        return log(`已在团中, 无需重复参加`);
+      }
+      if (noJoinGroupReason === '1024' || canJoinGroup < canJoinGroupUserLabel || canJoinGroup === 0) {
+        return log(`已没次数参加`);
+      }
+      await sleep(browseTaskDuration + 2);
+      // 参团
+      await api.doPath('joinGroup', {
+        body: {
+          activeId,
+          groupId,
+          'pdMiniappId': '',
+          'pdVenderId': '',
+          'pdProjectId': '',
+          'pdTaskId': '',
+        },
+      }).then(data => {
+        if (self.isSuccess(data)) {
+          log('参团成功');
+        } else {
+          log(`参团失败(subCode: ${data.subCode}, message: ${data.message})`);
+        }
+      });
+    }
   }
+
 }
 
 singleRun(EarnJoinGroup).then();
