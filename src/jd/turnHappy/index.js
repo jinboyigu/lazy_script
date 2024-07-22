@@ -13,9 +13,9 @@ class TurnHappy extends Template {
     body: {'linkId': 'CDv-TaCmVcD0sxAI_HE2RQ'},
     appid: 'activities_platform',
     client: 'ios',
-    clientVersion: '13.1.0',
+    clientVersion: '13.1.1',
   });
-  static needInAppDynamicTime = true;
+  static needInApp = false;
   static keepIndependence = true;
   static times = 1;
   static activityEndTime = '2024-08-31';
@@ -41,7 +41,7 @@ class TurnHappy extends Template {
         turnHappyDouble: {appId: '614f1'},
         turnHappyReceive: {appId: '25fac'},
       },
-      signFromSecurity: true,
+      signFromKEDAYA: true,
     });
   }
 
