@@ -11,6 +11,7 @@ const groupConfig = [
   // {activeId: 'sfc_202407170850225aeae'},
   // {activeId: 'sfc_20240717231659d1254'},
   {activeId: 'sfc_20240718163613b635e'},
+  {activeId: 'sfc_20240726174926aa698'},
 ];
 
 class EarnJoinGroup extends Template {
@@ -82,10 +83,10 @@ class EarnJoinGroup extends Template {
           body: mainPageBody(activeId),
         });
         if (!self.isSuccess(mainPageResult)) {
-          api.log(`mainPage 获取失败: ${mainPageResult['msg']}`);
+          api.logBoth(`mainPage 获取失败: ${mainPageResult['msg']}`);
           continue;
         }
-        const groupId = _.get(data, 'data.basicGroupInfo.groupId');
+        const groupId = _.get(mainPageResult, 'data.basicGroupInfo.groupId');
         // 已开团
         if (groupId) {
           groupData.groupId = groupId;
@@ -118,14 +119,14 @@ class EarnJoinGroup extends Template {
       const {activeId, groupId} = groupData;
 
       if (!activeId || !groupId) {
-        return api.log(`${activeId}活动不存在`);
+        return api.logBoth(`${activeId}活动不存在`);
       }
 
       const mainPageResult = await api.doPath('mainPage', {
         body: mainPageBody(activeId, groupId),
       });
       if (!self.isSuccess(mainPageResult)) {
-        return api.log(`mainPage 获取失败: ${mainPageResult['msg']}`);
+        return api.logBoth(`mainPage 获取失败: ${mainPageResult['msg']}`);
       }
 
       const {
@@ -152,7 +153,7 @@ class EarnJoinGroup extends Template {
         },
       } = _.get(mainPageResult, 'data');
 
-      const log = str => api.log(`[${shareTitle}-${groupId}] ${str}`);
+      const log = str => api.logBoth(`[${shareTitle}-${groupId}] ${str}`);
 
       if (groupStatus === 3) {
         return log(`已成功`);
