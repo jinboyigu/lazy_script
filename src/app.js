@@ -73,6 +73,7 @@ const SuperLeague = require('./jd/superLeague');
 const NewTry = require('./jd/newtry');
 const SecKillView = require('./jd/seckillView');
 const Fission = require('./jd/fission');
+const AppletSign = require('./jd/applet/sign');
 
 /* 极简模式 */
 const BSign = require('./jd/bSign');
@@ -145,6 +146,7 @@ async function main() {
     NewTry,
     SecKillView,
     Fission,
+    AppletSign,
     BSign,
     RichTree,
     Lhb4b,

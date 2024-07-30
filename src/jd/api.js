@@ -206,6 +206,16 @@ class Api {
     }, options));
   }
 
+  doPathBody(functionId, body = {}, form = {}, options = {}) {
+    if (!_.isEmpty(body)) {
+      form.body = body;
+    }
+    return this.do(_.merge({
+      uri: `${this.options.uri}/${functionId}`,
+      form,
+    }, options));
+  }
+
   doBodyPath(functionId, body) {
     return this.doPath(functionId, void 0, {body});
   }

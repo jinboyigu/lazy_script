@@ -200,6 +200,7 @@ class Template extends Base {
         } else if (method === 'doGetBody') {
           options = signData || options;
         } else {
+          options.form = options.form || {};
           _.merge(options.form, signData);
         }
         const t = getMoment().valueOf();
@@ -229,11 +230,11 @@ class Template extends Base {
           /* TODO 可能只适用于 client=apple/android */
           if (signFromKEDAYA) {
             const result = await encryptH5st.sign({
-              url: api.options.url || options.url,
+              url: api.options.uri || api.options.url || options.url,
               appId,
               form: {functionId, client: 'apple', clientVersion: '13.1.0', ...form},
             });
-            form = result.form;
+            form = _.merge(form, result.form);
             _.assign(options, {
               headers: {
                 'user-agent': result.headers['user-agent'],
