@@ -10,8 +10,8 @@ const _ = require('lodash');
 const groupConfig = [
   // {activeId: 'sfc_202407170850225aeae'},
   // {activeId: 'sfc_20240717231659d1254'},
-  {activeId: 'sfc_20240718163613b635e'},
-  {activeId: 'sfc_20240726174926aa698'},
+  // {activeId: 'sfc_20240718163613b635e'},
+  {activeId: 'sfc_202407292124367148d'},
 ];
 
 class EarnJoinGroup extends Template {
@@ -83,7 +83,7 @@ class EarnJoinGroup extends Template {
           body: mainPageBody(activeId),
         });
         if (!self.isSuccess(mainPageResult)) {
-          api.logBoth(`mainPage 获取失败: ${mainPageResult['msg']}`);
+          api.logBoth(`[${activeId}] mainPage 获取失败: ${mainPageResult['message']}`);
           continue;
         }
         const groupId = _.get(mainPageResult, 'data.basicGroupInfo.groupId');
@@ -119,14 +119,14 @@ class EarnJoinGroup extends Template {
       const {activeId, groupId} = groupData;
 
       if (!activeId || !groupId) {
-        return api.logBoth(`${activeId}活动不存在`);
+        return;
       }
 
       const mainPageResult = await api.doPath('mainPage', {
         body: mainPageBody(activeId, groupId),
       });
       if (!self.isSuccess(mainPageResult)) {
-        return api.logBoth(`mainPage 获取失败: ${mainPageResult['msg']}`);
+        return api.logBoth(`[${activeId}] mainPage 获取失败: ${mainPageResult['message']}`);
       }
 
       const {
