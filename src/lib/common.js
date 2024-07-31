@@ -350,6 +350,11 @@ function formatFullPath(config, action) {
   });
 })();
 
+const execAsync = list => Promise.all(list.map(command => new Promise(resolve => {
+  exec(..._.toArray(command));
+  resolve();
+})));
+
 /**
  *
  * @param command {String|Array}
@@ -451,4 +456,5 @@ module.exports = {
   formatJSONOutput,
 
   exec,
+  execAsync,
 };
