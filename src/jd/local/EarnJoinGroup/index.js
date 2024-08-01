@@ -5,13 +5,11 @@ const {sleep, writeFileJSON, readFileJSON, singleRun, replaceObjectMethod} = req
 const {getEnv} = require('../../../lib/env');
 const {formatPasteData} = require('../../../lib/charles');
 const _ = require('lodash');
+const {getMoment} = require('../../../lib/moment');
 
 // TODO 从邮件中获取
 const groupConfig = [
-  // {activeId: 'sfc_202407170850225aeae'},
-  // {activeId: 'sfc_20240717231659d1254'},
-  // {activeId: 'sfc_20240718163613b635e'},
-  {activeId: 'sfc_202407292124367148d'},
+  // {activeId: 'sfc_202407292124367148d'},
 ];
 
 class EarnJoinGroup extends Template {
@@ -50,10 +48,12 @@ class EarnJoinGroup extends Template {
 
   static async beforeRequest(api) {
     const self = this;
-    replaceObjectMethod(api, 'doPath', ([functionId, form]) => {
-      form = form || {};
-      form['functionId'] = `superFission_${functionId}`;
-      return [functionId, form];
+
+    self.injectEncryptH5st(api, {
+      config: {
+        miniCenterQueryNormalConfig: {appId: '1ffca'},
+      },
+      signFromSecurity: true,
     });
   }
 
@@ -61,6 +61,7 @@ class EarnJoinGroup extends Template {
     const self = this;
 
     await self.beforeRequest(api);
+    const doPathBody = (functionId, body) => api.doPathBody(functionId, body, {functionId: `superFission_${functionId}`});
 
     const mainPageBody = (activeId, groupId = '') => ({
       activeId,
@@ -77,11 +78,10 @@ class EarnJoinGroup extends Template {
 
     if (shareCookieIndex < 0) return api.logBoth('请手动指定 cookie index');
     if (self.isFirstLoop() && api.currentCookieIndex === shareCookieIndex) {
+      await handleUpdateGroup();
       for (const groupData of groupConfig) {
         const {activeId} = groupData;
-        const mainPageResult = await api.doPath('mainPage', {
-          body: mainPageBody(activeId),
-        });
+        const mainPageResult = await doPathBody('mainPage', mainPageBody(activeId));
         if (!self.isSuccess(mainPageResult)) {
           api.logBoth(`[${activeId}] mainPage 获取失败: ${mainPageResult['message']}`);
           continue;
@@ -93,15 +93,13 @@ class EarnJoinGroup extends Template {
           continue;
         }
         // 开团
-        await api.doPath('openGroup', {
-          body: {
-            activeId,
-            'orderNo': '',
-            'pdMiniappId': '',
-            'pdVenderId': '',
-            'pdProjectId': '',
-            'pdTaskId': '',
-          },
+        await doPathBody('openGroup', {
+          activeId,
+          'orderNo': '',
+          'pdMiniappId': '',
+          'pdVenderId': '',
+          'pdProjectId': '',
+          'pdTaskId': '',
         }).then(data => {
           if (self.isSuccess(data)) {
             groupData.groupId = data.data.groupId;
@@ -122,9 +120,7 @@ class EarnJoinGroup extends Template {
         return;
       }
 
-      const mainPageResult = await api.doPath('mainPage', {
-        body: mainPageBody(activeId, groupId),
-      });
+      const mainPageResult = await doPathBody('mainPage', mainPageBody(activeId, groupId));
       if (!self.isSuccess(mainPageResult)) {
         return api.logBoth(`[${activeId}] mainPage 获取失败: ${mainPageResult['message']}`);
       }
@@ -167,21 +163,43 @@ class EarnJoinGroup extends Template {
       }
       await sleep(browseTaskDuration + 2);
       // 参团
-      await api.doPath('joinGroup', {
-        body: {
-          activeId,
-          groupId,
-          'pdMiniappId': '',
-          'pdVenderId': '',
-          'pdProjectId': '',
-          'pdTaskId': '',
-        },
+      await doPathBody('joinGroup', {
+        activeId,
+        groupId,
+        'pdMiniappId': '',
+        'pdVenderId': '',
+        'pdProjectId': '',
+        'pdTaskId': '',
       }).then(data => {
         if (self.isSuccess(data)) {
           log('参团成功');
         } else {
           log(`参团失败(subCode: ${data.subCode}, message: ${data.message})`);
         }
+      });
+    }
+
+    async function handleUpdateGroup() {
+      await api.doGetBody('miniCenterQueryNormalConfig', {'id': 1157, 'operationFlag': false, 'type': '1'}, {
+        uri: 'https://api.m.jd.com/miniCenterQueryNormalConfig',
+        qs: {
+          functionId: 'miniCenterQueryNormalConfig',
+          ...api.options.form,
+        },
+        form: {},
+      }).then(data => {
+        const floors = _.get(data, 'data.pages[0].stepPages[0].floors');
+        _.filter(floors.map(o => {
+          const styleConfig = _.get(o, 'config.tagName') === 'MpmSuperfission' && _.get(o, 'config.styleConfig');
+          if (!styleConfig) return;
+          const {start, end} = styleConfig;
+          if (getMoment().isAfter(end) || getMoment().isBefore(start)) return;
+          return styleConfig.active_id;
+        }))
+        .forEach(activeId => {
+          api.log(`新增 activeId: ${activeId}`);
+          groupConfig.push({activeId});
+        });
       });
     }
   }

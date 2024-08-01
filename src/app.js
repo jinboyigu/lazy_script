@@ -75,6 +75,7 @@ const SecKillView = require('./jd/seckillView');
 const Fission = require('./jd/fission');
 const AppletSign = require('./jd/applet/sign');
 const AppletMini = require('./jd/applet/mini');
+const EarnJoinGroup = require('./jd/local/EarnJoinGroup');
 
 /* 极简模式 */
 const BSign = require('./jd/bSign');
@@ -318,6 +319,7 @@ async function main() {
         await sleepTime(24);
         await multipleRun([
           AppletMini,
+          EarnJoinGroup,
           [Health, void 0, 'cron'],
           // JoySign,
           SignTurnTable,
