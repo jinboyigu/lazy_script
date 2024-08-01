@@ -54,7 +54,6 @@ class AppletSign extends Template {
       config: {
         doSignTask: {appId: '9a38a'},
       },
-      // signFromKEDAYA: true,
       signFromSecurity: true,
     });
   }

@@ -11,8 +11,12 @@ class WanYiWan extends Template {
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static commonParamFn = () => ({
-    body: {version: 1},
+    body: {'version': 3, 'lbsSwitch': true, 'babelChannel': 'ttt4'},
     appid: 'signed_wh5',
+    ...formatPasteData(`
+    uuid\tc6993893af46e44aa14818543914768cf2509fbf
+    x-api-eid-token\tjdd03M7UO6SRTFR5GQS7SPKPOGT7ZZB6KH2I7CUXZGVFSPJ5773VII5RHNSVRM4FK4RSLDCBRG3QQUS4WNC5PZ2767E6D3QAAAAMRBSAXKAQAAAAADC645KBVNSYUH4X
+    `),
   });
   static keepIndependence = true;
   static times = 1;

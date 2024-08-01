@@ -19,6 +19,14 @@ class Fission extends Template {
     appid: 'activities_platform',
     client: 'ios',
     clientVersion: '13.1.1',
+    // 'x-api-eid-token': 'jdd03M7UO6SRTFR5GQS7SPKPOGT7ZZB6KH2I7CUXZGVFSPJ5773VII5RHNSVRM4FK4RSLDCBRG3QQUS4WNC5PZ2767E6D3QAAAAMRBSFMOSQAAAAACR46XLRBOPRDF4X',
+    // 'wg-sdk-token': 'jdd01KBVZ3RGXT5ZEBTCT3MVRRNND2MP5UGDPNCC24YUXEWFIOKB6WA4S6QKT5IBB37OB277GKOV3BNMFHMUKECNBUDO7PIOAVWQM6SRLXHQ01234567',
+    // uuid: 'c6993893af46e44aa14818543914768cf2509fbf',
+    // ext: {
+    //   'x-api-eid-token': 'jdd03M7UO6SRTFR5GQS7SPKPOGT7ZZB6KH2I7CUXZGVFSPJ5773VII5RHNSVRM4FK4RSLDCBRG3QQUS4WNC5PZ2767E6D3QAAAAMRBSFMOSQAAAAACR46XLRBOPRDF4X',
+    //   'wg-sdk-token': 'jdd01KBVZ3RGXT5ZEBTCT3MVRRNND2MP5UGDPNCC24YUXEWFIOKB6WA4S6QKT5IBB37OB277GKOV3BNMFHMUKECNBUDO7PIOAVWQM6SRLXHQ01234567',
+    //   'pageUrl': 'https://pro.m.jd.com/mall/active/B2Y13x641hwWfpsoRenCzfbz4jR/index.html',
+    // },
   });
   static keepIndependence = true;
   static needInApp = false;
@@ -31,6 +39,7 @@ class Fission extends Template {
           'x-referer-page': 'https://pro.m.jd.com/mall/active/3BwUqhLsJYrHP4qgAgDDJGrSVngK/index.html',
           'referer': 'https://pro.m.jd.com/mall/active/3BwUqhLsJYrHP4qgAgDDJGrSVngK/index.html?from=kouling&channelType=1&activityChannel=jdapp&femobile=femobile&tttparams=WIFszeyJnTGF0IjoiMjIuOTQzMTA1IiwidW5fYXJlYSI6IjE5XzE2MDFfMzY5NTNfNTA0MDAiLCJkTGF0IjoiIiwicHJzdGF0ZSI6IjAiLCJhZGRyZXNzSWQiOiI1MTU2MDkwNDExIiwibGF0IjoiMjMuMDc0MTIxIiwicG9zTGF0IjoiMjIuOTQzMTA1IiwicG9zTG5nIjoiMTEzLjQ3NDcxOCIsImdwc19hcmVhIjoiMF8wXzBfMCIsImxuZyI6IjExMy40MjM3MjAiLCJ1ZW1wcyI6IjItMC0yIiwiZ0xuZyI6IjExMy40NzQ3MTgiLCJtb2RlbCI6ImlQaG9uZTEzLDMiLCJkTG5nIjoiIn50%3D&originId=3orGfh1YkwNLksxOcN8zWQ&inviteCode=voN1y2F4JuplvN6EKiBjFe4a8n6-2Gg_7sca7-HKNDg&inviterId=CeymEOdTGnhBzMjmwC12IA',
         },
+        needDelay: 2,
       },
     };
   }
@@ -60,7 +69,7 @@ class Fission extends Template {
     await self.beforeRequest(api);
 
     if (self.isFirstLoop()) {
-      process.isProxy && await handleSuperRedBagList();
+      // process.isProxy && await handleSuperRedBagList();
       await handleDoTask();
     }
     await handleHome();
