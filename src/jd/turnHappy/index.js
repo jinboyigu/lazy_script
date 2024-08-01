@@ -3,6 +3,7 @@ const Template = require('../base/template');
 const {sleep, writeFileJSON, singleRun, getLogs} = require('../../lib/common');
 const {getMoment} = require('../../lib/moment');
 const _ = require('lodash');
+const {formatPasteData} = require('../../lib/charles');
 
 class TurnHappy extends Template {
   static scriptName = 'TurnHappy';
@@ -14,6 +15,10 @@ class TurnHappy extends Template {
     appid: 'activities_platform',
     client: 'ios',
     clientVersion: '13.1.1',
+    ...formatPasteData(`
+      x-api-eid-token\tjdd03M7UO6SRTFR5GQS7SPKPOGT7ZZB6KH2I7CUXZGVFSPJ5773VII5RHNSVRM4FK4RSLDCBRG3QQUS4WNC5PZ2767E6D3QAAAAMRBP52YRYAAAAACTKZUHILKZH7OMX
+      uuid\tc6993893af46e44aa14818543914768cf2509fbf
+    `),
   });
   static needInApp = false;
   static keepIndependence = true;
@@ -52,7 +57,15 @@ class TurnHappy extends Template {
 
     const fourTimes = _.first(self._command);
 
-    let {leftTime, reachDayLimit, usable, joinTimes} = await api.doFormBody('turnHappyHome').then(_.property('data'));
+    let {
+      leftTime,
+      reachDayLimit,
+      usable,
+      joinTimes,
+      rewardState,
+      rewardValue,
+    } = await api.doFormBody('turnHappyHome').then(_.property('data'));
+    await turnHappyReceive({rewardState, rewardValue}, 0);
     if (api.currentCookieTimes === 0) {
       console.log(`现在时间: ${getMoment().format()}`);
     }
@@ -85,15 +98,7 @@ class TurnHappy extends Template {
       --times;
       if (rewardState === 1) {
         if (times <= 0) {
-          await api.doFormBody('turnHappyReceive').then(result => {
-            if (result.success) {
-              usable -= _.max([turnNum, 100]);
-              usable += +rewardValue;
-              api.logBoth(`成功翻倍获取 ${rewardValue}`);
-            } else {
-              api.logBoth(result);
-            }
-          });
+          await turnHappyReceive({rewardState, rewardValue}, turnNum);
         } else {
           // 第 2 次以上是传 -1
           await sleep();
@@ -112,6 +117,19 @@ class TurnHappy extends Template {
       const doubleSuccess = logData.filter(o => o.msg.startsWith('成功翻倍')).length;
       const doubleFail = logData.filter(o => o.msg.startsWith('翻倍失败')).length;
       api.logBoth(`${_.last(totalData).msg}, 今天获得: ${reward}, 成功翻倍次数: ${doubleSuccess}(共${doubleSuccess + doubleFail}次)`);
+    }
+
+    async function turnHappyReceive(data, turnNum) {
+      const {rewardValue, rewardState} = data;
+      rewardState === 1 && await api.doFormBody('turnHappyReceive').then(result => {
+        if (result.success) {
+          usable -= _.max([turnNum, 100]);
+          usable += +rewardValue;
+          api.logBoth(`成功翻倍获取 ${rewardValue}`);
+        } else {
+          api.logBoth(result);
+        }
+      });
     }
   }
 }
