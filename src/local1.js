@@ -9,7 +9,7 @@ const schedule = require('node-schedule');
 
 (function main() {
   const nodeCommand = (file, method = 'start') => `node ${file} ${method}`;
-  const execNode = (file, method) => execNode(file, method);
+  const execNode = (file, method) => exec(nodeCommand(file, method));
   // 0 分活动
   schedule.scheduleJob('0 0 * * *', () => {
     // TODO 待增加脚本
