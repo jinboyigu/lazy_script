@@ -232,7 +232,13 @@ class Template extends Base {
             const result = await encryptH5st.sign({
               url: api.options.uri || api.options.url || options.url,
               appId,
-              form: {functionId, client: 'apple', clientVersion: '13.1.0', ...form},
+              form: {
+                functionId,
+                client: 'apple',
+                clientVersion: '13.1.0',
+                openudid: '5a44015a5e835b3dcb903c9a6b9d66573473c14d',
+                ...form,
+              },
             });
             form = _.merge(form, result.form);
             _.assign(options, {

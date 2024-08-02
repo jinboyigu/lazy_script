@@ -38,6 +38,11 @@ const _request = (cookie, {form, body, qs, headers = {}, ...others}) => {
   if (others.url) {
     delete defaultOption.uri;
   }
+  if (others.cookies) {
+    const _cookie = new Cookie(others.cookies);
+    _cookie.add(cookie);
+    cookie = _cookie.toString();
+  }
   const rpOptions = _.assign({
     ...defaultOption,
     headers: {cookie, ...headers},

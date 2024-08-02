@@ -15,10 +15,6 @@ class TurnHappy extends Template {
     appid: 'activities_platform',
     client: 'ios',
     clientVersion: '13.1.1',
-    ...formatPasteData(`
-      x-api-eid-token\tjdd03M7UO6SRTFR5GQS7SPKPOGT7ZZB6KH2I7CUXZGVFSPJ5773VII5RHNSVRM4FK4RSLDCBRG3QQUS4WNC5PZ2767E6D3QAAAAMRBP52YRYAAAAACTKZUHILKZH7OMX
-      uuid\tc6993893af46e44aa14818543914768cf2509fbf
-    `),
   });
   static needInApp = false;
   static keepIndependence = true;
