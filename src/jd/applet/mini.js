@@ -72,10 +72,13 @@ class AppletMini extends Template {
 
     const doPathBody = (functionId, body) => api.doPathBody(functionId, body, {functionId});
 
-    const {signInfo: {signTaskList}, scanTaskList, assistTask} = await doPathBody('miniTask_hbChannelPage', {
+    const {signInfo: {signTaskList}, scanTaskList, assistTask, hasLogin} = await doPathBody('miniTask_hbChannelPage', {
       'source': 'task',
       'businessSource': 'cjs',
     }).then(_.property('data'));
+    if (!hasLogin) {
+      throw api.logBoth('未登录');
+    }
     const signTask = signTaskList.find(o => o.currentDay && !o.signStatus);
 
     for (const {order, status, userTag} of assistTask.assistList) {
@@ -100,14 +103,23 @@ class AppletMini extends Template {
 
     async function handleDoShare() {
       self.updateShareCodeFn(assistTask.itemId);
-      const itemId = self.getShareCodeFn()[0];
-      itemId && doPathBody('miniTask_doAssist', {itemId}).then(data => {
-        if (self.isSuccess(data)) {
-          api.log(`助力成功 ${itemId}`);
-        } else {
-          api.log(data.message);
-        }
-      });
+      await _do(self.getShareCodeFn()[0]);
+
+      async function _do(itemId, times = 3) {
+        if (!itemId || times === 0) return;
+        return doPathBody('miniTask_doAssist', {itemId}).then(async data => {
+          if (self.isSuccess(data)) {
+            api.log(`助力成功 ${itemId}`);
+          } else {
+            api.log(`助力失败: ${data.message}`);
+            if (data.message.match('火爆')) {
+              // 稍后再助力
+              await sleep(2);
+              return _do(itemId, --times);
+            }
+          }
+        });
+      }
     }
 
     async function handleDoSign() {

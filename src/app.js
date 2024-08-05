@@ -292,6 +292,7 @@ async function main() {
           SuperBrandDay,
           SplitHongbao,
           WanYiWan,
+          AppletMini,
         ]);
       },
     },
