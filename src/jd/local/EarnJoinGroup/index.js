@@ -1,7 +1,7 @@
 const Template = require('../../base/template');
 
 
-const {sleep, writeFileJSON, readFileJSON, singleRun, replaceObjectMethod} = require('../../../lib/common');
+const {sleep, writeFileJSON, readFileJSON, singleRun, replaceObjectMethod, addMosaic} = require('../../../lib/common');
 const {getEnv} = require('../../../lib/env');
 const {formatPasteData} = require('../../../lib/charles');
 const _ = require('lodash');
@@ -149,7 +149,7 @@ class EarnJoinGroup extends Template {
         },
       } = _.get(mainPageResult, 'data');
 
-      const log = str => api.logBoth(`[${shareTitle}-${groupId}] ${str}`);
+      const log = str => api.logBoth(`[${shareTitle}-${addMosaic(groupId, {prefix: 3, suffix: 3})}] ${str}`);
 
       if (groupStatus === 3) {
         return log(`已成功`);
@@ -201,6 +201,14 @@ class EarnJoinGroup extends Template {
           groupConfig.push({activeId});
         });
       });
+      await update1();
+
+      // 社交圈 0.56
+      async function update1() {
+        const t = getMoment().valueOf();
+        const supFissionId = await api.doGetUrl(`https://api.m.jd.com/shop/circle/mainPage?appid=hot_channel&functionId=miniShopCircle_mainPage&sign=&client=apple&clientVersion=9.19.240&t=${t}&body=%7B%22ref%22%3A%22share%22%2C%22source%22%3A%22sharekt%22%2C%22%24taroTimestamp%22%3A${t}%7D&loginType=11&loginWQBiz=mpmsku&channel=http-direct&clientType=wxapp&build=&osVersion=iOS%2017.5&screen=390*844&networkType=wifi&partner=&forcebot=&d_brand=iPhone&d_model=iPhone%2012%20Pro%3CiPhone13%2C3%3E&d_name=&lang=zh_CN&wifiBssid=&scope=&g_ty=ls&g_tk=1878487459`).then(_.property('data.supFissionId'));
+        supFissionId && groupConfig.push({activeId: supFissionId});
+      }
     }
   }
 
