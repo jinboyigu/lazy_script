@@ -31,11 +31,11 @@ const schedule = require('node-schedule');
     execNode('src/jd/turnHappy/index.js');
   });
   // 转赚红包
-  schedule.scheduleJob('15 23,1 * * *', () => {
+  schedule.scheduleJob('39 10,20,22 * * *', () => {
     execNode('src/jd/fission/index.js');
   });
   // 玩一玩
-  schedule.scheduleJob('5 14,23 * * *', () => {
+  schedule.scheduleJob('5 7,12,14,20,23 * * *', () => {
     execNode('src/jd/turnHappy/WanYiWan.js');
   });
   // 更新github
