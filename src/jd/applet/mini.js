@@ -123,7 +123,7 @@ class AppletMini extends Template {
     }
 
     async function handleDoSign() {
-      await doPathBody('mini_doSign', {itemId: signTask.itemId}).then(data => {
+      signTask && await doPathBody('mini_doSign', {itemId: signTask.itemId}).then(data => {
         if (self.isSuccess(data)) {
           api.log(data.data.toastMsg);
         } else {
