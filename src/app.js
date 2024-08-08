@@ -149,7 +149,6 @@ async function main() {
     SecKillView,
     Fission,
     AppletSign,
-    AppletMini,
     BSign,
     RichTree,
     Lhb4b,
@@ -215,6 +214,7 @@ async function main() {
           LiteEarnCoins,
           Family,
           WanYiWan,
+          AppletMini,
         ]);
       },
     },
@@ -327,6 +327,7 @@ async function main() {
           Sign1,
           IsvShopSign,
         ], 0);
+        await doRun(AppletMini);
       },
     },
   ];

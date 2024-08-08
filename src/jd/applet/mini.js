@@ -12,7 +12,7 @@ class AppletMini extends Template {
   static shareCodeTaskList = [];
   static defaultShareCodes = [
     'Sv_h1QhgY81XeKR6b1A',
-    'i47xTSBS86MoV47MrC276w',
+    'S7a4gE0Ic8A',
   ];
   static commonParamFn = () => ({
     osVersion: 'iOS 17.5',
@@ -23,10 +23,11 @@ class AppletMini extends Template {
     loginWQBiz: 'signcomponent',
     loginType: 11,
   });
-  // static times = 1;
   static keepIndependence = true;
   static cookieKeys = ['wq_uin', 'wq_skey'];
   static needInApp = false;
+  static concurrent = true;
+  static concurrentOnceDelay = 0;
 
   static isSuccess(data) {
     return data['subCode'] === 0;
@@ -72,6 +73,9 @@ class AppletMini extends Template {
 
     const doPathBody = (functionId, body) => api.doPathBody(functionId, body, {functionId});
 
+    if (self.firstTimeInTheDay() && self.isFirstLoop() && api.currentCookieIndex === 0) {
+      await sleep(10);
+    }
     const {signInfo: {signTaskList}, scanTaskList, assistTask, hasLogin} = await doPathBody('miniTask_hbChannelPage', {
       'source': 'task',
       'businessSource': 'cjs',
@@ -81,29 +85,30 @@ class AppletMini extends Template {
     }
     const signTask = signTaskList.find(o => o.currentDay && !o.signStatus);
 
-    for (const {order, status, userTag} of assistTask.assistList) {
-      if (userTag && !status) {
-        await doPathBody('miniTask_doAssistReward', {order, itemId: assistTask.itemId}).then(data => {
-          if (self.isSuccess(data)) {
-            api.log(`获得红包 ${data.data.discount}`);
-          } else {
-            api.log(data.message);
-          }
-        });
-        await sleep(2);
+    if(assistTask.completionCnt) {
+      for (const {order, status, userTag} of assistTask.assistList) {
+        if (userTag && !status) {
+          await doPathBody('miniTask_doAssistReward', {order, itemId: assistTask.itemId}).then(data => {
+            if (self.isSuccess(data)) {
+              api.log(`获得红包 ${data.data.discount}`);
+            } else {
+              api.log(`获取失败: ${data.message}`);
+            }
+          });
+        }
       }
     }
 
-    if (signTask) {
-      await handleDoShare();
+    if (self.firstTimeInTheDay()) {
       await handleDoSign();
+      await handleDoShare();
     } else {
       await handleDoTask();
     }
 
     async function handleDoShare() {
       self.updateShareCodeFn(assistTask.itemId);
-      await _do(self.getShareCodeFn()[0]);
+      await _do(self.getShareCodeFn(api)[0]);
 
       async function _do(itemId, times = 3) {
         if (!itemId || times === 0) return;
