@@ -31,14 +31,15 @@ class Template extends Base {
   }
 
   // 获取 shareCode
-  static getShareCodeFn() {
+  static getShareCodeFn(api) {
     const self = this;
+    const currentIndex = api ? api.currentCookieIndex : self.currentCookieTimes;
     return self.shareCodeTaskList.filter((o, index) => {
       if (self.isFirstLoop()) {
-        return index < self.currentCookieTimes;
+        return index < currentIndex;
       }
       if (self.isLastLoop()) {
-        return index > self.currentCookieTimes;
+        return index > currentIndex;
       }
     });
   }
