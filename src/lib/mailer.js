@@ -132,8 +132,8 @@ function _search({subject, since, seen, realDelFn = _.noop, boxName = 'INBOX'}, 
         const prefix = '(#' + seqNo + ') ';
         const msgInfo = {};
         msg.on('body', function (stream, info) {
-          // 1MB 的邮件以上不做加载
-          if (info.size > 1024 * 1024) {
+          // 10KB 的邮件以上不做加载
+          if (info.size > 10 * 1024) {
             return;
           }
           const mailParser = new MailParser();
