@@ -12,8 +12,6 @@ const schedule = require('node-schedule');
   const execNode = (file, method) => exec(nodeCommand(file, method));
   // 0 分活动
   schedule.scheduleJob('0 0 * * *', () => {
-    // TODO 待增加脚本
-    return;
     execAsync([
       nodeCommand('src/jd/applet/mini.js'),
     ]);

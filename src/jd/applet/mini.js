@@ -26,7 +26,7 @@ class AppletMini extends Template {
   static keepIndependence = true;
   static cookieKeys = ['wq_uin', 'wq_skey'];
   static needInApp = false;
-  static concurrent = true;
+  static concurrent = this.firstTimeInTheDay();
   static concurrentOnceDelay = 0;
 
   static isSuccess(data) {
@@ -76,13 +76,18 @@ class AppletMini extends Template {
     if (self.firstTimeInTheDay() && self.isFirstLoop() && api.currentCookieIndex === 0) {
       await sleep(10);
     }
-    const {signInfo: {signTaskList}, scanTaskList, assistTask, hasLogin} = await doPathBody('miniTask_hbChannelPage', {
+    const {signInfo, scanTaskList, assistTask, hasLogin} = await doPathBody('miniTask_hbChannelPage', {
       'source': 'task',
       'businessSource': 'cjs',
     }).then(_.property('data'));
     if (!hasLogin) {
       throw api.logBoth('未登录');
     }
+    if (!signInfo) {
+      api.logBoth('miniTask_hbChannelPage 异常');
+      return;
+    }
+    const {signTaskList} = signInfo || {};
     const signTask = signTaskList.find(o => o.currentDay && !o.signStatus);
 
     if(assistTask.completionCnt) {
