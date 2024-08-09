@@ -15,6 +15,7 @@ const schedule = require('node-schedule');
     execAsync([
       nodeCommand('src/jd/applet/mini.js'),
     ]);
+    execNode('src/jd/local/EarnJoinGroup/index.js');
   });
   // 积分加油站
   schedule.scheduleJob('20 0,7,18 * * *', () => {
