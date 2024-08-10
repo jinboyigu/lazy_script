@@ -37,6 +37,10 @@ const schedule = require('node-schedule');
   schedule.scheduleJob('5 7,12,14,20,23 * * *', () => {
     execNode('src/jd/turnHappy/WanYiWan.js');
   });
+  // 小程序-早起红包
+  schedule.scheduleJob('55 5 * * *', () => {
+    execNode('src/jd/applet/morningHbReward.js');
+  });
   // 更新github
   schedule.scheduleJob('0 * * * *', () => {
     exec('git pull --rebase');

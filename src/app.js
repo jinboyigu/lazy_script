@@ -75,6 +75,7 @@ const SecKillView = require('./jd/seckillView');
 const Fission = require('./jd/fission');
 const AppletSign = require('./jd/applet/sign');
 const AppletMini = require('./jd/applet/mini');
+const MorningHbReward = require('./jd/applet/morningHbReward');
 const EarnJoinGroup = require('./jd/local/EarnJoinGroup');
 
 /* 极简模式 */
@@ -197,6 +198,7 @@ async function main() {
       run: async () => {
         // await doRun(JxFarm);
         await doRun(LiteEarnCoins);
+        await doRun(MorningHbReward);
       },
     },
     {
