@@ -8,8 +8,8 @@ const {getMoment} = require('./lib/moment');
 const schedule = require('node-schedule');
 
 (function main() {
-  const nodeCommand = (file, method = 'start') => `node ${file} ${method}`;
-  const execNode = (file, method) => exec(nodeCommand(file, method));
+  const nodeCommand = (file, method = 'start', cookieIndex = '*', command1) => `node ${file} ${method} ${cookieIndex} ${command1}`;
+  const execNode = (...args) => exec(nodeCommand(...args));
   // 0 分活动
   schedule.scheduleJob('0 0 * * *', () => {
     execAsync([
@@ -36,6 +36,9 @@ const schedule = require('node-schedule');
   // 玩一玩
   schedule.scheduleJob('5 7,12,14,20,23 * * *', () => {
     execNode('src/jd/turnHappy/WanYiWan.js');
+  });
+  schedule.scheduleJob('15 * * * *', () => {
+    execNode('src/jd/turnHappy/WanYiWan.js', 'start', '*', '3');
   });
   // 小程序-早起红包
   schedule.scheduleJob('55 5 * * *', () => {

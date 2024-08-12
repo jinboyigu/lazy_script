@@ -11,7 +11,7 @@ class WanYiWan extends Template {
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static commonParamFn = () => ({
-    body: {'version': 1},
+    body: {'version': 3},
     appid: 'signed_wh5',
   });
   static keepIndependence = true;
@@ -62,6 +62,7 @@ class WanYiWan extends Template {
       await handleExchange(exchange);
     } else {
       await handleDoTask();
+      await handleExchange();
     }
 
     async function handleDoTask() {
@@ -69,6 +70,7 @@ class WanYiWan extends Template {
         'outsite': 0,
         'firstCall': 0,
         'lbsSwitch': false,
+        'babelChannel': 'ttt4',
       }).then(_.property('data.result')) || {};
       const notSign = signBoard && signBoard.status === 0;
       if (notSign) {
@@ -161,16 +163,20 @@ class WanYiWan extends Template {
       }
     }
 
-    async function handleExchange(reward) {
+    async function handleExchange(rewardType = 3/* 京豆 */) {
       const {
         hotExchanges,
         moreExchanges,
-      } = await api.doFormBody('wanyiwan_exchange_page').then(_.property('data.result'));
-      const target = hotExchanges.concat(moreExchanges).find(o => o.rewardType === 1 && o.rewardName.startsWith(reward));
-      if (target) {
+      } = await api.doFormBody('wanyiwan_exchange_page', {version: 4}).then(_.property('data.result'));
+      const allExchanges = hotExchanges.concat(moreExchanges);
+      const enableExchanges = allExchanges.filter(o => o.hasStock && o.exchangeStatus === 1 && o.rewardType === rewardType);
+      if (!enableExchanges.length) {
+        return api.logBoth(`未找到可兑换的`);
+      }
+      for (const {rewardType: type, assignmentId} of enableExchanges) {
         await api.doFormBody('wanyiwan_exchange', {
-          assignmentId: target.assignmentId,
-          type: target.rewardType,
+          assignmentId,
+          type,
         }).then(data => {
           if (self.isSuccess(data)) {
             api.logBoth(`兑换成功: ${_.get(data, 'data.result.rewardName')}`);
@@ -178,8 +184,7 @@ class WanYiWan extends Template {
             api.logBoth(`兑换失败: ${JSON.stringify(data)}`);
           }
         });
-      } else {
-        api.logBoth(`未找到: ${reward} 红包`);
+        await sleep(2);
       }
     }
   }
