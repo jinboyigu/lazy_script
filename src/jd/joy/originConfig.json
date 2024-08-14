@@ -1,0 +1,567 @@
+{
+  "/gift/new/exchange": {
+    "functionId": "giftNewExchange",
+    "bussinessId_H5": "9218e",
+    "bussinessId_WX": "43f4a"
+  },
+  "/gift/getBeanConfigs": {
+    "functionId": "giftGetBeanConfigs",
+    "bussinessId_H5": "d67c8",
+    "bussinessId_WX": "adaf8"
+  },
+  "/pet/enterRoom/h5": {
+    "functionId": "petEnterRoom",
+    "bussinessId_H5": "2bba1",
+    "bussinessId_WX": "24c17"
+  },
+  "/pet/getPetTaskConfig": {
+    "functionId": "petGetPetTaskConfig",
+    "bussinessId_H5": "922a5",
+    "bussinessId_WX": "194fe"
+  },
+  "/pet/saveAuthentication": {
+    "functionId": "saveAuthentication",
+    "bussinessId_H5": "b64c9",
+    "bussinessId_WX": "b4316"
+  },
+  "/pet/getFriendCoin": {
+    "functionId": "getFriendCoin",
+    "bussinessId_H5": "facdb",
+    "bussinessId_WX": "63cb2"
+  },
+  "/pet/getRandomFood": {
+    "functionId": "getRandomFood",
+    "bussinessId_H5": "2fe5f",
+    "bussinessId_WX": "e0575"
+  },
+  "/pet/getFollowChannels": {
+    "functionId": "getFollowChannels",
+    "bussinessId_H5": "5f8cb",
+    "bussinessId_WX": "ebb5b"
+  },
+  "/pet/getFollowShops": {
+    "functionId": "getFollowShops",
+    "bussinessId_H5": "d7bfe",
+    "bussinessId_WX": "1c65e"
+  },
+  "/pet/scan": {
+    "functionId": "scan",
+    "bussinessId_H5": "30717",
+    "bussinessId_WX": "e36ed"
+  },
+  "/pet/followGood": {
+    "functionId": "followGood",
+    "bussinessId_H5": "1d783",
+    "bussinessId_WX": "692c7"
+  },
+  "/pet/followShop": {
+    "functionId": "followShopColor",
+    "bussinessId_H5": "b9b1a",
+    "bussinessId_WX": "a9a8f"
+  },
+  "/pet/getFood": {
+    "functionId": "getFood",
+    "bussinessId_H5": "6917d",
+    "bussinessId_WX": "6ccc0"
+  },
+  "/pet/combat/help": {
+    "functionId": "help",
+    "bussinessId_H5": "22e46",
+    "bussinessId_WX": "58e50"
+  },
+  "/pet/combat/detail/v2": {
+    "functionId": "combatDetail",
+    "bussinessId_H5": "1e1cd",
+    "bussinessId_WX": "b76fa",
+    "method": "GET"
+  },
+  "/pet/combat/match": {
+    "functionId": "combatMatch",
+    "bussinessId_H5": "6f192",
+    "bussinessId_WX": "41515",
+    "method": "GET"
+  },
+  "/pet/combat/cancelMatch": {
+    "functionId": "combatCancelMatch",
+    "bussinessId_H5": "494d2",
+    "bussinessId_WX": "ac9ac",
+    "method": "GET"
+  },
+  "/pet/combat/receive": {
+    "functionId": "combatReceive",
+    "bussinessId_H5": "04889",
+    "bussinessId_WX": "52ef4",
+    "method": "GET"
+  },
+  "/pet/changeAppearance": {
+    "functionId": "changeAppearance",
+    "bussinessId_H5": "d5daf",
+    "bussinessId_WX": "8c9b7",
+    "method": "GET"
+  },
+  "/pet/getExchangeRecords": {
+    "functionId": "getExchangeRecord",
+    "bussinessId_H5": "503a8",
+    "bussinessId_WX": "59b9e",
+    "method": "GET"
+  },
+  "/pet/feed": {
+    "functionId": "feed",
+    "bussinessId_H5": "15dc2",
+    "bussinessId_WX": "e6a6a",
+    "method": "GET"
+  },
+  "/pet/h5/getFriends": {
+    "functionId": "getH5Friends",
+    "bussinessId_H5": "32117",
+    "bussinessId_WX": "9b133",
+    "method": "GET"
+  },
+  "pet/api/getFriends": {
+    "functionId": "getWeappFriends",
+    "bussinessId_H5": "2de41",
+    "bussinessId_WX": "4b34d",
+    "method": "GET"
+  },
+  "/pet/enterFriendRoom": {
+    "functionId": "enterFriendRoom",
+    "bussinessId_H5": "144d5",
+    "bussinessId_WX": "da65c",
+    "method": "GET"
+  },
+  "/pet/doubleRandomFood": {
+    "functionId": "doubleRandomFood",
+    "bussinessId_H5": "64a1d",
+    "bussinessId_WX": "db9c3",
+    "method": "GET"
+  },
+  "/pet/helpFeed": {
+    "functionId": "helpFeed",
+    "bussinessId_H5": "72f26",
+    "bussinessId_WX": "70cad",
+    "method": "GET"
+  },
+  "/pet/sign": {
+    "functionId": "petSign",
+    "bussinessId_H5": "956f2",
+    "bussinessId_WX": "928c4",
+    "method": "GET"
+  },
+  "/pet/combat/getCombatRecords": {
+    "functionId": "getCombatRecords",
+    "bussinessId_H5": "28f18",
+    "bussinessId_WX": "6d12f",
+    "method": "GET"
+  },
+  "/pet/combat/changeName": {
+    "functionId": "changeTeamNickName",
+    "bussinessId_H5": "1aae5",
+    "bussinessId_WX": "8d5b1",
+    "method": "GET"
+  },
+  "/pet/combat/getRankList": {
+    "functionId": "getRaceRank",
+    "bussinessId_H5": "638fb",
+    "bussinessId_WX": "fd709",
+    "method": "GET"
+  },
+  "/pet/combat/getBackupInfo": {
+    "functionId": "getRaceHelper",
+    "bussinessId_H5": "f5c28",
+    "bussinessId_WX": "51c23",
+    "method": "GET"
+  },
+  "/pet/getFriendActions": {
+    "functionId": "getFriendActions",
+    "bussinessId_H5": "3c5ae",
+    "bussinessId_WX": "a383d",
+    "method": "GET"
+  },
+  "/pet/getCoinChanges": {
+    "functionId": "getCoinChanges",
+    "bussinessId_H5": "14e57",
+    "bussinessId_WX": "990fa",
+    "method": "GET"
+  },
+  "/pet/getTodayFeedInfo": {
+    "functionId": "getTodayFeedInfo",
+    "bussinessId_H5": "173a3",
+    "bussinessId_WX": "87eb7",
+    "method": "GET"
+  },
+  "/pet/getDeskGoodDetails": {
+    "functionId": "getDeskGoodDetails",
+    "bussinessId_H5": "6ea64",
+    "bussinessId_WX": "8d48a",
+    "method": "GET"
+  },
+  "/pet/getAvailableAppearances": {
+    "functionId": "getAvaiAppear",
+    "bussinessId_H5": "11553",
+    "bussinessId_WX": "6b048",
+    "method": "GET"
+  },
+  "/pet/helpFriend": {
+    "functionId": "helpFriend",
+    "bussinessId_H5": "0e075",
+    "bussinessId_WX": "538b4",
+    "method": "GET"
+  },
+  "/pet/shareCard": {
+    "functionId": "shareCard",
+    "bussinessId_H5": "3fe0a",
+    "bussinessId_WX": "76f93",
+    "method": "GET"
+  },
+  "/pet/getCoinChangeDetails": {
+    "functionId": "getCoinChangeDetails",
+    "bussinessId_H5": "97230",
+    "bussinessId_WX": "dee59",
+    "method": "GET"
+  },
+  "/pet/getInviteRewardInfo": {
+    "functionId": "getInviteRewardInfo",
+    "bussinessId_H5": "840c6",
+    "bussinessId_WX": "84288",
+    "method": "GET"
+  },
+  "/api/wechat/public/account/exist": {
+    "functionId": "getCheckAttention",
+    "bussinessId_H5": "5c522",
+    "bussinessId_WX": "f037a"
+  },
+  "/api/subscribe/addSubscribe": {
+    "functionId": "addSubscribe",
+    "bussinessId_H5": "59f70",
+    "bussinessId_WX": "f5fd5",
+    "method": "GET"
+  },
+  "/api/subscribe/cancel": {
+    "functionId": "cancelSubscribe",
+    "bussinessId_H5": "e1d01",
+    "bussinessId_WX": "08265",
+    "method": "GET"
+  },
+  "/pet/getInviteFood": {
+    "functionId": "getInviteFood",
+    "bussinessId_H5": "18d76",
+    "bussinessId_WX": "49626",
+    "method": "GET"
+  },
+  "/pet/icon/click": {
+    "functionId": "clickIcon",
+    "bussinessId_H5": "79b06",
+    "bussinessId_WX": "63c1c",
+    "method": "GET"
+  },
+  "/pet/icon/Newclick": {
+    "functionId": "clickIconNew",
+    "bussinessId_H5": "d91e0",
+    "bussinessId_WX": "d9fa2",
+    "method": "GET"
+  },
+  "/pet/getCSWeChat": {
+    "functionId": "getKeFuWx",
+    "bussinessId_H5": "0bd16",
+    "bussinessId_WX": "1f516",
+    "method": "GET"
+  },
+  "/pet/combat/getSupplyInfo": {
+    "functionId": "getSupplyInfo",
+    "bussinessId_H5": "df281",
+    "bussinessId_WX": "37da8",
+    "method": "GET"
+  },
+  "/pet/combat/supply": {
+    "functionId": "combatSupply",
+    "bussinessId_H5": "d9d42",
+    "bussinessId_WX": "64251"
+  },
+  "/api/lottery/upload/jdImage": {
+    "functionId": "uploadImgs",
+    "bussinessId_H5": "84bea",
+    "bussinessId_WX": "4226b"
+  },
+  "/weixin/qrcode": {
+    "functionId": "qrCode",
+    "bussinessId_H5": "7372a",
+    "bussinessId_WX": "80c9a",
+    "method": "GET"
+  },
+  "/pet/getUserId": {
+    "functionId": "changePin",
+    "bussinessId_H5": "6ab49",
+    "bussinessId_WX": "ee031",
+    "method": "GET"
+  },
+  "/gift/getGoodSaleInfo": {
+    "functionId": "getGoodSaleInfo",
+    "bussinessId_H5": "bdadc",
+    "bussinessId_WX": "b6b91",
+    "method": "GET"
+  },
+  "/gift/getBuyRecords": {
+    "functionId": "getBuyRecords",
+    "bussinessId_H5": "27361",
+    "bussinessId_WX": "16d90",
+    "method": "GET"
+  },
+  "/gift/getPayHomeInfo": {
+    "functionId": "getPayHomeInfo",
+    "bussinessId_H5": "73153",
+    "bussinessId_WX": "1c049",
+    "method": "GET"
+  },
+  "/gift/getDeliveryFee": {
+    "functionId": "getDeliveryFee",
+    "bussinessId_H5": "7f298",
+    "bussinessId_WX": "d03a4",
+    "method": "GET"
+  },
+  "/gift/validateBuyLimit": {
+    "functionId": "validateBuyLimit",
+    "bussinessId_H5": "4013a",
+    "bussinessId_WX": "01231",
+    "method": "GET"
+  },
+  "/pet/newUserSign": {
+    "functionId": "newUserSign",
+    "bussinessId_H5": "22b1d",
+    "bussinessId_WX": "92f8a",
+    "method": "GET"
+  },
+  "/like/order/getPayInfo": {
+    "functionId": "likeGetPayInfo",
+    "bussinessId_H5": "b7731",
+    "bussinessId_WX": "02457",
+    "method": "GET"
+  },
+  "/like/order/pay": {
+    "functionId": "likeOrderPay",
+    "bussinessId_H5": "a249f",
+    "bussinessId_WX": "dd3c9",
+    "method": "GET"
+  },
+  "/test/eid": {
+    "functionId": "testEid",
+    "bussinessId_H5": "10d5b",
+    "bussinessId_WX": "3341b",
+    "method": "GET"
+  },
+  "/test/risk": {
+    "functionId": "testRisk",
+    "bussinessId_H5": "9aed5",
+    "bussinessId_WX": "d8e13"
+  },
+  "/ddf/getPayInfo": {
+    "functionId": "getPayProductInfo",
+    "bussinessId_H5": "671ee",
+    "bussinessId_WX": "517b5"
+  },
+  "/ddf/order": {
+    "functionId": "orderPays",
+    "bussinessId_H5": "8ecc3",
+    "bussinessId_WX": "d8cf6"
+  },
+  "/ddf/getDeliveryFee": {
+    "functionId": "getProductDeliveryFee",
+    "bussinessId_H5": "15cf8",
+    "bussinessId_WX": "0b31d",
+    "method": "GET"
+  },
+  "/pet/receiveCoupon": {
+    "functionId": "receiveCoupon",
+    "bussinessId_H5": "1c12e",
+    "bussinessId_WX": "76d43",
+    "method": "GET"
+  },
+  "/pet/getCouponInfo": {
+    "functionId": "getExactCouponInfo",
+    "bussinessId_H5": "1d09f",
+    "bussinessId_WX": "87fad",
+    "method": "GET"
+  },
+  "/api/subscribe/addNew": {
+    "functionId": "pushSubscribe",
+    "bussinessId_H5": "b9fe8",
+    "bussinessId_WX": "0fa57"
+  },
+  "/gift/getSuperSale": {
+    "functionId": "getSuperSale",
+    "bussinessId_H5": "d0c02",
+    "bussinessId_WX": "ef3f8",
+    "method": "GET"
+  },
+  "/gift/getCheapSale": {
+    "functionId": "getCheapSale",
+    "bussinessId_H5": "a45f5",
+    "bussinessId_WX": "4cdeb",
+    "method": "GET"
+  },
+  "/gift/getGoodBase": {
+    "functionId": "getGoodBase",
+    "bussinessId_H5": "738d5",
+    "bussinessId_WX": "2166f",
+    "method": "GET"
+  },
+  "/gift/getGoodConfig": {
+    "functionId": "getGoodConfig",
+    "bussinessId_H5": "06257",
+    "bussinessId_WX": "fcea5",
+    "method": "GET"
+  },
+  "/system/current/timestamp": {
+    "functionId": "getSystemTime",
+    "bussinessId_H5": "fa801",
+    "bussinessId_WX": "c24eb",
+    "method": "GET"
+  },
+  "/pet/donate/activity/list": {
+    "functionId": "getDonateList",
+    "bussinessId_H5": "e3758",
+    "bussinessId_WX": "82192",
+    "method": "GET"
+  },
+  "/pet/donate/activity/detail": {
+    "functionId": "getDonateDetail",
+    "bussinessId_H5": "37b2e",
+    "bussinessId_WX": "4c7c4",
+    "method": "GET"
+  },
+  "/pet/donate/progress/list": {
+    "functionId": "getDonateProgress",
+    "bussinessId_H5": "25459",
+    "bussinessId_WX": "32df1",
+    "method": "GET"
+  },
+  "/pet/donate/record/list": {
+    "functionId": "getDonateRecords",
+    "bussinessId_H5": "c6ddf",
+    "bussinessId_WX": "f2fce",
+    "method": "GET"
+  },
+  "/pet/donate/invest": {
+    "functionId": "donateDogFood",
+    "bussinessId_H5": "44ab4",
+    "bussinessId_WX": "309a3",
+    "method": "GET"
+  },
+  "/pet/donate/reward/get": {
+    "functionId": "getDonateReward",
+    "bussinessId_H5": "ecabf",
+    "bussinessId_WX": "e5fcb",
+    "method": "GET"
+  },
+  "/pet/removeFriend": {
+    "functionId": "removeFriend",
+    "bussinessId_H5": "e34ca",
+    "bussinessId_WX": "c5ea3",
+    "method": "GET"
+  },
+  "/h5/getIosDegrade": {
+    "functionId": "getIosDegrades",
+    "bussinessId_H5": "74d27",
+    "bussinessId_WX": "f373f"
+  },
+  "/pet/receiveDQTask": {
+    "functionId": "postReceiveDqTask",
+    "bussinessId_H5": "ee398",
+    "bussinessId_WX": "3ac4a",
+    "method": "GET"
+  },
+  "/pet/hasAuthentication": {
+    "functionId": "hasAuthentication",
+    "bussinessId_H5": "83902",
+    "bussinessId_WX": "62d27",
+    "method": "GET"
+  },
+  "/pet/popup/config": {
+    "functionId": "getNoticePop",
+    "bussinessId_H5": "8c9de",
+    "bussinessId_WX": "804ce",
+    "method": "GET"
+  },
+  "/pet/popup/open": {
+    "functionId": "recordNoticePop",
+    "bussinessId_H5": "a6c33",
+    "bussinessId_WX": "a3283",
+    "method": "GET"
+  },
+  "/pet/guess/config": {
+    "functionId": "getGuessConfig",
+    "bussinessId_H5": "8a30b",
+    "bussinessId_WX": "dbe72",
+    "method": "GET"
+  },
+  "/pet/guess/getBase": {
+    "functionId": "getGuessBaseInfo",
+    "bussinessId_H5": "580ab",
+    "bussinessId_WX": "f0b23",
+    "method": "GET"
+  },
+  "/pet/guess/editBase": {
+    "functionId": "editGuessBaseInfo",
+    "bussinessId_H5": "13660",
+    "bussinessId_WX": "376a4"
+  },
+  "/pet/guess/record": {
+    "functionId": "getGuessRecord",
+    "bussinessId_H5": "8aff3",
+    "bussinessId_WX": "e4b44",
+    "method": "GET"
+  },
+  "/pet/guess/info": {
+    "functionId": "getGuessUserGameInfo",
+    "bussinessId_H5": "d44fd",
+    "bussinessId_WX": "7fd4d",
+    "method": "GET"
+  },
+  "/pet/guess/join": {
+    "functionId": "getGuessJoin",
+    "bussinessId_H5": "aefed",
+    "bussinessId_WX": "644ca"
+  },
+  "/pet/guess/round": {
+    "functionId": "getGuessRound",
+    "bussinessId_H5": "65d98",
+    "bussinessId_WX": "55a42"
+  },
+  "/pet/guess/ready": {
+    "functionId": "getGuessReady",
+    "bussinessId_H5": "416cb",
+    "bussinessId_WX": "4b82f"
+  },
+  "/pet/config": {
+    "functionId": "getPetConfig",
+    "bussinessId_H5": "58d3d",
+    "bussinessId_WX": "0f63b",
+    "method": "GET"
+  },
+  "/pet/jzt/click": {
+    "functionId": "clickJZTIcon",
+    "bussinessId_H5": "ee5c8",
+    "bussinessId_WX": "c037c",
+    "method": "GET"
+  },
+  "/pet/jztFollowShop": {
+    "functionId": "jztFollowShop",
+    "bussinessId_H5": "1fef2",
+    "bussinessId_WX": "e9309"
+  },
+  "/pet/jztFollowGood": {
+    "functionId": "jztFollowGood",
+    "bussinessId_H5": "adbdb",
+    "bussinessId_WX": "d651f"
+  },
+  "/pet/jztScan": {
+    "functionId": "jztScan",
+    "bussinessId_H5": "1cbef",
+    "bussinessId_WX": "a12a7"
+  },
+  "/like/activity/order/saveAddress": {
+    "functionId": "activityOrderSaveAddress",
+    "bussinessId_H5": "aa805",
+    "bussinessId_WX": "3c4f3",
+    "method": "GET"
+  }
+}

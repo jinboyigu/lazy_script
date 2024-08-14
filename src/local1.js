@@ -37,6 +37,14 @@ const schedule = require('node-schedule');
   schedule.scheduleJob('5 7,12,14,20,23 * * *', () => {
     execNode('src/jd/turnHappy/WanYiWan.js');
   });
+  // 宠汪汪
+  schedule.scheduleJob('10 0,4,8,12,20 * * *', () => {
+    execNode('src/jd/joy/index.js', 'start');
+  });
+  // 宠汪汪
+  schedule.scheduleJob('54 23,7,15 * * *', () => {
+    execNode('src/jd/joy/redeem.js', 'start');
+  });
   schedule.scheduleJob('15 * * * *', () => {
     execNode('src/jd/turnHappy/WanYiWan.js', 'start', '*', '3');
   });

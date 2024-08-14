@@ -1,45 +1,46 @@
 const Joy = require('./index');
 const {sleepTime} = require('../../lib/cron');
 const {sleep, singleRun} = require('../../lib/common');
-const {encrypt} = require('./api');
+
+const targetGiftValue = 450;
 
 class JoyRedeem extends Joy {
   static scriptName = 'JoyRedeem';
   static scriptNameDesc = '宠汪汪-换豆豆';
   static times = 1;
-  static maxTaskDoneTimes = 1;
   static concurrent = true;
+  static concurrentOnceDelay = 0;
   static loopHours = [23, 7, 15];
 
   static async doMain(api) {
     const self = this;
+    const doPostBody = (functionId, body, options) => api.doGetBody(functionId, body, {...options, method: 'POST'});
 
     await self.beforeRequest(api);
-    const petCoin = await api.doPath('enterRoom/h5', void 0, {body: {}}).then(data => _.property('data.petCoin')(data));
+    const {petCoin, beanConfigs} = await doPostBody('petEnterRoom').then(_.property('data'));
     const beanHours = self.loopHours.map(hour => hour + 1);
     const targetHour = self.getNowHour() + 1;
     if (!beanHours.includes(targetHour)) return api.log(`当前时间不在兑换范围内`);
-    const beanInfos = await getBeanInfos(targetHour);
-    if (beanInfos.find(o => o['giftValue'] === 500).salePrice > petCoin) {
+    const beanInfos = await getBeanInfos(targetHour, beanConfigs);
+    if (beanInfos.find(o => o['giftValue'] === targetGiftValue).salePrice > petCoin) {
       return api.log('当前积分不足, 无法兑换');
     }
-    api.log(`准备${targetHour}点进行兑换`);
+    api.logBoth(`准备${targetHour}点进行兑换`);
     await sleepTime([targetHour - 1, 58]);
     // 进行验证
-    await api.doGetPath('getPetTaskConfig');
+    await api.doGetBody('getH5Friends');
     await sleepTime(targetHour);
     api.log('开始兑换');
     await handleExchange();
 
-    async function getBeanInfos(targetHour) {
+    async function getBeanInfos(targetHour, beanConfigs) {
       if (targetHour === 24) targetHour = 0;
-      const beanConfigs = await api.doUrl('https://jdjoy.jd.com/common/gift/getBeanConfigs', {method: 'GET'}).then(result => result['beanConfigs']) || {};
       return beanConfigs[`beanConfigs${targetHour}`] || [{
-        'id': 339,
-        'giftId': 8,
-        'giftName': '500京豆',
+        'id': 343,
+        'giftId': 562,
+        'giftName': `${targetGiftValue}京豆`,
         'giftType': 'jd_bean',
-        'giftValue': 500.0000,
+        'giftValue': targetGiftValue,
         'salePrice': 8000,
       }];
     }
@@ -54,8 +55,8 @@ class JoyRedeem extends Joy {
 
     async function doExChange(beanInfo, loop = true) {
       const {id, leftStock, giftValue, giftName, salePrice} = beanInfo;
-      // 只兑换500的, 需要8500积分
-      if (/*leftStock === 0 || */giftValue !== 500 || petCoin < salePrice) return;
+      // 只兑换 @giftValue
+      if (/*leftStock === 0 || */giftValue !== targetGiftValue || petCoin < salePrice) return;
       const body = {
         'buyParam': {
           'orderSource': 'pet',
@@ -63,7 +64,7 @@ class JoyRedeem extends Joy {
         },
         'deviceInfo': {
           'eid': 'M7UO6SRTFR5GQS7SPKPOGT7ZZB6KH2I7CUXZGVFSPJ5773VII5RHNSVRM4FK4RSLDCBRG3QQUS4WNC5PZ2767E6D3Q',
-          'fp': '28c2c6f0199a7790b251a724031be426',
+          'fp': 'a82f3737c41bc4da5f7b148bf57f5d78',
           'deviceType': '',
           'macAddress': '',
           'imei': '',
@@ -77,15 +78,11 @@ class JoyRedeem extends Joy {
           'clientVersion': '',
           'networkType': '',
           'appType': '',
-          'sdkToken': 'jdd01KKYHD3TR2D74RQPGTZ4XDKYRETYXJ4W2EKNLXFBWQJ6WSFEJEO345P4SCFDCLATWWWACAWMO7D6XGZLNCUU6BNXYQQUXNGCL4ZLYVZQ01234567',
+          'sdkToken': 'jdd01VH4DYT6IXKM6GYREFO4PXKXBDXWJEHZVIV3LDQRWBVVDNRI4FQAC5XTHXSE7QFYCNEPAWB335ZG44NJF6VZEC23UERLC4GGCNZTZMAY01234567',
         },
+        'source': 'jdapp',
       };
-      await api.doUrl('https://jdjoy.jd.com/common/gift/new/exchange', {
-        headers: {
-          contentType: 'application/json',
-        },
-        body,
-        qs: encrypt(body, true),
+      await doPostBody('giftNewExchange', body, {
         needDelay: false,
       }).then(async data => {
         const errorCode = data['errorCode'];
