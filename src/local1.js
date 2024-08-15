@@ -12,10 +12,10 @@ const schedule = require('node-schedule');
   const execNode = (...args) => exec(nodeCommand(...args));
   // 0 分活动
   schedule.scheduleJob('0 0 * * *', () => {
-    execAsync([
-      nodeCommand('src/jd/applet/mini.js'),
-    ]);
-    execNode('src/jd/local/EarnJoinGroup/index.js');
+    // execAsync([
+    //   nodeCommand('src/jd/applet/mini.js'),
+    // ]);
+    // execNode('src/jd/local/EarnJoinGroup/index.js');
   });
   // 积分加油站
   schedule.scheduleJob('20 0,7,18 * * *', () => {
@@ -30,7 +30,7 @@ const schedule = require('node-schedule');
     execNode('src/jd/turnHappy/index.js');
   });
   // 转赚红包
-  schedule.scheduleJob('39 10,20,22 * * *', () => {
+  schedule.scheduleJob('32 23,10,22 * * *', () => {
     execNode('src/jd/fission/index.js');
   });
   // 玩一玩
