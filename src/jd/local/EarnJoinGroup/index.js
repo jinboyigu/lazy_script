@@ -86,7 +86,7 @@ class EarnJoinGroup extends Template {
           api.logBoth(`[${activeId}] mainPage 获取失败: ${mainPageResult['message']}`);
           continue;
         }
-        const {groupId, groupStatus} = _.get(mainPageResult, 'data.basicGroupInfo');
+        const {groupId, groupStatus} = _.get(mainPageResult, 'data.basicGroupInfo', {});
         const canCreateGroup = _.get(mainPageResult, 'data.userInfo.canCreateGroup');
         // 已开团
         if (groupId && !canCreateGroup) {
