@@ -38,7 +38,7 @@ const schedule = require('node-schedule');
     execNode('src/jd/turnHappy/WanYiWan.js');
   });
   // 宠汪汪
-  schedule.scheduleJob('10 0,4,8,12,20 * * *', () => {
+  schedule.scheduleJob('10 0,4,8,12,20,22 * * *', () => {
     execNode('src/jd/joy/index.js');
   });
   // 宠汪汪

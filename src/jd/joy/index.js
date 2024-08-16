@@ -15,35 +15,34 @@ class Joy extends Template {
   static commonParamFn = () => {
     const reqSource = this.getReqSource();
     return {
-      ...reqSource === 'h5' ? {
-        appid: 'jdchoujiang_h5',
-        client: 'iOS',
-        clientVersion: '13.2.0',
-      } : {
+      ...this.isInWx() ? {
         appid: 'choujiangyingyong',
         client: 'iOS 17.5',
         clientVersion: '8.0.50',
+      } : {
+        appid: 'jdchoujiang_h5',
+        client: 'iOS',
+        clientVersion: '13.2.0',
       },
       body: {reqSource},
     };
   };
   static times = 2;
   static keepIndependence = true;
+  static concurrent = true;
   static needInApp = false;
 
   static getReqSource() {
     return reqSources[this.currentTimes - 1];
   }
 
+  static isInWx() {
+    return this.getReqSource() === 'weapp';
+  }
+
   static apiOptions() {
     return {
-      options: this.getReqSource() === 'h5' ? {
-        uri: 'https://api.m.jd.com/api',
-        headers: {
-          referer: indexUrl,
-          origin: 'https://h5.m.jd.com',
-        },
-      } : {
+      options: this.isInWx() ? {
         uri: 'https://api.m.jd.com/',
         headers: {
           referer: 'https://servicewechat.com/wxccb5c536b0ecd1bf/892/page-frame.html',
@@ -51,6 +50,12 @@ class Joy extends Template {
           'Lottery-Access-Signature': 'wxccb5c536b0ecd1bf1537237540544h79HlfU',
           LKYLToken: '1eaa2a7e31d5448b831433f82d1c4c9d',
           'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.50(0x18003237) NetType/WIFI Language/zh_CN',
+        },
+      } : {
+        uri: 'https://api.m.jd.com/api',
+        headers: {
+          referer: indexUrl,
+          origin: 'https://h5.m.jd.com',
         },
       },
       async formatDataFn(data, options) {
@@ -95,9 +100,8 @@ class Joy extends Template {
     const originConfig = require('./originConfig.json');
 
     const config = {};
-    const reqSource = self.getReqSource();
     Object.values(originConfig).forEach(o => {
-      const appId = o[`bussinessId_${reqSource === 'h5' ? 'H5' : 'WX'}`];
+      const appId = o[`bussinessId_${self.isInWx() ? 'WX' : 'H5'}`];
       config[o.functionId] = {appId};
     });
 
@@ -115,13 +119,18 @@ class Joy extends Template {
     const doGetBody = (functionId, body, options) => api.doGetBody(functionId, body, options);
     const doPostBody = (functionId, body, options) => api.doGetBody(functionId, body, {...options, method: 'POST'});
 
+    if (self.firstTimeInTheDay()) {
+      await handleDoShare();
+    }
     await handleDoTask();
     await handleRace();
     if (self.getNowHour() >= 12) {
       await handleHelpFriends();
     }
     await handleFeed();
-    await log();
+    if (self.isLastLoop()) {
+      await log();
+    }
 
     async function handleFeed() {
       const {lastFeedTime} = await doPostBody('petEnterRoom').then(_.property('data'));
@@ -129,7 +138,7 @@ class Joy extends Template {
         return api.log('目前还无需喂养');
       }
 
-      await _feed(+(self.getCurrentEnv('JD_JOY_FEED_INDEX') || 1)); // 按需喂养
+      await _feed(+(self.getCurrentEnv('JD_JOY_FEED_INDEX') || 2)); // 按需喂养
 
       // 喂食
       async function _feed(index = 0) {
@@ -167,13 +176,6 @@ class Joy extends Template {
 
       // 签到和助力都需要手动到小程序
 
-      // 助力
-      // const {pin} = await doPostBody('petEnterRoom').then(_.property('data'));
-      // self.updateShareCodeFn(pin);
-      // for (const friendPin of self.getShareCodeFn()) {
-      //   await doGetBody('helpFriend', {friendPin, reqSource: reqSources[1]});
-      // }
-
       // 限时货架
       const deskGoods = [] || await doGetBody('getDeskGoodDetails').then(data => _.property('data.deskGoods')(data)) || [];
 
@@ -207,7 +209,7 @@ class Joy extends Template {
         // 收集狗粮
         // 包含三餐签到
         if (receiveStatus === 'unreceive') {
-          await doFeed(api, taskType);
+          await getFood(api, taskType);
           continue;
         }
 
@@ -303,6 +305,27 @@ class Joy extends Template {
       }
     }
 
+    async function handleDoShare() {
+      const {pin} = await doPostBody('petEnterRoom').then(_.property('data'));
+      self.updateShareCodeFn(pin);
+      if (!self.isInWx()) {
+        return;
+      }
+      const index = _.indexOf(self.shareCodeTaskList, pin);
+      const shareCodes = [];
+      for (let i = 1; i < 4; i++) {
+        let nextIndex = index + i;
+        if (nextIndex > self.shareCodeTaskList.length - 1) {
+          nextIndex -= self.shareCodeTaskList.length;
+        }
+        shareCodes.push(self.shareCodeTaskList[nextIndex]);
+      }
+      for (const friendPin of shareCodes) {
+        await doGetBody('helpFriend', {friendPin});
+        await sleep();
+      }
+    }
+
     // 参赛
     async function handleRace() {
       const nowHour = self.getNowHour();
@@ -363,7 +386,7 @@ class Joy extends Template {
   }
 }
 
-async function doFeed(api, taskType) {
+async function getFood(api, taskType) {
   return api.doGetBody('getFood', {taskType}, {method: 'POST'}).then(data => {
     data.errorCode === 'received' && api.log(`获得${data.data}g狗粮`);
   });
