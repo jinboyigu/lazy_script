@@ -39,7 +39,7 @@ const schedule = require('node-schedule');
   });
   // 宠汪汪
   schedule.scheduleJob('10 0,4,8,12,20 * * *', () => {
-    execNode('src/jd/joy/index.js', 'start');
+    execNode('src/jd/joy/index.js');
   });
   // 宠汪汪
   schedule.scheduleJob('54 23,7,15 * * *', () => {
@@ -47,10 +47,6 @@ const schedule = require('node-schedule');
   });
   schedule.scheduleJob('15 * * * *', () => {
     execNode('src/jd/turnHappy/WanYiWan.js', 'start', '*', '3');
-  });
-  // 小程序-早起红包
-  schedule.scheduleJob('55 5 * * *', () => {
-    execNode('src/jd/applet/morningHbReward.js');
   });
   // 更新github
   schedule.scheduleJob('0 * * * *', () => {
