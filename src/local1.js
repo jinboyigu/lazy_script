@@ -37,6 +37,10 @@ const schedule = require('node-schedule');
   schedule.scheduleJob('5 7,12,14,20,23 * * *', () => {
     execNode('src/jd/turnHappy/WanYiWan.js');
   });
+  // 摇一摇
+  schedule.scheduleJob('25 19 * * *', () => {
+    execNode('src/jd/superRedBagDraw/index.js');
+  });
   // 宠汪汪
   schedule.scheduleJob('10 0,4,8,12,20,22 * * *', () => {
     execNode('src/jd/joy/index.js');
