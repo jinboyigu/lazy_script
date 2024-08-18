@@ -9,7 +9,6 @@ class JoyRedeem extends Joy {
   static scriptNameDesc = '宠汪汪-换豆豆';
   static times = 1;
   static concurrent = true;
-  static concurrentOnceDelay = 0;
   static loopHours = [23, 7, 15];
 
   static async doMain(api) {

@@ -30,6 +30,7 @@ class Joy extends Template {
   static times = 2;
   static keepIndependence = true;
   static concurrent = true;
+  static concurrentOnceDelay = 10;
   static needInApp = false;
 
   static getReqSource() {
@@ -119,9 +120,7 @@ class Joy extends Template {
     const doGetBody = (functionId, body, options) => api.doGetBody(functionId, body, options);
     const doPostBody = (functionId, body, options) => api.doGetBody(functionId, body, {...options, method: 'POST'});
 
-    if (self.firstTimeInTheDay()) {
-      await handleDoShare();
-    }
+    await handleDoShare();
     await handleDoTask();
     await handleRace();
     if (self.getNowHour() >= 12) {
