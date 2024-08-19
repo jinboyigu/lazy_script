@@ -45,7 +45,7 @@ const sendMail = () => sendNotify({subjects: ['lazy_script_local', getNowDate()]
     execNode('src/jd/superRedBagDraw/index.js');
   });
   // 宠汪汪
-  schedule.scheduleJob('10 0,4,8,12,20,22 * * *', () => {
+  schedule.scheduleJob('10 0,4,8,9,12,20,22 * * *', () => {
     execNode('src/jd/joy/index.js');
   });
   // 宠汪汪
