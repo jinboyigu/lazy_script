@@ -77,6 +77,7 @@ const AppletSign = require('./jd/applet/sign');
 const AppletMini = require('./jd/applet/mini');
 const MorningHbReward = require('./jd/applet/morningHbReward');
 const EarnJoinGroup = require('./jd/local/EarnJoinGroup');
+const PurchaseCard = require('./jd/purchaseCard');
 
 /* 极简模式 */
 const BSign = require('./jd/bSign');
@@ -150,6 +151,7 @@ async function main() {
     SecKillView,
     Fission,
     AppletSign,
+    PurchaseCard,
     BSign,
     RichTree,
     Lhb4b,
