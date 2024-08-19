@@ -322,6 +322,11 @@ class Joy extends Template {
       for (const friendPin of shareCodes) {
         await doGetBody('helpFriend', {friendPin});
         await sleep();
+        if (self.getNowHour() >= 9) {
+          // 助力竞赛
+          await doPostBody('help', {friendPin});
+          await sleep();
+        }
       }
     }
 
@@ -347,7 +352,7 @@ class Joy extends Template {
       });
     }
 
-    // 帮其他人喂
+    // 去其他人房间
     async function handleHelpFriends() {
       const friends = await getFriends(api);
       for (const {friendPin, stealStatus} of friends) {
