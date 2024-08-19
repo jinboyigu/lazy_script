@@ -4,8 +4,11 @@
 
 const {sleepTime, sleepDate} = require('./lib/cron');
 const {exec, execAsync, sleep} = require('./lib/common');
-const {getMoment} = require('./lib/moment');
+const {getMoment, getNowDate} = require('./lib/moment');
 const schedule = require('node-schedule');
+const {sendNotify} = require('./api');
+
+const sendMail = () => sendNotify({subjects: ['lazy_script_local', getNowDate()]});
 
 (function main() {
   const nodeCommand = (file, method = 'start', cookieIndex = '*', command1) => `node ${file} ${method} ${cookieIndex} ${command1}`;
@@ -55,5 +58,9 @@ const schedule = require('node-schedule');
   // 更新github
   schedule.scheduleJob('0 * * * *', () => {
     exec('git pull --rebase');
+  });
+  // 发送邮件
+  schedule.scheduleJob('20 23 * * *', async () => {
+    await sendMail();
   });
 })();
