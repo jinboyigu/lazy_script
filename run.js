@@ -4,9 +4,10 @@
 
 const _ = require('lodash');
 const {exec} = require('./src/lib/common');
-const [nodePath, selfPath, filePath, command1/*method*/, command2/*cookie index*/, ...command3/*other params*/] = process.argv;
+let [nodePath, selfPath, filePath, command1/*method*/, command2/*cookie index*/, ...command3/*other params*/] = process.argv;
 
 function run() {
+  filePath = filePath.replace(/\\/g, '/');
   let method = command1;
   const others = [command2, ...command3];
   if (['start', 'cron', 'loop'].includes(command1)) {
