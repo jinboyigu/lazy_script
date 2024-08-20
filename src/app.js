@@ -108,7 +108,7 @@ const autoExit = async () => {
 };
 
 if (processInAC()) {
-  Joy = TemporarilyOffline;
+  // Joy = TemporarilyOffline;
 }
 
 !getEnv('DISABLE_AUTO_EXIT') && autoExit();
@@ -319,7 +319,7 @@ async function main() {
         multipleRun([
           SignShop,
           // SuperMarketRedeem,
-          // JoyRedeem,
+          JoyRedeem,
         ]);
         await sleepTime(24);
         await multipleRun([
@@ -359,7 +359,7 @@ async function main() {
     ], doCron);
 
     if (nowHour % 5 === 0) {
-      await serialRun(Joy, doCron);
+      await serialRun(Joy);
     }
 
     if (nowHour % 6 === 0) {
