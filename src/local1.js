@@ -45,13 +45,13 @@ const sendMail = () => sendNotify({subjects: ['lazy_script_local', getNowDate()]
     execNode('src/jd/superRedBagDraw/index.js');
   });
   // 宠汪汪
-  schedule.scheduleJob('10 0,4,8,9,12,20,22 * * *', () => {
-    execNode('src/jd/joy/index.js');
-  });
-  // 宠汪汪
-  schedule.scheduleJob('54 23,7,15 * * *', () => {
-    execNode('src/jd/joy/redeem.js', 'start');
-  });
+  // schedule.scheduleJob('10 0,4,8,9,12,20,22 * * *', () => {
+  //   execNode('src/jd/joy/index.js');
+  // });
+  // // 宠汪汪
+  // schedule.scheduleJob('54 23,7,15 * * *', () => {
+  //   execNode('src/jd/joy/redeem.js', 'start');
+  // });
   schedule.scheduleJob('15 * * * *', () => {
     execNode('src/jd/turnHappy/WanYiWan.js', 'start', '*', '3');
   });
