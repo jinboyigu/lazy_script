@@ -2,13 +2,10 @@
  * @description 滑动验证自动校验脚本
  */
 
-const https = require('https');
-const http = require('http');
-const stream = require('stream');
-const zlib = require('zlib');
 const vm = require('vm');
 const PNG = require('png-js');
 const {getMoment} = require('./moment');
+const Api = require('../jd/api');
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36';
 
 
@@ -291,60 +288,35 @@ class JDJRValidator {
   }
 
   static jsonp(api, data = {}, scene) {
-    return new Promise((resolve, reject) => {
-      const fnId = `jsonp_${String(Math.random()).replace('.', '')}`;
-      const extraData = {callback: fnId};
-      const query = new URLSearchParams({...DATA, ...{'scene': scene}, ...extraData, ...data}).toString();
-      const url = `https://${SERVER}${api}?${query}`;
-      const headers = {
-        'Accept': '*/*',
-        'Accept-Encoding': 'gzip,deflate,br',
-        'Accept-Language': 'zh-CN,en-US',
-        'Connection': 'keep-alive',
-        'Host': SERVER,
-        'Proxy-Connection': 'keep-alive',
-        'Referer': 'https://h5.m.jd.com/babelDiy/Zeus/2wuqXrZrhygTQzYA7VufBEpj4amH/index.html',
-        'User-Agent': UA,
+    const _api = new Api();
+    const fnId = `jsonp_${String(Math.random()).replace('.', '')}`;
+    const extraData = {callback: fnId};
+    const query = new URLSearchParams({...DATA, ...{'scene': scene}, ...extraData, ...data}).toString();
+    const url = `https://${SERVER}${api}?${query}`;
+    const headers = {
+      'Accept': '*/*',
+      'Accept-Language': 'zh-CN,en-US',
+      'Connection': 'keep-alive',
+      'Host': SERVER,
+      'Proxy-Connection': 'keep-alive',
+      'Referer': 'https://h5.m.jd.com/babelDiy/Zeus/2wuqXrZrhygTQzYA7VufBEpj4amH/index.html',
+      'User-Agent': UA,
+    };
+    return _api.commonDo({
+      url,
+      headers,
+      method: 'GET',
+    }).then(result => {
+      const ctx = {
+        [fnId]: (data) => ctx.data = data,
+        data: {},
       };
+      try {
+        vm.createContext(ctx);
+        vm.runInContext(result, ctx);
+      } catch (e) {}
 
-      const req = https.get(url, {headers}, (response) => {
-        let res = response;
-        if (res.headers['content-encoding'] === 'gzip') {
-          const unzipStream = new stream.PassThrough();
-          stream.pipeline(
-            response,
-            zlib.createGunzip(),
-            unzipStream,
-            reject,
-          );
-          res = unzipStream;
-        }
-        res.setEncoding('utf8');
-
-        let rawData = '';
-
-        res.on('data', (chunk) => rawData += chunk);
-        res.on('end', () => {
-          try {
-            const ctx = {
-              [fnId]: (data) => ctx.data = data,
-              data: {},
-            };
-
-            vm.createContext(ctx);
-            vm.runInContext(rawData, ctx);
-
-            // console.log(ctx.data);
-            res.resume();
-            resolve(ctx.data);
-          } catch (e) {
-            reject(e);
-          }
-        });
-      });
-
-      req.on('error', reject);
-      req.end();
+      return ctx.data;
     });
   }
 }
