@@ -123,10 +123,8 @@ class WanYiWan extends Template {
             }
           }
           if (status === 2) {
-            for (let i = 0; i < finishTimes; i++) {
-              await handleReceive();
-              await sleep();
-            }
+            await handleReceive();
+            await sleep(2);
           }
         }
 
