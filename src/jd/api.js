@@ -64,14 +64,15 @@ const _request = (cookie, {form, body, qs, headers = {}, ...others}) => {
   const _do = rpOptions => rp(rpOptions).then(result => {
     !ignorePrintLog && _printLog(result, 'success');
     return result;
-  }).catch(err => {
+  }).catch(async err => {
     const statusCode = _.get(err, 'response.statusCode');
     if (followRedirect === false && statusCode === 302) {
       return err;
     }
     _printLog(err, 'error');
-    if (errorTryTimes < errorTryMaxTimes && [503, 504].includes(statusCode)) {
+    if (errorTryTimes < errorTryMaxTimes && [403, 503, 504].includes(statusCode)) {
       errorTryTimes++;
+      await sleep(5);
       return _do(rpOptions);
     }
   });
