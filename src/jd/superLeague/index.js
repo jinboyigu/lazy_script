@@ -22,8 +22,6 @@ class SuperLeague extends Template {
   static needInAppDynamicTime = true;
   static needOriginProMd = true;
 
-  static activityEndTime = '2024-06-20';
-
   static apiOptions() {
     return {};
   }
@@ -31,7 +29,7 @@ class SuperLeague extends Template {
   static async beforeRequest(api) {
     const self = this;
 
-    const originUrl = `https://pro.m.jd.com/mall/active/2uXu6yffAWogkJDsRkxFq5YiCfGT/index.html?stath=47&navh=44&inviter=vNsp7eclDGU79VZWwzuDLw&utm_term=c03ff960a30148359a9978cb86752c61&utm_source=kong&tttparams=IYIcwUeyJnTGF0IjoiMjIuOTQyOTA2Iiwic2NhbGUiOiIzIiwidW5fYXJlYSI6IjE5XzE2MDFfMzY5NTNfNTA0MDIiLCJkTGF0IjoiIiwid2lkdGgiOiIxMTcwIiwicHJzdGF0ZSI6IjAiLCJhZGRyZXNzSWQiOiI5NDIxMTMyNzE4IiwibGF0IjoiMC4wMDAwMDAiLCJwb3NMYXQiOiIyMi45NDI5MDYiLCJwb3NMbmciOiIxMTMuNDc0ODAxIiwiZ3BzX2FyZWEiOiIwXzBfMF8wIiwibG5nIjoiMC4wMDAwMDAiLCJ1ZW1wcyI6IjAtMC0wIiwiZ0xuZyI6IjExMy40NzQ4MDEiLCJtb2RlbCI6ImlQaG9uZTEzLDMiLCJkTG5nIjoiIn60%3D&utm_medium=jingfen&cu=true&femobile=femobile&utm_campaign=t_1003272801_&__fr=deeplink&taskId=5101&activityChannel=jdapp`;
+    const originUrl = `https://prodev.m.jd.com/mall/active/2tCyuWWrv9h7KbVMZaUs4madVg93/index.html?stath=47&navh=44&utm_term=8c91d6fc08224bddbadb55253ab7df0c&utm_source=lianmeng__2__kong&utm_campaign=t_1003272801_&utm_medium=jingfen&tttparams=iiOY4tXWeyJnTGF0IjoiMjIuOTQyOTA2Iiwic2NhbGUiOiIzIiwidW5fYXJlYSI6IjE5XzE2MDFfMzY5NTNfNTA0MDAiLCJkTGF0IjoiIiwid2lkdGgiOiIxMTcwIiwicHJzdGF0ZSI6IjAiLCJhZGRyZXNzSWQiOiI1MTU2MDkwNDExIiwibGF0IjoiMC4wMDAwMDAiLCJwb3NMYXQiOiIyMi45NDI5MDYiLCJwb3NMbmciOiIxMTMuNDc0ODAxIiwiZ3BzX2FyZWEiOiIwXzBfMF8wIiwibG5nIjoiMC4wMDAwMDAiLCJ1ZW1wcyI6IjAtMC0wIiwiZ0xuZyI6IjExMy40NzQ4MDEiLCJtb2RlbCI6ImlQaG9uZTEzLDMiLCJkTG5nIjoiIn80%3D&cu=true`;
     await api.doGetUrl(originUrl).then((data => {
       const newLinkId = matchMiddle(data, {reg: /"linkId":"([^"']*)"/});
       if (newLinkId === linkId) return;
