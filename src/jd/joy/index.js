@@ -4,6 +4,7 @@ const {sleep, writeFileJSON, singleRun, matchMiddle, replaceObjectMethod} = requ
 const {getMoment} = require('../../lib/moment');
 const _ = require('lodash');
 const JDJRValidator = require('../../lib/JDJRValidator');
+const {getEnv} = require('../../lib/env');
 
 const reqSources = ['h5', 'weapp'];
 const indexUrl = 'https://h5.m.jd.com/babelDiy/Zeus/2wuqXrZrhygTQzYA7VufBEpj4amH/index.html';
@@ -173,8 +174,6 @@ class Joy extends Template {
         },
       });
 
-      // 签到和助力都需要手动到小程序
-
       // 限时货架
       const deskGoods = [] || await doGetBody('getDeskGoodDetails').then(data => _.property('data.deskGoods')(data)) || [];
 
@@ -212,8 +211,33 @@ class Joy extends Template {
           continue;
         }
 
-        const enableTaskTypes = ['ScanDeskGood', 'ViewVideo', 'race', 'ScanMarket', 'FollowShop', 'FollowChannel', 'FollowGood'/*, 'HelpFeed'*/];
+        const enableTaskTypes = ['ScanDeskGood', 'ViewVideo', 'race', 'ScanMarket', 'FollowShop', 'FollowChannel', 'FollowGood', 'SignEveryDay'];
         if (!enableTaskTypes.includes(realTaskType || taskType)) continue;
+
+        if (taskType === 'SignEveryDay') {
+          const openId = getEnv('WX_OPENID');
+          openId && await api.doGetUrl(`https://like2.jd.com//api/turncard/sign?openId=${openId}&petSign=true&turnTableId=131&source=JDDOG&appId=wxccb5c536b0ecd1bf`, {
+            method: 'POST',
+            headers: {
+              referer: 'https://servicewechat.com/wxccb5c536b0ecd1bf/659/page-frame.html',
+              'App-Id': 'wxccb5c536b0ecd1bf',
+              openId,
+              'Lottery-Access-Signature': 'wxccb5c536b0ecd1bf1537237540544h79HlfU',
+              LKYLToken: '88982d01a4de763cf3dd3e7d8e28d975',
+            },
+            body: {
+              'fp': '',
+              'eid': '2E31231AC103A5956C8B0934943733EB0FC1551B',
+            },
+          }).then(data => {
+            if (data.errorMessage) {
+              api.log(`签到失败: ${data.errorMessage}`);
+            } else {
+              api.log(`签到成功`);
+            }
+          });
+          continue;
+        }
 
         if (taskType === 'HelpFeed') {
           if (receiveStatus === 'chance_left') {
