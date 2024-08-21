@@ -297,6 +297,7 @@ async function main() {
           SplitHongbao,
           WanYiWan,
           AppletMini,
+          LiteJoyPark,
         ]);
       },
     },
@@ -360,6 +361,7 @@ async function main() {
 
     if (nowHour % 5 === 0) {
       await serialRun(Joy, doCron);
+      await serialRun(LiteJoyPark);
     }
 
     if (nowHour % 6 === 0) {
