@@ -64,7 +64,7 @@ const BeanSmallBean = require('./jd/sign/beanSmallBean');
 const GoldCreator = TemporarilyOffline || require('./jd/goldCreator');
 const Joy20210805 = require('./jd/joy/20210805');
 const SuperBrandDay = require('./jd/superBrand/day');
-const SuperBrandProduct = TemporarilyOffline || require('./jd/superBrand/Product');
+const SuperBrandProduct = require('./jd/superBrand/Product');
 const RubikSCube = TemporarilyOffline || require('./jd/rubikSCube');
 const PointsGasStation = require('./jd/dwapp/PointsGasStation');
 const ExplorePlanet = require('./jd/explorePlanet');
@@ -231,7 +231,7 @@ async function main() {
     {
       valid: 10,
       run: async () => {
-        await doRun(SuperBrandProduct);
+        // await doRun(SuperBrandProduct);
       },
     },
     {
@@ -246,7 +246,7 @@ async function main() {
     {
       valid: 14,
       run: async () => {
-        await doRun(SuperBrandProduct);
+        // await doRun(SuperBrandProduct);
       },
     },
     {
@@ -265,7 +265,7 @@ async function main() {
         await serialRun([
           Fruit,
           PlantBean,
-          SuperBrandProduct,
+          // SuperBrandProduct,
         ]);
       },
     },
@@ -279,7 +279,7 @@ async function main() {
       valid: 20,
       run: async () => {
         await serialRun([
-          SuperBrandProduct,
+          // SuperBrandProduct,
         ]);
       },
     },
@@ -310,7 +310,7 @@ async function main() {
           Cash,
           PlantBean,
           [PlantBean, void 0, 'cron'],
-          SuperBrandProduct,
+          // SuperBrandProduct,
           Joy,
           Fruit,
         ]);

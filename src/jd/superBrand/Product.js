@@ -6,9 +6,9 @@ const {replaceObjectMethod} = require('../../lib/common');
 const {getMoment, getNowHour} = require('../../lib/moment');
 
 const sources = [
-  // {source: 'star_gift', label: '超级品牌抽奖'},
-  {source: 'sign', label: '签到抽奖'},
-  {source: 'card', label: '合成徽章瓜分'},
+  {source: 'star_gift', label: '超级品牌抽奖'},
+  // {source: 'sign', label: '签到抽奖'},
+  // {source: 'card', label: '合成徽章瓜分'},
 ];
 let source;
 
@@ -20,7 +20,6 @@ class SuperBrandProduct extends Template {
   static commonParamFn = () => ({});
   static times = 2;
   static needInAppComplete = true;
-  static activityEndTime = '2022-11-30';
 
   static apiOptions() {
     return {
@@ -205,7 +204,7 @@ class SuperBrandProduct extends Template {
           },
         },
       });
-    } else if (['secondfloor', 'star_gift'].includes(source) && self.lastTimeInTheDay()) {
+    } else if (['secondfloor', 'star_gift'].includes(source) && self.firstTimeInTheDay()) {
       _.assign(result, {
         doRedeem: {
           name: 'superBrandTaskLottery',
