@@ -7,6 +7,7 @@ const {exec, execAsync, sleep} = require('./lib/common');
 const {getMoment, getNowDate} = require('./lib/moment');
 const schedule = require('node-schedule');
 const {sendNotify} = require('./api');
+const {updateProcessEnv} = require('./lib/env');
 
 const sendMail = () => sendNotify({subjects: ['lazy_script_local', getNowDate()]});
 
@@ -14,11 +15,11 @@ const sendMail = () => sendNotify({subjects: ['lazy_script_local', getNowDate()]
   const nodeCommand = (file, method = 'start', cookieIndex = '*', command1) => `node ${file} ${method} ${cookieIndex} ${command1}`;
   const execNode = (...args) => exec(nodeCommand(...args));
   // 0 分活动
-  schedule.scheduleJob('0 0 * * *', () => {
-    // execAsync([
-    //   nodeCommand('src/jd/applet/mini.js'),
-    // ]);
-    // execNode('src/jd/local/EarnJoinGroup/index.js');
+  0 && schedule.scheduleJob('0 0 * * *', () => {
+    execAsync([
+      nodeCommand('src/jd/applet/mini.js'),
+    ]);
+    execNode('src/jd/local/EarnJoinGroup/index.js');
   });
   // 积分加油站
   schedule.scheduleJob('20 0,7,18 * * *', () => {
@@ -61,6 +62,7 @@ const sendMail = () => sendNotify({subjects: ['lazy_script_local', getNowDate()]
   });
   // 发送邮件
   schedule.scheduleJob('20 23 * * *', async () => {
+    updateProcessEnv();
     await sendMail();
   });
 })();
