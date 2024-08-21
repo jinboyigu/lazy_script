@@ -5,6 +5,7 @@ const {getMoment} = require('../../lib/moment');
 const _ = require('lodash');
 const JDJRValidator = require('../../lib/JDJRValidator');
 const {getEnv} = require('../../lib/env');
+const {formatPasteData} = require('../../lib/charles');
 
 const reqSources = ['h5', 'weapp'];
 const indexUrl = 'https://h5.m.jd.com/babelDiy/Zeus/2wuqXrZrhygTQzYA7VufBEpj4amH/index.html';
@@ -218,26 +219,63 @@ class Joy extends Template {
 
         if (taskType === 'SignEveryDay') {
           const openId = getEnv('WX_OPENID', api.currentCookieIndex);
-          openId && await api.doGetUrl(`https://like2.jd.com//api/turncard/sign?openId=${openId}&petSign=true&turnTableId=131&source=JDDOG&appId=wxccb5c536b0ecd1bf`, {
-            method: 'POST',
-            headers: {
-              referer: 'https://servicewechat.com/wxccb5c536b0ecd1bf/659/page-frame.html',
-              'App-Id': 'wxccb5c536b0ecd1bf',
-              openId,
-              'Lottery-Access-Signature': 'wxccb5c536b0ecd1bf1537237540544h79HlfU',
-              LKYLToken: '88982d01a4de763cf3dd3e7d8e28d975',
-            },
-            body: {
-              'fp': '',
-              'eid': '2E31231AC103A5956C8B0934943733EB0FC1551B',
-            },
-          }).then(data => {
-            if (data.errorMessage) {
-              api.log(`签到失败: ${data.errorMessage}`);
-            } else {
-              api.log(`签到成功`);
-            }
-          });
+          // TODO 获取 code
+          let code = '';
+          const LKYLToken = '';
+          const doSign = (loop = true) => {
+            return api.doGetUrl(`https://like2.jd.com//api/turncard/sign?openId=${openId}&petSign=true&turnTableId=131&source=JDDOG&appId=wxccb5c536b0ecd1bf`, {
+              method: 'POST',
+              headers: {
+                referer: 'https://servicewechat.com/wxccb5c536b0ecd1bf/659/page-frame.html',
+                'App-Id': 'wxccb5c536b0ecd1bf',
+                openId,
+                'Lottery-Access-Signature': 'wxccb5c536b0ecd1bf1537237540544h79HlfU',
+                LKYLToken,
+              },
+              body: {
+                'fp': '',
+                'eid': '2E31231AC103A5956C8B0934943733EB0FC1551B',
+              },
+            }).then(async data => {
+              if (data.errorMessage) {
+                api.log(`签到失败: ${data.errorMessage}`);
+              } else {
+                api.log(`签到成功`);
+              }
+              if (code && data.errorCode === 'L0001' && loop) {
+                // 重新登录
+                await api.commonDo({
+                  url: 'https://api.m.jd.com/?functionId=userAdd',
+                  form: formatPasteData(`appid\tchoujiangyingyong
+                    functionId\tuserAdd
+                    body\t{"code":"${code}","source":"UNKNOWN","type":"","channel":"","appId":"wxccb5c536b0ecd1bf"}
+                    t\t1724205780819
+                    forcebot\t
+                    loginType\t2
+                    uuid\t16651940518001682881757
+                    eid\tjdd01w4AMZIAWBLEYMR54Z65WC3CL4TRPMCUWGIURJPV3K3JC7FQWGBC5MEV2ZYFSWF5AQ3CO2MRS5OBDBM3CJUTGEC77NIG4QOF5W3WSZZKXHVDAPFAPQTNUZEH4BW5LKTXDGQG
+                    client\tios
+                    osVersion\tiOS 17.5
+                    screen\t390*844
+                    d_brand\tiPhone
+                    sdkVersion\t3.5.4
+                    networkType\twifi
+                  `),
+                  headers: {
+                    referer: 'https://servicewechat.com/wxccb5c536b0ecd1bf/892/page-frame.html',
+                    'App-Id': 'wxccb5c536b0ecd1bf',
+                    openId,
+                    'Lottery-Access-Signature': 'wxccb5c536b0ecd1bf1537237540544h79HlfU',
+                    'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.50(0x18003239) NetType/WIFI Language/zh_CN',
+                  },
+                });
+                return doSign(false);
+              }
+            });
+          };
+          if (LKYLToken && openId && self.isInWx()) {
+            await doSign();
+          }
           continue;
         }
 
