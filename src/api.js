@@ -107,7 +107,7 @@ async function sendNotify({sendYesterdayLog = false, subjects = []}) {
       subject: getSubject(`${mainSubject}_error`),
       text: errorOutput
       // TODO 先精确到分的请求
-      .concat(getMsgs(requestLogs.filter(o => errorLogs.map(o => o.time.replace(/:\d\d$/, '')).includes(o.time.replace(/:\d\d$/, '')))))
+      .concat(getMsgs(requestLogs.filter(o => errorLogs.map(o => (o.time || '').replace(/:\d\d$/, '')).includes((o.time || '').replace(/:\d\d$/, '')))))
       .join('\n'),
     });
     errorOutput = [];
