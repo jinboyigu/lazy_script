@@ -5,7 +5,7 @@ const _ = require('lodash');
 const {getMoment, getNowHour} = require('../../lib/moment');
 
 const appid = 'activities_platform';
-const linkId = 'LsQNxL7iWDlXUs6cFl-AAg';
+const linkId = '99DZNpaCTAv8f4TuKXr0Ew';
 const origin = 'https://joypark.jd.com';
 
 class LiteJoyPark extends Template {
@@ -14,14 +14,15 @@ class LiteJoyPark extends Template {
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static commonParamFn = () => ({body: {linkId}, appid});
-  static needInSpeedApp = true;
+  static needInApp = false;
   static defaultShareCodes = [
     'K7pyOTYxSNiwa4HaR33Otw',
     '5oL9ukD9X8J883hdXpWl7Q',
     'xCyospigVqCxSciIYOT16w',
     'CIte3i3FPeZIe5MtXuFEGw',
   ];
-  static shareTaskId = '610';
+  static shareTaskId = '1983';
+  static concurrent = true;
   static times = this.lastTimeInTheDay() ? 2 : 1;
   static doneShareTask = !this.lastTimeInTheDay();
   static getLoopMinute = () => _.random(0, 59);
@@ -30,11 +31,12 @@ class LiteJoyPark extends Template {
 
   static apiOptions = {
     options: {
-      uri: 'https://api.m.jd.com/',
+      uri: 'https://api.m.jd.com/api',
       headers: {
         origin,
         referer: `${origin}/`,
       },
+      errorTryMaxTimes: 3,
     },
   };
 
@@ -44,31 +46,20 @@ class LiteJoyPark extends Template {
 
   static async beforeRequest(api) {
     api.cookieInstance.set('pwdt_id', api.cookieInstance.get('pt_pin'));
-    api.cookieInstance.set('sid', '99bdf390a14d0bcb017ba110c99a400w');
+    // api.cookieInstance.set('sid', '99bdf390a14d0bcb017ba110c99a400w');
     const config = {
-      joyBaseInfo: {
-        appId: '4abce',
-        fingerprint: '8787341627338896',
-      },
-      joyBuy: {
-        appId: 'ffb36',
-        fingerprint: '8728713704958279',
-      },
-      joyList: {
-        appId: 'e18ed',
-        fingerprint: '4128416032788426',
-      },
-      joyMergeGet: {
-        appId: 'b08cf',
-        fingerprint: '6999562471815316',
-      },
-      joyMove: {
-        appId: '50788',
-        fingerprint: '9630702725515050',
-      },
+      joyBaseInfo: {appId: '4abce'},
+      joyBuy: {appId: 'ffb36'},
+      joyList: {appId: 'e18ed'},
+      joyMergeGet: {appId: 'c3beb'},
+      joyMove: {appId: '50788'},
+      joyPay: {appId: 'bfe69'},
+      apsDoTask: {appId: '54ed7'},
+      apTaskDrawAward: {appId: 'f0f3f'},
     };
     this.injectEncryptH5st(api, {
       config,
+      signFromKEDAYA: true,
       afterEncryptFn: form => _.assign(form, {cthr: 1}),
     });
   }
@@ -84,9 +75,6 @@ class LiteJoyPark extends Template {
     function getData(data) {
       return self.isSuccess(data) ? data.data : data;
     }
-
-    await api.doGetBody('getStaticResource');
-    await api.doGetBody('checkUserIndulge');
 
     let currentLevel = 0;
     const {invitePin, guideStep, fastBuyCoin, joyCoin} = await joyBaseInfo();
@@ -136,9 +124,9 @@ class LiteJoyPark extends Template {
             api.log(`做任务获得${awardName}: ${awardGivenNumber}`);
           });
         });
-        const doTask = async itemId => {
+        const doTask = async (itemId, taskInsert) => {
           itemId = itemId || void 0;
-          await api.doFormBody('apDoTask', {taskType, taskId, itemId});
+          await api.doFormBody('apsDoTask', {taskType, taskId, taskInsert, itemId});
           await sleep(5);
           await apTaskDrawAward();
         };
@@ -153,9 +141,9 @@ class LiteJoyPark extends Template {
             await api.doFormBody('apTaskDetail', {taskType, taskId, channel: '4'}).then(async data => {
               let {status: {finished, userFinishedTimes, finishNeed}, taskItemList} = data.data;
               if (finished) return;
-              for (const {itemId} of taskItemList) {
+              for (const {itemId, taskInsert} of taskItemList) {
                 if (userFinishedTimes >= finishNeed) break;
-                await doTask(itemId);
+                await doTask(itemId, taskInsert);
                 ++userFinishedTimes;
               }
             });
@@ -215,12 +203,12 @@ class LiteJoyPark extends Template {
     }
 
     async function handleManageJoy(maxTimes = 2) {
-      const _wait = () => sleep(5);
+      const _wait = () => sleep(8);
       const maxJoyNumber = 10;
       let startAgain = false;
 
       await _wait();
-      let {activityJoyList, workJoyInfoList, joyNumber} = await joyList();
+      let {activityJoyList = [], workJoyInfoList = [], joyNumber} = await joyList();
 
       if (maxTimes <= 0) {
         const notActiveWorkJoyList = _.filter(workJoyInfoList, o => o.unlock && !o['joyDTO']);
@@ -323,7 +311,7 @@ class LiteJoyPark extends Template {
       }
 
       function joyMergeGet(joyOneId, joyTwoId) {
-        return api.doGetBody('joyMergeGet', {joyOneId, joyTwoId}).then(getData).then(data => {
+        return api.doFormBody('joyMergeGet', {joyOneId, joyTwoId}).then(getData).then(data => {
           const {joyVO, joyPrizeVO} = data;
           if (joyVO) {
             api.log(`合成获得Joy: ${joyVO.name}(${joyVO.level})`);
@@ -377,7 +365,7 @@ class LiteJoyPark extends Template {
     }
 
     function joyList() {
-      return api.doGetBody('joyList').then(getData);
+      return api.doFormBody('joyList').then(getData);
     }
   }
 }
