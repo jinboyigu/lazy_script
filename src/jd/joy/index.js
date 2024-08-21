@@ -121,7 +121,9 @@ class Joy extends Template {
     const doGetBody = (functionId, body, options) => api.doGetBody(functionId, body, options);
     const doPostBody = (functionId, body, options) => api.doGetBody(functionId, body, {...options, method: 'POST'});
 
-    await handleDoShare();
+    if (self.getNowHour() < 9) {
+      await handleDoShare();
+    }
     await handleDoTask();
     await handleRace();
     if (self.getNowHour() >= 12) {
@@ -215,7 +217,7 @@ class Joy extends Template {
         if (!enableTaskTypes.includes(realTaskType || taskType)) continue;
 
         if (taskType === 'SignEveryDay') {
-          const openId = getEnv('WX_OPENID');
+          const openId = getEnv('WX_OPENID', api.currentCookieIndex);
           openId && await api.doGetUrl(`https://like2.jd.com//api/turncard/sign?openId=${openId}&petSign=true&turnTableId=131&source=JDDOG&appId=wxccb5c536b0ecd1bf`, {
             method: 'POST',
             headers: {
@@ -314,7 +316,7 @@ class Joy extends Template {
             await handleIconClick(taskType === 'ScanDeskGood' ? 'follow_good_desk' : _.snakeCase(taskType), _.values(newO)[0]);
           }
           const notScan = ['FollowShop', 'FollowGood', 'jzt_scan_market', 'jzt_follow_good'].includes(taskType);
-          const functionId = notScan ? _.camelCase(taskType === 'jzt_scan_market' ? 'jzt_scan' : taskType) : 'scan';
+          const functionId = notScan ? _.camelCase(taskType === 'jzt_scan_market' ? 'jzt_scan' : (taskType === 'FollowShop' ? 'followShopColor' : taskType)) : 'scan';
           await sleep(waitDuration);
           await doPostBody(functionId, o);
           if (++times >= maxTimes) {
