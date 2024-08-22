@@ -129,6 +129,14 @@ async function parallelRun({list, runFn, onceNumber = list.length, onceDelaySeco
   }));
 }
 
+async function parallel(fns) {
+  return Promise.all(fns.map(fn =>
+    new Promise(async resolve => {
+      const result = await fn();
+      resolve(result);
+    })));
+}
+
 /**
  * @description 获取重定向链接(短链接)的真正URL
  * @param uri{string}
@@ -433,6 +441,7 @@ module.exports = {
   writeFileJSON,
   readFileJSON,
 
+  parallel,
   parallelRun,
 
   getRealUrl,

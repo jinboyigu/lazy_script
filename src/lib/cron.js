@@ -32,7 +32,15 @@ function timeToDate(time) {
 
   const timeArray = _.concat(time);
   if (timeArray.length === 6) return timeArray;
-  const [hour, minute = 0, second = 0] = timeArray;
+  let [hour, minute = 0, second = 0] = timeArray;
+  if (second >= 60) {
+    minute += Math.floor(second / 60);
+    second = second % 60;
+  }
+  if (minute >= 60) {
+    hour += Math.floor(minute / 60);
+    minute = minute % 60;
+  }
   const [year, month, day] = getMoment().toArray();
   let result = [];
   if (timeArray.length <= 5) {

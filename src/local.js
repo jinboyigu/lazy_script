@@ -1,8 +1,8 @@
 const _ = require('lodash');
-const {getNowDate, getNowHour} = require('./lib/moment');
+const {getNowDate, getNowHour, getMoment} = require('./lib/moment');
 const {getCookieData, updateProcessEnv, processInAC, getEnv} = require('./lib/env');
 const {sleepTime} = require('./lib/cron');
-const {sleep} = require('./lib/common');
+const {sleep, parallel} = require('./lib/common');
 require('../src/lib/common').exec('node src/shell/updateEnvFromMail.js');
 updateProcessEnv();
 const {
@@ -17,7 +17,7 @@ const {
 } = require('./api');
 
 const Fruit = require('./jd/fruit');
-let Joy = TemporarilyOffline || require('./jd/joy');
+let Joy = require('./jd/joy');
 
 const nowDate = getNowDate();
 const nowHour = getNowHour();
@@ -46,16 +46,35 @@ async function main() {
     return;
   }
 
-  if ([10, 15, 21].includes(nowHour)) {
-    await doRun(require('./jd/lite/EarnCoins'));
+  const serialRunConfig = [
+    [[0, 4, 8, 9, 12, 20, 22], Joy],
+    [[1, 7, 18], require('./jd/dwapp/PointsGasStation')],
+    [[7, 15, 21], require('./jd/plantBean')],
+    [[7, 14, 20, 22, 23], require('./jd/turnHappy/WanYiWan')],
+    // 定时任务
+    [[19], require('./jd/superRedBagDraw'), 25],
+    [[23, 10, 22], require('./jd/fission'), 32],
+    [[23, 7, 15], require('./jd/joy/redeem'), 54],
+    [[23], require('./jd/turnHappy/WanYiWan'), 60],
+  ];
+  const serialRunTargets = [];
+  const specialTargets = [];
+  const promises = [];
+  for (const [hours, target, minute] of serialRunConfig) {
+    if (hours.includes(nowHour)) {
+      if (minute) {
+        specialTargets.push([minute, target]);
+      } else {
+        serialRunTargets.push(target);
+      }
+    }
   }
-
-  // if ([0, 7, 12, 18, 22, 23].includes(nowHour)) {
-  //   await doRun(Fruit);
-  // }
-
-  // if (nowHour === 23) {
-  //   await sleepTime(24);
-  //   await doRun(require('./jd/earn/AdvertPlugin'));
-  // }
+  promises.push(() => serialRun(serialRunTargets));
+  for (const [minute, target] of specialTargets) {
+    promises.push(async () => {
+      await sleepTime([nowHour, minute]);
+      await multipleRun(target);
+    });
+  }
+  await parallel(promises);
 }
