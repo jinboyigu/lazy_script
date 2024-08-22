@@ -122,26 +122,28 @@ class Joy extends Template {
     const doGetBody = (functionId, body, options) => api.doGetBody(functionId, body, options);
     const doPostBody = (functionId, body, options) => api.doGetBody(functionId, body, {...options, method: 'POST'});
 
-    if (self.getNowHour() < 9) {
+    if (!self.isInWx()) {
+      await handleRace();
+      await handleFeed();
+    }
+    if (self.getNowHour() >= 9) {
       await handleDoShare();
     }
     await handleDoTask();
-    await handleRace();
     if (self.getNowHour() >= 12) {
       await handleHelpFriends();
     }
-    await handleFeed();
     if (self.isLastLoop()) {
       await log();
     }
 
     async function handleFeed() {
-      const {lastFeedTime} = await doPostBody('petEnterRoom').then(_.property('data'));
+      const {petFood, lastFeedTime} = await doPostBody('petEnterRoom').then(_.property('data'));
       if (getMoment(lastFeedTime + 3 * 60 * 60 * 1000).isAfter(getMoment())) {
         return api.log('目前还无需喂养');
       }
 
-      await _feed(+(self.getCurrentEnv('JD_JOY_FEED_INDEX') || 2)); // 按需喂养
+      await _feed(+(self.getCurrentEnv('JD_JOY_FEED_INDEX') || (petFood >= 400 ? 3 : 2))); // 按需喂养
 
       // 喂食
       async function _feed(index = 0) {
@@ -386,11 +388,9 @@ class Joy extends Template {
       for (const friendPin of shareCodes) {
         await doGetBody('helpFriend', {friendPin});
         await sleep();
-        if (self.getNowHour() >= 9) {
-          // 助力竞赛
-          await doPostBody('help', {friendPin});
-          await sleep();
-        }
+        // 助力竞赛
+        await doPostBody('help', {friendPin});
+        await sleep();
       }
     }
 
