@@ -64,7 +64,7 @@ class SuperLeague extends Template {
 
     async function handleDoTask() {
       const taskList = await api.doFormBody('apTaskList').then(_.property('data'));
-      if (!taskList) return true;
+      if (!taskList || !_.isArray(taskList)) return true;
       for (const {
         id: taskId,
         taskType,
