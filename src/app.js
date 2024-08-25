@@ -89,7 +89,7 @@ const LiteSpringReward = TemporarilyOffline || require('./jd/lite/SpringReward')
 const LiteEarnCoins = TemporarilyOffline || require('./jd/lite/EarnCoins');
 const LiteCashSign = TemporarilyOffline || require('./jd/lite/CashSign');
 const LiteHappyDig = require('./jd/lite/HappyDig');
-const LiteJoyPark = require('./jd/lite/JoyPark');
+const LiteJoyPark = TemporarilyOffline || require('./jd/lite/JoyPark');
 
 /* 本地执行 */
 const ReceiveNecklaceCoupon = require('./jd/local/ReceiveNecklaceCoupon');
