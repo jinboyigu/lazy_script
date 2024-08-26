@@ -14,7 +14,7 @@ const sendMail = () => sendNotify({subjects: ['lazy_script_local', getNowDate()]
 (function main() {
   const nodeCommand = (file, method = 'start', cookieIndex = '*', command1) => `node ${file} ${method} ${cookieIndex} ${command1}`;
   const execNode = (...args) => exec(nodeCommand(...args));
-  schedule.scheduleJob('0 * * * *', () => {
+  schedule.scheduleJob('10 * * * *', () => {
     exec('node src/local.js');
     // 更新github
     exec('git pull --rebase');
