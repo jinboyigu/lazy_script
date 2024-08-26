@@ -181,28 +181,38 @@ class EarnJoinGroup extends Template {
     }
 
     async function handleUpdateGroup() {
-      await api.doGetBody('miniCenterQueryNormalConfig', {'id': 1157, 'operationFlag': false, 'type': '1'}, {
-        uri: 'https://api.m.jd.com/miniCenterQueryNormalConfig',
-        qs: {
-          functionId: 'miniCenterQueryNormalConfig',
-          ...api.options.form,
-        },
-        form: {},
-      }).then(data => {
-        const floors = _.get(data, 'data.pages[0].stepPages[0].floors');
-        _.filter(floors.map(o => {
-          const styleConfig = _.get(o, 'config.tagName') === 'MpmSuperfission' && _.get(o, 'config.styleConfig');
-          if (!styleConfig) return;
-          const {start, end} = styleConfig;
-          if (getMoment().isAfter(end) || getMoment().isBefore(start)) return;
-          return styleConfig.active_id;
-        }))
-        .forEach(activeId => {
-          api.log(`新增 activeId: ${activeId}`);
-          groupConfig.push({activeId});
-        });
-      });
+      const configIds = [
+        1157,// 超级裂变清单
+        1159,// 超级裂变x校园
+      ];
+      for (const id of configIds) {
+        await miniCenterQueryNormalConfig(id);
+      }
       await update1();
+
+      async function miniCenterQueryNormalConfig(id) {
+        await api.doGetBody('miniCenterQueryNormalConfig', {id, 'operationFlag': false, 'type': '1'}, {
+          uri: 'https://api.m.jd.com/miniCenterQueryNormalConfig',
+          qs: {
+            functionId: 'miniCenterQueryNormalConfig',
+            ...api.options.form,
+          },
+          form: {},
+        }).then(data => {
+          const floors = _.get(data, 'data.pages[0].stepPages[0].floors');
+          _.filter(floors.map(o => {
+            const styleConfig = _.get(o, 'config.tagName') === 'MpmSuperfission' && _.get(o, 'config.styleConfig');
+            if (!styleConfig) return;
+            const {start, end} = styleConfig;
+            if (getMoment().isAfter(end) || getMoment().isBefore(start)) return;
+            return styleConfig.active_id;
+          }))
+          .forEach(activeId => {
+            api.log(`新增 activeId: ${activeId}`);
+            groupConfig.push({activeId});
+          });
+        });
+      }
 
       // 社交圈 0.56
       async function update1() {
