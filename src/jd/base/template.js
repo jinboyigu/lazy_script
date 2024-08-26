@@ -205,7 +205,7 @@ class Template extends Base {
           _.merge(options.form, signData);
         }
         const t = getMoment().valueOf();
-        let form = _.merge({}, defaultData, body && {body}, {t}, options.qs || options.form);
+        let form = _.merge({}, defaultData, body && {body}, signFromKEDAYA ? {} : {t}, options.qs || options.form);
         beforeEncryptFn && (form = beforeEncryptFn(functionId, form));
         // TODO 整理成通用方法
         if (functionId in config) {

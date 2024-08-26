@@ -19,6 +19,6 @@ module.exports = function (params) {
   }
   return new Api().commonDo({
     ..._.pick(params, ['url', 'headers', 'json']),
-    needDelay: params.delay,
+    needDelay: false,
   }).then(data => ({data}));
 };
