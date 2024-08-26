@@ -230,6 +230,8 @@ class Template extends Base {
           }
           /* TODO 可能只适用于 client=apple/android */
           if (signFromKEDAYA) {
+            form.uuid = form.uuid || 'c6993893af46e44aa14818543914768cf2509fbf';
+            form.openudid = form.openudid || 'c6993893af46e44aa14818543914768cf2509fbf';
             const result = await encryptH5st.sign({
               url: api.options.uri || api.options.url || options.url,
               appId,
@@ -237,7 +239,6 @@ class Template extends Base {
                 functionId,
                 client: 'apple',
                 clientVersion: '13.1.0',
-                openudid: '5a44015a5e835b3dcb903c9a6b9d66573473c14d',
                 ...form,
               },
             });
