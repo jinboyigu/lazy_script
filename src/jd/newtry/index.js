@@ -68,7 +68,12 @@ class NewTry extends Template {
           ...!action && {'completionFlag': true},
         }).then(data => {
           if (action === 0 && self.isSuccess(data)) {
-            api.log(`完成任务, 获得: ${Object.values(_.get(data, 'rewardsInfo.successRewards'))[0].map(o => `${o.discount}${o.rewardName}`).join()}`);
+            const successRewards = Object.values(_.get(data, 'rewardsInfo.successRewards'))[0];
+            if (successRewards) {
+              api.log(`完成任务, 获得: ${successRewards.map(o => `${o.discount}${o.rewardName}`).join()}`);
+            } else {
+              api.log(`完成任务, 获取失败: ${_.get(data, 'rewardsInfo.failRewards[0].msg')}`);
+            }
           }
         });
         for (const o of ext[extraType] || []) {
