@@ -47,10 +47,24 @@ class SecKillView extends Template {
 
     await self.beforeRequest(api);
 
-    const skuIds = await api.doGetUrl('https://pro.m.jd.com/mall/active/Md9FMi1pJXg2q7qc8CmE9FNYDS4/index.html?stath=47&navh=44&has_native=0&babelChannel=ttt8&commontitle=no&transparent=1&copSource=miaosha&preventPV=1&forceCurrentView=1').then(data => {
-      return _.uniq(data.match(/"skuId":"\d*"/g).map(str => str.replace('"skuId":"', '').replace(/"$/, '')));
-    });
-    skuIds.unshift(void 0);
+    let skuIds = [void 0];
+
+
+    const urls = [
+      'https://pro.m.jd.com/mall/active/Md9FMi1pJXg2q7qc8CmE9FNYDS4/index.html?stath=47&navh=44&has_native=0&babelChannel=ttt8&commontitle=no&transparent=1&copSource=miaosha&preventPV=1&forceCurrentView=1',
+      'https://pro.m.jd.com/mall/active/43mNbs4F53FUMVin65VHVYYKB94f/index.html?stath=47&navh=44&babelChannel=ttt1&tttparams=bIyZ2TiIAeyJnTGF0IjoiMjIuOTQyOTA2Iiwic2NhbGUiOiIzIiwidW5fYXJlYSI6IjE5XzE2MDFfMzY5NTNfNTA0MDAiLCJkTGF0IjoiIiwid2lkdGgiOiIxMTcwIiwicHJzdGF0ZSI6IjAiLCJhZGRyZXNzSWQiOiI1MTU2MDkwNDExIiwibGF0IjoiMC4wMDAwMDAiLCJwb3NMYXQiOiIyMi45NDI5MDYiLCJwb3NMbmciOiIxMTMuNDc0ODAxIiwiZ3BzX2FyZWEiOiIwXzBfMF8wIiwibG5nIjoiMC4wMDAwMDAiLCJ1ZW1wcyI6IjAtMC0wIiwiZ0xuZyI6IjExMy40NzQ4MDEiLCJtb2RlbCI6ImlQaG9uZTEzLDMiLCJkTG5nIjoiIn90%3D',
+    ];
+
+    for (const url of urls) {
+      await updateSkuIds(url);
+    }
+
+    async function updateSkuIds(url) {
+      const result = await api.doGetUrl(url).then(data => {
+        return _.uniq((data.match(/"skuId":"\d*"/g) || []).map(str => str.replace('"skuId":"', '').replace(/"$/, '')));
+      });
+      skuIds = skuIds.concat(result);
+    }
 
     for (const skuId of skuIds) {
       const stop = await seckillViewTask(skuId);
