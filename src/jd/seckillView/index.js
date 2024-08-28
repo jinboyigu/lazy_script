@@ -61,7 +61,11 @@ class SecKillView extends Template {
 
     async function updateSkuIds(url) {
       const result = await api.doGetUrl(url).then(data => {
-        return _.uniq((data.match(/"skuId":"\d*"/g) || []).map(str => str.replace('"skuId":"', '').replace(/"$/, '')));
+        const matches = data.match(/"skuId":"\d*"/g);
+        if (!matches) {
+          console.log(data);
+        }
+        return _.uniq((matches || []).map(str => str.replace('"skuId":"', '').replace(/"$/, '')));
       });
       skuIds = skuIds.concat(result);
     }
