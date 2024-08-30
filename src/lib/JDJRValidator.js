@@ -4,6 +4,7 @@
 
 const vm = require('vm');
 const PNG = require('png-js');
+const imageToBase64 = require('image-to-base64');
 const {getMoment} = require('./moment');
 const Api = require('../jd/api');
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36';
@@ -242,7 +243,7 @@ class JDJRValidator {
     } else {
       console.count('验证失败');
       this.validateTimes++;
-      if (this.validateTimes > this.maxValidateTimes) return;
+      if (this.validateTimes > this.maxValidateTimes) throw new Error('超出验证次数');
       // console.count(JSON.stringify(result));
       await sleep(300);
       return await this.run(scene);
@@ -251,7 +252,10 @@ class JDJRValidator {
 
   async recognize(scene, eid) {
     const data = await JDJRValidator.jsonp('/slide/g.html', {e: eid}, scene);
-    const {bg, patch, y} = data;
+    let {bg, patch, y, static_servers} = data;
+    const imgUrlToBase64 = async (target) => target.endsWith('.png') ? await imageToBase64(`https:${static_servers}${target}`) : target;
+    bg = await imgUrlToBase64(bg);
+    patch = await imgUrlToBase64(patch);
     // const uri = 'data:image/png;base64,';
     // const re = new PuzzleRecognizer(uri+bg, uri+patch, y);
     const re = new PuzzleRecognizer(bg, patch, y);
