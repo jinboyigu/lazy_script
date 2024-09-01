@@ -16,7 +16,7 @@ class WanYiWan extends Template {
   });
   static keepIndependence = true;
   static times = 1;
-  static activityEndTime = '2024-08-31';
+  //static activityEndTime = '2024-08-31';
   static defaultShareCodes = [
     'viGYOhReBJUC6LNg7lfsawciIw_5kulBiDFMoQg8_lr8SA',
     '7HfNa05aB9hHgrBeqkzVCE26Gmc',
