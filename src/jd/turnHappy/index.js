@@ -19,7 +19,7 @@ class TurnHappy extends Template {
   static needInApp = false;
   static keepIndependence = true;
   static times = 1;
-  static activityEndTime = '2024-08-31';
+  // static activityEndTime = '2024-08-31';
   static concurrent = true;
   static concurrentOnceDelay = 20;
 
