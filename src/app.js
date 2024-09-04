@@ -70,6 +70,7 @@ const PointsGasStation = require('./jd/dwapp/PointsGasStation');
 const ExplorePlanet = require('./jd/explorePlanet');
 const WanYiWan = require('./jd/turnHappy/WanYiWan');
 const SuperLeague = require('./jd/superLeague');
+const SuperLeague1 = require('./jd/superLeague/1');
 const NewTry = require('./jd/newtry');
 const SecKillView = require('./jd/seckillView');
 const Fission = require('./jd/fission');
@@ -147,6 +148,7 @@ async function main() {
     ExplorePlanet,
     WanYiWan,
     SuperLeague,
+    SuperLeague1,
     NewTry,
     SecKillView,
     Fission,

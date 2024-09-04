@@ -18,9 +18,10 @@ class SuperLeague extends Template {
     clientVersion: '13.1.0',
   });
   static keepIndependence = true;
-  static times = 1;
+  static times = 2;
   static needInAppDynamicTime = true;
   static needOriginProMd = true;
+  static originUrl = 'https://prodev.m.jd.com/mall/active/3TQt6djGMAzDVdTe519oCXjZd3XR/index.html?stath=47&navh=44&taskId=6238&from=kouling&activityChannel=jdapp&femobile=femobile&tttparams=TwnjAzSiieyJnTGF0IjoiMjIuOTQyOTA2Iiwic2NhbGUiOiIzIiwidW5fYXJlYSI6IjE5XzE2MDFfMzY5NTNfNTA0MDIiLCJkTGF0IjoiIiwid2lkdGgiOiIxMTcwIiwicHJzdGF0ZSI6IjAiLCJhZGRyZXNzSWQiOiIxMzI0MTE4OTU4NSIsImxhdCI6IjAuMDAwMDAwIiwicG9zTGF0IjoiMjIuOTQyOTA2IiwicmZzIjoiMDAwMCIsInBvc0xuZyI6IjExMy40NzQ4MDEiLCJncHNfYXJlYSI6IjBfMF8wXzAiLCJsbmciOiIwLjAwMDAwMCIsInVlbXBzIjoiMC0wLTAiLCJnTG5nIjoiMTEzLjQ3NDgwMSIsIm1vZGVsIjoiaVBob25lMTMsMyIsImRMbmciOiIifQ9%3D%3D&inviter=xaxWXY5sf2Qou4xX2THKNA';
 
   static apiOptions() {
     return {};
@@ -29,7 +30,7 @@ class SuperLeague extends Template {
   static async beforeRequest(api) {
     const self = this;
 
-    const originUrl = `https://prodev.m.jd.com/mall/active/2tCyuWWrv9h7KbVMZaUs4madVg93/index.html?stath=47&navh=44&utm_term=8c91d6fc08224bddbadb55253ab7df0c&utm_source=lianmeng__2__kong&utm_campaign=t_1003272801_&utm_medium=jingfen&tttparams=iiOY4tXWeyJnTGF0IjoiMjIuOTQyOTA2Iiwic2NhbGUiOiIzIiwidW5fYXJlYSI6IjE5XzE2MDFfMzY5NTNfNTA0MDAiLCJkTGF0IjoiIiwid2lkdGgiOiIxMTcwIiwicHJzdGF0ZSI6IjAiLCJhZGRyZXNzSWQiOiI1MTU2MDkwNDExIiwibGF0IjoiMC4wMDAwMDAiLCJwb3NMYXQiOiIyMi45NDI5MDYiLCJwb3NMbmciOiIxMTMuNDc0ODAxIiwiZ3BzX2FyZWEiOiIwXzBfMF8wIiwibG5nIjoiMC4wMDAwMDAiLCJ1ZW1wcyI6IjAtMC0wIiwiZ0xuZyI6IjExMy40NzQ4MDEiLCJtb2RlbCI6ImlQaG9uZTEzLDMiLCJkTG5nIjoiIn80%3D&cu=true`;
+    const originUrl = self.originUrl;
     await api.doGetUrl(originUrl).then((data => {
       const newLinkId = matchMiddle(data, {reg: /"linkId":"([^"']*)"/});
       if (newLinkId === linkId) return;
@@ -60,7 +61,7 @@ class SuperLeague extends Template {
     if (stop) {
       return api.log(`linkId(${linkId})无效`);
     }
-    await handleLottery();
+    self.isLastLoop() && await handleLottery();
 
     async function handleDoTask() {
       const taskList = await api.doFormBody('apTaskList').then(_.property('data'));
@@ -73,6 +74,14 @@ class SuperLeague extends Template {
         taskDoTimes: times,
         taskFinished
       } of taskList || []) {
+        if (/助力/.test(taskTitle)) {
+          const {userCode} = await api.doFormBody('superLeagueHome').then(_.property('data'));
+          self.updateShareCodeFn(userCode);
+          for (const inviter of self.getShareCodeFn()) {
+            await api.doFormBody('superLeagueHome', {taskId, inviter, inJdApp: true});
+          }
+          continue;
+        }
         if (taskFinished || /助力/.test(taskTitle) || ['FOLLOW_CHANNEL'].includes(taskType)) continue;
         const channel = 4;
         const {taskItemList} = await api.doFormBody('apTaskDetail', {
