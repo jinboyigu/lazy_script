@@ -35,9 +35,9 @@ async function serialRun(targets, runFn = doRun) {
 }
 
 async function doRun(target, cookieData = getCookieData(target.scriptName), method = 'start') {
-  const isScript = target.scriptName;
+  const isScript = !!target.getName;
   const _do = () => isScript ? target[method](cookieData) : target();
-  const name = target.getName ? target.getName() : target.name;
+  const name = isScript ? target.getName() : target.name;
   const timeLabel = `${getMoment().format()} [${name}] do ${isScript ? method : ''}`;
   console.time(timeLabel);
   let result;
