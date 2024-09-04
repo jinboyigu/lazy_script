@@ -5,10 +5,10 @@
 const _ = require('lodash');
 const path = require('path');
 const fs = require('fs');
-const {getLogFile, sleep, parallelRun, getFileContent, getSortLogContent, getLogs} = require('./lib/common');
-const {getNowDate, getMoment} = require('./lib/moment');
+const {getLogFile, sleep, parallelRun, getFileContent, getSortLogContent, getLogs, parallel} = require('./lib/common');
+const {getNowDate, getMoment, getNowHour} = require('./lib/moment');
 const {getCookieData} = require('./lib/env');
-const {doPolling} = require('./lib/cron');
+const {doPolling, sleepTime} = require('./lib/cron');
 const serverChan = require('./lib/serverChan');
 const mailer = require('./lib/mailer');
 const TemporarilyOffline = {start: _.noop, cron: _.noop, getName: () => 'TemporarilyOffline'};
@@ -35,12 +35,14 @@ async function serialRun(targets, runFn = doRun) {
 }
 
 async function doRun(target, cookieData = getCookieData(target.scriptName), method = 'start') {
-  const name = target.getName();
-  const timeLabel = `[${getMoment().format('YYYY-MM-DD HH:mm:ss.SSS')}] [${name}] do ${method}`;
+  const isScript = target.scriptName;
+  const _do = () => isScript ? target[method](cookieData) : target();
+  const name = target.getName ? target.getName() : target.name;
+  const timeLabel = `${getMoment().format()} [${name}] do ${isScript ? method : ''}`;
   console.time(timeLabel);
   let result;
   try {
-    result = await target[method](cookieData);
+    result = await _do();
   } catch (e) {
     // TODO 估计不会抛出异常了, 因为基本在 base/index.js(keepIndependence=true)中捕获了
     errorOutput.push(`[${name}] error:`);
@@ -121,6 +123,39 @@ async function sendNotify({sendYesterdayLog = false, subjects = []}) {
   await serverChan.send(title, content);
 }
 
+/**
+ *
+ * @description 可以直接执行或者定时执行
+ * @example 直接执行 [[0], require('./jd/xxx')],
+ * @example 定时执行 [[0], require('./jd/xxx'), 25],
+ * @param data {Array}
+ * @param output {Function}
+ * @returns {Promise<void>}
+ */
+async function run(data, output) {
+  const nowHour = getNowHour();
+  const serialRunTargets = [];
+  const specialTargets = [];
+  const promises = [];
+  for (const [hours, target, minute] of data) {
+    if (hours.includes(nowHour)) {
+      if (minute) {
+        specialTargets.push([minute, target]);
+      } else {
+        serialRunTargets.push(target);
+      }
+    }
+  }
+  promises.push(() => serialRun(serialRunTargets));
+  for (const [minute, target] of specialTargets) {
+    promises.push(async () => {
+      await sleepTime([nowHour, minute]);
+      await multipleRun(target);
+    });
+  }
+  await parallel(promises);
+}
+
 module.exports = {
   multipleRun,
   serialRun,
@@ -130,4 +165,5 @@ module.exports = {
   doCron1,
   TemporarilyOffline,
   sendNotify,
+  run,
 };

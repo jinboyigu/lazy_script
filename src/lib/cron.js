@@ -9,6 +9,9 @@ const _ = require('lodash');
  */
 async function sleepDate(date) {
   const milliseconds = diffFromNow(date);
+  const second = +(milliseconds / 1000).toFixed(2);
+  const timeLabel = second > 60 ? ` ${(second / 60).toFixed(2)} 分钟` : ` ${second} 秒`;
+  console.log(`${getMoment().format()} [定时执行] 需等待${timeLabel}后再执行, 即 ${getMoment(date).format()}`);
   // 程序运行中自带误差, 无需自增
   await require('util').promisify(setTimeout)(milliseconds);
 }
