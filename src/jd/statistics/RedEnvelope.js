@@ -100,8 +100,8 @@ class StatisticsRedEnvelope extends Template {
 
       for (const [key, object] of Object.entries(redSorted)) {
         const {limitName, number, expire, msgs, label} = object;
-        if (['jx', 'noLimit'].includes(key)) continue;
-        const name = limitName ? `${label || limitName}(仅限)` : '无限制';
+        if (['jd', 'lite', 'jx', 'noLimit'].includes(key)) continue;
+        const name = limitName ? `${label || limitName}` : '无限制';
         const needSum = key !== 'noLimit';
         if (_.isEmpty(msgs)) {
           msgs.push(`${name}: ${format(number, noLimitNumber, needSum)}`);
@@ -122,7 +122,7 @@ class StatisticsRedEnvelope extends Template {
     }
 
     function format(a, b, needSum = true) {
-      return needSum ? `${formatNumber(a + b)}(${a})` : a;
+      return needSum ? `${formatNumber(a + b)}` : a;
     }
   }
 }
