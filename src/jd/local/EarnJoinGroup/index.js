@@ -90,7 +90,9 @@ class EarnJoinGroup extends Template {
         const canCreateGroup = _.get(mainPageResult, 'data.userInfo.canCreateGroup');
         // 已开团
         if (groupId && !canCreateGroup) {
-          groupData.groupId = groupId;
+          if (groupStatus !== 3) {
+            groupData.groupId = groupId;
+          }
           continue;
         }
         // 开团
@@ -182,8 +184,9 @@ class EarnJoinGroup extends Template {
 
     async function handleUpdateGroup() {
       const configIds = [
-        1157,// 超级裂变清单
+        1223,// 超级裂变清单-农场
         1159,// 超级裂变x校园
+        1157,// 超级裂变清单
       ];
       for (const id of configIds) {
         await miniCenterQueryNormalConfig(id);
