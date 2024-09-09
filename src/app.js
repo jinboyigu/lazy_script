@@ -203,6 +203,7 @@ async function main() {
         // await doRun(JxFarm);
         await doRun(LiteEarnCoins);
         await doRun(MorningHbReward);
+        await doRun(require('./jd/fission/1'));
       },
     },
     {
