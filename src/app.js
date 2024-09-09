@@ -320,12 +320,12 @@ async function main() {
         // 本身自带定时任务的脚本
         multipleRun([
           SignShop,
+          AppletMini,
           // SuperMarketRedeem,
           // JoyRedeem,
         ]);
         await sleepTime(24);
         await multipleRun([
-          AppletMini,
           EarnJoinGroup,
           [Health, void 0, 'cron'],
           // JoySign,

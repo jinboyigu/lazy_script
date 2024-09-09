@@ -4,6 +4,7 @@ const {sleep, writeFileJSON, singleRun, replaceObjectMethod} = require('../../li
 const {getMoment} = require('../../lib/moment');
 const {formatPasteData} = require('../../lib/charles');
 const _ = require('lodash');
+const {sleepTime} = require('../../lib/cron');
 
 class AppletMini extends Template {
   static scriptName = 'AppletMini';
@@ -13,6 +14,9 @@ class AppletMini extends Template {
   static defaultShareCodes = [
     'Sv_h1QhgY81XeKR6b1A',
     'S7a4gE0Ic8A',
+    'S-akZNEhNqhCPQUKp84M',
+    'S5KkcMWdhhwWERkeG8q5f',
+    'S5KkcRkoZ_ALUdROgkqIJdw',
   ];
   static commonParamFn = () => ({
     osVersion: 'iOS 17.5',
@@ -26,8 +30,7 @@ class AppletMini extends Template {
   static keepIndependence = true;
   static cookieKeys = ['wq_uin', 'wq_skey'];
   static needInApp = false;
-  static concurrent = this.firstTimeInTheDay();
-  static concurrentOnceDelay = 0;
+  static concurrent = true;
 
   static isSuccess(data) {
     return data['subCode'] === 0;
@@ -68,12 +71,20 @@ class AppletMini extends Template {
   static async doMain(api, shareCodes) {
     const self = this;
 
-    self.initShareCodeTaskList(shareCodes || []);
     await self.beforeRequest(api);
 
     const doPathBody = (functionId, body) => api.doPathBody(functionId, body, {functionId});
 
-    if (self.firstTimeInTheDay() && self.isFirstLoop() && api.currentCookieIndex === 0) {
+    const shareIndex = _.first(self._command) || 0;
+    const waitToDoShare = self.getNowHour() === 23;
+    const {currentCookieIndex} = api;
+    const isShareIndex = currentCookieIndex === shareIndex;
+
+    if (waitToDoShare) {
+      await sleepTime(24);
+    }
+
+    if (self.isFirstLoop() && isShareIndex) {
       await sleep(10);
     }
     const {signInfo, scanTaskList, assistTask, hasLogin} = await doPathBody('miniTask_hbChannelPage', {
@@ -90,7 +101,7 @@ class AppletMini extends Template {
     const {signTaskList} = signInfo || {};
     const signTask = signTaskList.find(o => o.currentDay && !o.signStatus);
 
-    if(assistTask.completionCnt) {
+    if (assistTask.completionCnt) {
       for (const {order, status, userTag} of assistTask.assistList) {
         if (userTag && !status) {
           await doPathBody('miniTask_doAssistReward', {order, itemId: assistTask.itemId}).then(data => {
@@ -104,7 +115,7 @@ class AppletMini extends Template {
       }
     }
 
-    if (self.firstTimeInTheDay()) {
+    if (waitToDoShare) {
       await handleDoSign();
       await handleDoShare();
     } else {
@@ -113,7 +124,7 @@ class AppletMini extends Template {
 
     async function handleDoShare() {
       self.updateShareCodeFn(assistTask.itemId);
-      await _do(self.getShareCodeFn(api)[0]);
+      await _do(isShareIndex ? self.defaultShareCodes[shareIndex === 0 ? 1 : 0] : self.defaultShareCodes[shareIndex]);
 
       async function _do(itemId, times = 3) {
         if (!itemId || times === 0) return;
@@ -135,9 +146,9 @@ class AppletMini extends Template {
     async function handleDoSign() {
       signTask && await doPathBody('mini_doSign', {itemId: signTask.itemId}).then(data => {
         if (self.isSuccess(data)) {
-          api.log(data.data.toastMsg);
+          api.log(`签到成功: ${data.data.toastMsg}`);
         } else {
-          api.log(data.message);
+          api.log(`签到失败: ${data.message}`);
         }
       });
     }
