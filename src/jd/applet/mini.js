@@ -75,7 +75,7 @@ class AppletMini extends Template {
 
     const doPathBody = (functionId, body) => api.doPathBody(functionId, body, {functionId});
 
-    const shareIndex = _.first(self._command) || 0;
+    const shareIndex = _.first(self._command) || 1;
     const waitToDoShare = self.getNowHour() === 23;
     const {currentCookieIndex} = api;
     const isShareIndex = currentCookieIndex === shareIndex;
