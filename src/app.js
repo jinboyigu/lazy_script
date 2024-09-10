@@ -43,7 +43,7 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
   [[0, 12, 18, 22, 23], require('./jd/plantBean')],
   [[0, 7, 22, 23], require('./jd/lite/HappyDig')],
   [[0, 7, 22, 23], require('./jd/applet/mini')],
-  [[0, 5, 10, 15, 20], require('./jd/lite/JoyPark')],
+  // [[0, 5, 10, 15, 20], require('./jd/lite/JoyPark')],
   // 实时执行
   [['*'], require('./jd/plantBean'), 0, true],
   // 定时任务
