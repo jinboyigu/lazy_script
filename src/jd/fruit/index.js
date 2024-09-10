@@ -11,7 +11,7 @@ class Fruit extends Template {
   static scriptName = 'Fruit';
   static scriptNameDesc = '东东农场';
   static times = 1;
-  static needInAppComplete1 = true;
+  static needInApp = false;
   static commonParamFn = () => ({
     appid: 'signed_wh5',
     client: 'apple',
@@ -109,7 +109,7 @@ class Fruit extends Template {
     });
     this.injectEncryptH5st(api, {
       config,
-      signFromSecurity: true,
+      signFromKEDAYA: true,
     });
   }
 
