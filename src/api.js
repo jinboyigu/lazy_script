@@ -135,25 +135,27 @@ async function sendNotify({sendYesterdayLog = false, subjects = []}) {
 async function run(data, output) {
   const nowHour = getNowHour();
   const serialRunTargets = [];
+  const serialRunByCronTargets = [];
   const specialTargets = [];
-  const promises = [];
-  for (const [hours, target, minute] of data) {
-    if (hours.includes(nowHour)) {
+  for (const [hours, target, minute, isCron = false] of data) {
+    if (hours.includes('*') || hours.includes(nowHour)) {
       if (minute) {
         specialTargets.push([minute, target]);
+      } else if (isCron) {
+        serialRunByCronTargets.push(...[].concat(target));
       } else {
-        serialRunTargets.push(target);
+        serialRunTargets.push(...[].concat(target));
       }
     }
   }
-  promises.push(() => serialRun(serialRunTargets));
-  for (const [minute, target] of specialTargets) {
-    promises.push(async () => {
+  await parallel([
+    () => serialRun(serialRunTargets),
+    () => serialRun(serialRunByCronTargets, doCron),
+    ...specialTargets.map(([minute, target]) => async () => {
       await sleepTime([nowHour, minute]);
       await multipleRun(target);
-    });
-  }
-  await parallel(promises);
+    }),
+  ]);
 }
 
 module.exports = {

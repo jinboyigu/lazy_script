@@ -16,7 +16,6 @@ const _send = processInAC() ? sendNotify.bind(0, {
   sendYesterdayLog: nowHour === 23,
   subjects: [void 0, nowDate, nowHour],
 }) : _.noop;
-// 超时需自动退出
 
 module.exports = async (data = [], {sendLocalMail = false, name}) => {
   const output = msg => console.log(`${getMoment().format()} [${name}] ${msg}`);
@@ -24,7 +23,8 @@ module.exports = async (data = [], {sendLocalMail = false, name}) => {
     return output('不执行脚本');
   }
 
-  !getEnv('DISABLE_AUTO_EXIT') && (async function autoExit() {
+  const autoExit = getEnv('DISABLE_AUTO_EXIT');
+  !autoExit && (async function autoExit() {
     await sleep(60 * 60);
     await _send();
     output('超时需自动退出');
@@ -38,4 +38,5 @@ module.exports = async (data = [], {sendLocalMail = false, name}) => {
   await run(data, output);
   output('结束执行');
   await _send();
+  !autoExit && process.exit();
 };
