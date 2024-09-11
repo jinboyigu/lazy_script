@@ -40,6 +40,7 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
   [[5], require('./jd/applet/morningHbReward')],
   // [[6], require('./jd/fruit/turnTableFarm'), 0, true],
   [[0, 7, 12, 18, 22, 23], require('./jd/fruit')],
+  [[0, 7, 12, 18, 22], require('./jd/fruit/1')],
   [[0, 12, 18, 22, 23], require('./jd/plantBean')],
   [[0, 7, 22, 23], require('./jd/lite/HappyDig')],
   [[0, 7, 22, 23], require('./jd/applet/mini')],
