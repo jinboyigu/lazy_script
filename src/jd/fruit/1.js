@@ -9,7 +9,13 @@ class Fruit1 extends Template {
   static scriptName = 'Fruit1';
   static scriptNameDesc = '东东农场(新)';
   static dirname = __dirname;
-  static shareCodeTaskList = [];
+  static shareCodeTaskList = [
+    'ycXdOf_k-w7OCRBTc8CtQiYT5DyYnQ',
+    'ycXdOa2yrl-UDRM9GMrtRA',
+    'ycXdObm1l3ieXEkWIqjxcAzm3sG1MT8',
+    'ycXdOaS1kn2xcGQDKa_0X1nw7Ccqm1No',
+    'ycXdOaS1kgqcCB8EeZygeZENbtC109cBtg',
+  ];
   static commonParamFn = () => ({
     appid: 'signed_wh5',
     client: 'apple',
@@ -17,7 +23,7 @@ class Fruit1 extends Template {
   });
   static keepIndependence = true;
   static needInApp = false;
-  static times = 1;
+  static times = 2;
 
   static apiOptions() {
     return {
@@ -68,6 +74,7 @@ class Fruit1 extends Template {
   static async doMain(api, shareCodes) {
     const self = this;
 
+    self.initShareCodeTaskList(shareCodes || []);
     await self.beforeRequest(api);
     const doFormBody = (functionId, body) => api.doFormBody(functionId, _.assign({'version': 5}, body));
 
@@ -78,18 +85,27 @@ class Fruit1 extends Template {
       treeCurrentState,
       skuName,
       bottleWater,
+      farmHomeShare: {inviteCode},
     } = await doFormBody('farm_home').then(_.property('data.result'));
+    self.isFirstLoop() && self.updateShareCodeFn(inviteCode);
     if (treeFullStage === 5) {
       api.log('可以兑换商品了');
     } else {
       await handlePlant(!skuName || treeCurrentState === 1);
     }
 
-    self.firstTimeInTheDay() && await handleDoSign();
-    await handleRain();
-    await handleWheels();
-    await handleDoTask();
-    await log();
+    if (self.isFirstLoop()) {
+      if (self.getNowHour() < 10) {
+        await handleDoSign();
+        await handleDoShare();
+      }
+      await handleRain();
+      await handleWheels();
+      await handleDoTask();
+    } else if (self.isLastLoop()) {
+      await handleReceiveAssit();
+      await log();
+    }
 
     // 种植
     async function handlePlant(needPlant) {
@@ -136,7 +152,9 @@ class Fruit1 extends Template {
           api.log(`获得水滴: ${_.get(data, 'data.result.taskAward[0].awardValue')}`);
         });
         if (taskStatus === 2) {
-          await receive();
+          for (let i = 0; i < taskDoTimes; i++) {
+            await receive();
+          }
           continue;
         }
         if (/助力|下单/.test(mainTitle) || taskStatus === 3) continue;
@@ -167,7 +185,7 @@ class Fruit1 extends Template {
             taskType,
             taskId,
             taskInsert,
-            itemId: new Buffer.from(itemId).toString('base64'),
+            itemId: taskType === 'FOLLOW_CHANNEL' ? 'ODQy' : new Buffer.from(itemId).toString('base64'),
             'channel': 0,
           }).then(async data => {
             if (self.isSuccess(data)) {
@@ -180,8 +198,12 @@ class Fruit1 extends Template {
     }
 
     async function handleRain() {
-      const {rainType, curRoundToken: token} = await doFormBody('farm_rain_round_icon').then(_.property('data.result'));
-      if (rainType === 1) {
+      const {
+        rainType,
+        nextRoundStartCountDown,
+        curRoundToken: token,
+      } = await doFormBody('farm_rain_round_icon').then(_.property('data.result'));
+      if (rainType === 1 && !nextRoundStartCountDown) {
         const {roundDuration} = await doFormBody('farm_rain_page', {token}).then(_.property('data.result'));
         if (roundDuration) {
           await sleep(roundDuration);
@@ -215,6 +237,22 @@ class Fruit1 extends Template {
       }
     }
 
+    async function handleDoShare() {
+      let inviteCodes = self.getShareCodeFn();
+      if (_.isEmpty(inviteCodes)) {
+        inviteCodes = self.shareCodeTaskList;
+      }
+      for (const inviteCode of inviteCodes.reverse()) {
+        const {bizCode, bizMsg} = await api.doFormBody('farm_assist', {
+          inviteCode,
+          'shareChannel': 'ttt19',
+          'assistChannel': '',
+        }).then(_.property('data')) || {};
+        api.log(`助力结果: ${bizMsg}`);
+        if ([0/* 成功 */, 5004/* 没次数 */].includes(bizCode)) break;
+      }
+    }
+
     // 转盘抽奖
     async function handleWheels() {
       const doFormBody = (functionId, body) => api.doFormBody(functionId, _.assign({'linkId': 'VssYBUKJOen7HZXpC8dRFA'}, body), {
@@ -242,8 +280,11 @@ class Fruit1 extends Template {
           await sleep(3);
         }
       }
-      const lotteryChances = await doFormBody('wheelsHome').then(_.property('data.lotteryChances')) || 0;
-      for (let i = 0; i < lotteryChances; i++) {
+      await handleLottery();
+
+      async function handleLottery() {
+        const lotteryChances = await doFormBody('wheelsHome').then(_.property('data.lotteryChances')) || 0;
+        if (lotteryChances <= 0) return;
         const stop = await doFormBody('wheelsLottery').then(data => {
           if (data.success) {
             api.log(`转盘抽奖获得: ${data.data.prizeCode}`);
@@ -253,8 +294,9 @@ class Fruit1 extends Template {
             return true;
           }
         });
-        if (stop) break;
+        if (stop) return;
         await sleep(10);
+        return handleLottery();
       }
     }
 
@@ -274,6 +316,17 @@ class Fruit1 extends Template {
         await sleep(3);
       }
       api.log(`成功浇水次数: ${finishTimes}`);
+    }
+
+    async function handleReceiveAssit() {
+      const {assistStageList} = await doFormBody('farm_assist_init_info').then(_.property('data.result'));
+      for (const {stageStaus} of assistStageList) {
+        if (stageStaus === 2) {
+          await doFormBody('farm_assist_receive_award').then(data => {
+            api.log(`获得助力水滴: ${_.get(data, 'data.result.amount')}`);
+          });
+        }
+      }
     }
 
     async function log() {
