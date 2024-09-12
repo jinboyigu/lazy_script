@@ -23,14 +23,6 @@ module.exports = async (data = [], {sendLocalMail = false, name}) => {
     return output('不执行脚本');
   }
 
-  const autoExit = getEnv('DISABLE_AUTO_EXIT');
-  !autoExit && (async function autoExit() {
-    await sleep(60 * 60);
-    await _send();
-    output('超时需自动退出');
-    process.exit();
-  })().then();
-
   if (sendLocalMail) {
     data.push([[23], sendNotify.bind(0, {subjects: ['lazy_script_local', getNowDate()]}), 40]);
   }
@@ -38,5 +30,4 @@ module.exports = async (data = [], {sendLocalMail = false, name}) => {
   await run(data, output);
   output('结束执行');
   await _send();
-  !autoExit && process.exit();
 };
