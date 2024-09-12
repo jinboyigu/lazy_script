@@ -60,7 +60,7 @@ class StatisticsBean extends Template {
     const prevDate = getMoment().subtract(1, 'days').formatDate();
     const preMount = _.map(detailList.filter(o => o['createDate'].replace(/\//g, '-').match(prevDate)), 'amount')
     .reduce(accumulateFn);
-    api.log(`总数: ${total}, 昨天(${prevDate.substring(5)})的收益: ${preMount}, 明天24点将过期的数量: ${willExpireNum}`);
+    api.logBoth(`总数: ${total}, 昨天(${prevDate.substring(5)})的收益: ${preMount}, 明天24点将过期的数量: ${willExpireNum}`);
     // TODO 确认具体过期获取
     return;
     // 获取即将过期列表

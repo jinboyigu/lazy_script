@@ -84,7 +84,7 @@ class StatisticsRedEnvelope extends Template {
 
     _.forEach(redSorted, ({msgs}, key) => {
       if (_.isEmpty(msgs)) return;
-      api.log(msgs.map(v => _.isString(v) ? v : v.format()).join(', '));
+      api.logBoth(msgs.map(v => _.isString(v) ? v : v.format()).join(', '));
     });
 
     async function calculate(day) {
