@@ -243,12 +243,12 @@ class Fruit1 extends Template {
         inviteCodes = self.shareCodeTaskList;
       }
       for (const inviteCode of inviteCodes.reverse()) {
-        const {bizCode, bizMsg} = await api.doFormBody('farm_assist', {
+        const {bizCode, bizMsg} = await doFormBody('farm_assist', {
           inviteCode,
           'shareChannel': 'ttt19',
           'assistChannel': '',
         }).then(_.property('data')) || {};
-        api.log(`助力结果: ${bizMsg}`);
+        api.log(`助力 ${inviteCode} 结果: ${bizMsg}`);
         if ([0/* 成功 */, 5004/* 没次数 */].includes(bizCode)) break;
       }
     }
