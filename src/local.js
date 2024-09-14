@@ -5,6 +5,8 @@
  */
 
 require('./appBase')([
+  // 实时执行
+  [['*'], require('./jd/fruit/1Wheels')],
   [[0, 4, 8, 9, 12, 20, 22], require('./jd/joy')],
   [[1, 7, 18], require('./jd/dwapp/PointsGasStation')],
   [[7, 15, 21], require('./jd/plantBean')],

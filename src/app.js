@@ -13,7 +13,6 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
 ] : [
   // 实时执行
   [['*'], require('./jd/plantBean'), 0, true],
-  [['*'], require('./jd/fruit/1Wheels')],
   // hour0
   ...[
     require('./jd/sign/beanSmallBean'),
