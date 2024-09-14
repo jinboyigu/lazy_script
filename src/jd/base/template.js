@@ -206,6 +206,15 @@ class Template extends Base {
         }
         const t = getMoment().valueOf();
         let form = _.merge({}, defaultData, body && {body}, signFromKEDAYA ? {} : {t}, options.qs || options.form);
+        if (signFromKEDAYA) {
+          form = {
+            // uuid: 'c6993893af46e44aa14818543914768cf2509fbf',
+            // openudid: 'c6993893af46e44aa14818543914768cf2509fbf',
+            client: 'apple',
+            clientVersion: '13.1.0',
+            ...form,
+          }
+        }
         beforeEncryptFn && (form = beforeEncryptFn(functionId, form));
         // TODO 整理成通用方法
         if (functionId in config) {
@@ -230,15 +239,11 @@ class Template extends Base {
           }
           /* TODO 可能只适用于 client=apple/android */
           if (signFromKEDAYA) {
-            form.uuid = form.uuid || 'c6993893af46e44aa14818543914768cf2509fbf';
-            form.openudid = form.openudid || 'c6993893af46e44aa14818543914768cf2509fbf';
             const result = await encryptH5st.sign({
               url: api.options.uri || api.options.url || options.url,
               appId,
               form: {
                 functionId,
-                client: 'apple',
-                clientVersion: '13.1.0',
                 ...form,
               },
             });

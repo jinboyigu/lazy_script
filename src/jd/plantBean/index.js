@@ -15,7 +15,12 @@ class PlantBean extends Template {
   ];
   static commonParamFn = () => ({
     appid: 'signed_wh5',
-    body: {monitor_source: 'plant_app_plant_index', 'version': '9.2.4.5'},
+    body: {
+      'channel': 'baibaoxiang',
+      'monitor_source': 'plant_m_plant_index',
+      'monitor_refer': '',
+      'version': '9.2.4.5',
+    },
   });
 
   static apiOptions = {
@@ -57,9 +62,6 @@ class PlantBean extends Template {
         collectUserNutr: {appId: '14357'},
       },
       signFromKEDAYA: true,
-      algoOptions: {
-        version: '3.1',
-      },
       beforeEncryptFn: (functionId, form) => {
         if (functionId in monitorReferConfig) {
           form.body = {monitor_refer: monitorReferConfig[functionId], ...form.body};
