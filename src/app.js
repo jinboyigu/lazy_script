@@ -12,7 +12,7 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
   [['*'], require('./jd/plantBean'), 0, true],
   // hour0
   ...[
-    require('./jd/sign/beanHome'),
+    require('./jd/sign/beanSmallBean'),
     // TODO 确认 turnTableFarm 是否正常
     // require('./jd/fruit/turnTableFarm'),
     require('./jd/dwapp/PointsGasStation'),

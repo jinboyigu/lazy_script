@@ -12,22 +12,45 @@ class BeanSmallBean extends Template {
   static scriptName = 'BeanSmallBean';
   static scriptNameDesc = '豆小豆';
   static times = 1;
+  static dirname = __dirname;
+  static shareCodeTaskList = [];
+  static commonParamFn = () => ({
+    appid: 'signed_wh5_ihub',
+  });
+  static keepIndependence = true;
+  static needInApp = false;
 
-  static apiOptions = {
-    options: {
-      qs: {
-        appid: 'ld',
+  static apiOptions() {
+    return {
+      options: {
+        headers: {
+          origin: 'https://pro.m.jd.com',
+          referer: 'https://pro.m.jd.com/mall/active/43mNbs4F53FUMVin65VHVYYKB94f/index.html?stath=47&navh=44&babelChannel=ttt1&tttparams=2ZWJOeIeyJnTGF0IjoiMjIuOTQyOTA2Iiwic2NhbGUiOiIzIiwidW5fYXJlYSI6IjE5XzE2MDFfMzY5NTNfNTA0MDAiLCJkTGF0IjoiIiwid2lkdGgiOiIxMTcwIiwicHJzdGF0ZSI6IjAiLCJhZGRyZXNzSWQiOiI1MTU2MDkwNDExIiwibGF0IjoiMjMuMDc0MTIxIiwicG9zTGF0IjoiMjIuOTQyOTA2IiwicmZzIjoiMDAwMCIsInBvc0xuZyI6IjExMy40NzQ4MDEiLCJncHNfYXJlYSI6IjE5XzE2MDFfNTAyODNfNTAzODYiLCJsbmciOiIxMTMuNDIzNzIwIiwidWVtcHMiOiIwLTAtMCIsImdMbmciOiIxMTMuNDc0ODAxIiwibW9kZWwiOiJpUGhvbmUxMywzIiwiZExuZyI6Ii7J9',
+        },
       },
-    },
-  };
+    };
+  }
+
+  static async beforeRequest(api) {
+    const self = this;
+    self.injectEncryptH5st(api, {
+      config: {
+        beanDoTask: {appId: '8f011'},
+        findBeanSceneNew: {appId: 'ed9a2'},
+      },
+      signFromKEDAYA: true,
+    });
+  }
 
   static async doMain(api) {
     const self = this;
 
-    const getTaskList = () => api.doForm('beanTaskList').then(data => _.property('data.taskInfos')(data) || []);
+    await self.beforeRequest(api);
+    const getTaskList = () => api.doFormBody('beanTaskList', {
+      'beanVersion': 1,
+      'newList': '1',
+    }, {appid: 'ld'}).then(data => _.property('data.taskInfos')(data) || []);
     const getTaskById = taskId => getTaskList().then(taskList => taskList.find(o => o['taskId'] === taskId));
-
-    await findBeanScene();
 
     const taskList = await getTaskList();
     for (let {taskId, status, subTitleName, maxTimes, times, subTaskVOS, waitDuration = 0} of taskList) {
@@ -53,16 +76,9 @@ class BeanSmallBean extends Template {
     }
 
     async function findBeanScene() {
-      // 接口 404
-      return;
-      return api.doFormBody('findBeanScene', {
-        'source': null,
-        'orderId': null,
-        'jklGroupCode': null,
-        'jklShareCode': null,
-        'jklActivityId': null,
-        'rnVersion': '3.9',
-        'rnClient': '1',
+      return api.doFormBody('findBeanSceneNew', {
+        'requestSource': 'normal',
+        'babelChannel': 'ttt1',
       }).then(data => {
         const {curScene} = data.data || {};
         if (!curScene) return;
