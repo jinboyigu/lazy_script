@@ -5,8 +5,11 @@
  *
  */
 
+const _ = require('lodash');
+
 require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? [
   // local dev
+  [['*'], _.noop],
 ] : [
   // 实时执行
   [['*'], require('./jd/plantBean'), 0, true],
