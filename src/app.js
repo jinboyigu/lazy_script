@@ -29,6 +29,7 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
     require('./jd/lhb4b'),
     require('./jd/superBrand/Product'),
     require('./jd/fruit/1Share'),
+    require('./jd/gameFunZone'),
   ].map(target => [[0], target]),
   // run 2
   ...[
