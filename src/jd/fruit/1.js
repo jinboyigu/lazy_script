@@ -100,7 +100,6 @@ class Fruit1 extends Template {
         await handleDoShare();
       }
       await handleRain();
-      await handleWheels();
       await handleDoTask();
     } else if (self.isLastLoop()) {
       await handleReceiveAssit();
@@ -250,53 +249,6 @@ class Fruit1 extends Template {
         }).then(_.property('data')) || {};
         api.log(`助力 ${inviteCode} 结果: ${bizMsg}`);
         if ([0/* 成功 */, 5004/* 没次数 */].includes(bizCode)) break;
-      }
-    }
-
-    // 转盘抽奖
-    async function handleWheels() {
-      const doFormBody = (functionId, body) => api.doFormBody(functionId, _.assign({'linkId': 'VssYBUKJOen7HZXpC8dRFA'}, body), {
-        appid: 'activities_platform',
-        client: 'ios',
-      }, {
-        headers: {
-          origin: 'https://lotterydraw-new.jd.com',
-          'x-referer-page': 'https://lotterydraw-new.jd.com/',
-          referer: 'https://lotterydraw-new.jd.com/?id=VssYBUKJOen7HZXpC8dRFA',
-        },
-      });
-      const taskList = await doFormBody('apTaskList').then(_.property('data')) || [];
-      for (const {taskType, id: taskId, taskSourceUrl, taskFinished, taskDoTimes, taskLimitTimes} of taskList) {
-        if (taskFinished || !taskSourceUrl) continue;
-        for (let i = taskDoTimes; i < taskLimitTimes; i++) {
-          await doFormBody('apsDoTask', {
-            taskType,
-            taskId,
-            'channel': 4,
-            'checkVersion': true,
-            itemId: taskSourceUrl,
-            'cityId': '1601', 'provinceId': '19', 'countyId': '36953',
-          });
-          await sleep(3);
-        }
-      }
-      await handleLottery();
-
-      async function handleLottery() {
-        const lotteryChances = await doFormBody('wheelsHome').then(_.property('data.lotteryChances')) || 0;
-        if (lotteryChances <= 0) return;
-        const stop = await doFormBody('wheelsLottery').then(data => {
-          if (data.success) {
-            api.log(`转盘抽奖获得: ${data.data.prizeCode}`);
-          } else if (data.errMsg) {
-            api.log(`转盘抽奖失败: ${data.errMsg}`);
-          } else {
-            return true;
-          }
-        });
-        if (stop) return;
-        await sleep(10);
-        return handleLottery();
       }
     }
 
