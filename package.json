@@ -50,6 +50,7 @@
     "shell:updateEnvFromMail": "node ./run.js src/shell/updateEnvFromMail.js",
     "shell:updateNewEnv": "node ./run.js src/shell/updateNewEnvByCharles/index.js",
     "log": "node ./run.js src/shell/outputLog.js",
+    "gl": "git fetch && git reset --keep origin/master",
     "test": "mocha --recursive"
   },
   "repository": {
