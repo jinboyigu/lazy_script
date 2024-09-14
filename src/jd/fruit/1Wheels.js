@@ -46,7 +46,10 @@ class Fruit1Wheels extends Template {
         }
       }
 
-      const lotteryChances = await doFormBody('wheelsHome').then(_.property('data.lotteryChances')) || 0;
+      const lotteryChances = await doFormBody('wheelsHome').then(data => {
+        console.log(data);
+        return _.property(data, 'data.lotteryChances');
+      }) || 0;
       for (let i = 0; i < lotteryChances; i++) {
         const stop = await doFormBody('wheelsLottery').then(data => {
           if (data.success) {
