@@ -239,15 +239,16 @@ class Fruit1 extends Template {
     async function handleDoShare() {
       let inviteCodes = self.getShareCodeFn();
       if (_.isEmpty(inviteCodes)) {
-        inviteCodes = self.shareCodeTaskList;
+        inviteCodes = [...self.shareCodeTaskList];
       }
       for (const inviteCode of inviteCodes.reverse()) {
-        const {bizCode, bizMsg} = await doFormBody('farm_assist', {
+        const data = await doFormBody('farm_assist', {
           inviteCode,
           'shareChannel': 'ttt19',
           'assistChannel': '',
         }).then(_.property('data')) || {};
-        api.log(`助力 ${inviteCode} 结果: ${bizMsg}`);
+        const {bizCode, bizMsg} = data.data || {};
+        api.log(`助力 ${inviteCode} 结果: ${JSON.stringify(data)}`);
         if ([0/* 成功 */, 5004/* 没次数 */].includes(bizCode)) break;
       }
     }
