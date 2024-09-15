@@ -283,7 +283,7 @@ class Base {
     const cWskey = 'wskey';
     const currentPin = api.cookieInstance.get(cPtPin);
     const cookieOption = findCurrentCookieOption(getEnv('JD_COOKIE_OPTION'));
-    if (!cookieOption.cookies) {
+    if (!cookieOption) {
       return;
     }
     const originCookie = new Cookie(cookieOption.cookies);
