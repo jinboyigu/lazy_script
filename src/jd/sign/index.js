@@ -6,7 +6,9 @@ const {getMoment} = require('../../lib/moment');
 class Sign extends Template {
   static scriptName = 'Sign';
   static scriptNameDesc = '签到集合';
+  static commonParamFn = () => ({});
   static times = 1;
+  static needInApp = false;
 
   static isSuccess(data) {
     return this._.property('code')(data) === '0';
@@ -15,6 +17,15 @@ class Sign extends Template {
   static async doMain(api) {
     const self = this;
     const t = getMoment().valueOf();
+
+    self.injectEncryptH5st(api, {
+      replaceMethods: ['doUrl'],
+      config: {
+        signBeanAct: {appId: '9d49c'},
+      },
+      signFromKEDAYA: true,
+      updateForm: false,
+    });
 
     async function doTask({name, url, options, isSuccessFn, rewardOutputFn}) {
       await api.doUrl(url, options).then(data => {
@@ -34,16 +45,11 @@ class Sign extends Template {
       options: {
         form: {
           'functionId': 'signBeanAct',
-          'body': '{}',
+          'body': {},
           'appid': 'signed_wh5_ihub',
-          'client': 'apple',
-          'clientVersion': '13.0.2',
-          h5st: '20240528100518226;5iy5yi6zngmi9yy4;9d49c;tk03w8a731b9741lMisyKzMrMjR382m8OHl6CME_42gdIK27Ztj59og7qFiXW6ANYumVHShrpZ3_ZS0YdGWqK3iY4Ppz;a791835d42061f132ff014304320d32c1e961322573832c7224985fdbbdb4a80;4.7;1716861918226;TKmWymVS34wMWdBCuoFxiVU9ZqmOQttKGrKnVObP83GJZYMza1mupKRvk-ZU6Nj4VdHOVgWbZu9qpwinIhHDWj703eS-Lz7cpZSUJmuAoevLoTGJlVk6nrDCJdsEqPdA9VL9QQJR-PzYFJipNAfyfKvauarIRTW7fGPA3pkTLjrAv_LsOFwkARWPBstGvW-pydLMlupoMyLwh15Je73wD50dMGxrcZXqP7KOLYCx4Hx-qv2YVtqPIE7qCyGHs292qExyfL-Qs_zDVBv1VTC1WM4xDMmWUHeHJUS_WWDFGYnOuVooASH9TGgekE09b_Aj42dBNZkEFasDO7ahC5QYbLg43mTNIeOt1gtErtxLkus9fR6JaZOlgE5dzuZ_tAfhzDpmY2LQb1zwv8oA91VEmsQRYtqe3KzB7K89QdjAvxWa1hwGxzRNDtBwYXJoTMRJ0YDA',
-          // jsonp: 'jsonp_1671169374621_49843',
         },
         'headers': {
-          'User-Agent': 'jdapp',
-          'Referer': 'https://pro.m.jd.com',
+          'referer': 'https://pro.m.jd.com',
         },
       },
       isSuccessFn: data => _.get(data, 'code') === '0',
@@ -260,7 +266,7 @@ class Sign extends Template {
       taskOptions.push(cashSign[0]);
     }
 
-    for (const options of [taskOptions[0]]) {
+    for (const options of taskOptions) {
       const {times = 1} = options;
       for (let i = 0; i < times; i++) {
         await doTask(options);

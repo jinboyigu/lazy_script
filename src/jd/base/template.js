@@ -177,6 +177,7 @@ class Template extends Base {
     signFromSecurity = false,
     signFromKEDAYA = false,
     algoOptions = {},
+    updateForm = true,
   }) {
     const origin = _.get(api, 'options.headers.origin');
     let algo;
@@ -198,6 +199,11 @@ class Template extends Base {
           options.qs = options.qs || {};
           _.merge(options.qs, body);
           body = void 0;
+        } else if (method === 'doUrl') {
+          options = body || options;
+          options.url = functionId;
+          functionId = _.get(options, 'form.functionId');
+          body = void 0;
         } else if (method === 'doGetBody') {
           options = signData || options;
         } else {
@@ -213,11 +219,12 @@ class Template extends Base {
             client: 'apple',
             clientVersion: '13.1.0',
             ...form,
-          }
+          };
         }
         beforeEncryptFn && (form = beforeEncryptFn(functionId, form));
         // TODO 整理成通用方法
-        if (functionId in config) {
+        const needEncrypt = functionId && functionId in config;
+        if (needEncrypt) {
           let {encryptH5st, appId, fingerprint, algoData, platform, disableAutoUpdate, version} = config[functionId];
           !encryptH5st && (config[functionId]['encryptH5st'] = encryptH5st = signFromKEDAYA ? algo : signFromSecurity ? genParamsSign({
             userAgent: api.options.headers['user-agent'],
@@ -248,7 +255,7 @@ class Template extends Base {
               },
             });
             form = _.merge(form, result.form);
-            _.assign(options, {
+            _.merge(options, {
               headers: {
                 'user-agent': result.headers['user-agent'],
               },
@@ -265,7 +272,7 @@ class Template extends Base {
           _.merge(form, notSignForm);
         } else {
           if (signFromKEDAYA) {
-            _.assign(options, {
+            _.merge(options, {
               headers: {
                 'user-agent': algo.userAgent().app,
               },
@@ -273,10 +280,16 @@ class Template extends Base {
           }
         }
         await afterEncryptFn(form);
-        if (['doGetBody', 'doGet'].includes(method)) {
-          return [functionId, void 0, _.merge(options, {qs: form})];
+        const toQs = ['doGetBody', 'doGet'].includes(method);
+        if (needEncrypt || updateForm) {
+          _.merge(options, toQs ? {qs: form} : {form});
         }
-        return [functionId, void 0, void 0, _.merge(options, {form})];
+        if (toQs) {
+          return [functionId, void 0, options];
+        } else if (method === 'doUrl') {
+          return [options.url, options];
+        }
+        return [functionId, void 0, void 0, options];
       });
     });
   }
