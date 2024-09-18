@@ -132,8 +132,11 @@ class WanYiWan extends Template {
             }
           }
           if (status === 2) {
-            await handleReceive();
-            await sleep(2);
+            for (let i = 0; i < finishTimes; i++) {
+              const stop = await handleReceive();
+              if (stop) break;
+              await sleep(2);
+            }
           }
         }
 
@@ -161,9 +164,11 @@ class WanYiWan extends Template {
         }
 
         async function handleReceive() {
-          await api.doFormBody('wanyiwan_task_receive_award', {taskType, assignmentId}).then(data => {
+          return api.doFormBody('wanyiwan_task_receive_award', {taskType, assignmentId}).then(data => {
             if (self.isSuccess(data)) {
               api.log(`获得奖券: ${_.get(data, 'data.result.rewardCount')}`);
+            } else {
+              return true;
             }
           });
         }
