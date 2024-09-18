@@ -2,7 +2,7 @@ const rp = require('request-promise');
 const _ = require('lodash');
 const Cookie = require('../lib/cookie');
 const {uploadProductEnvToAction} = require('../lib/env');
-const {printLog, sleep, objectValuesStringify} = require('../lib/common');
+const {printLog, sleep, objectValuesStringify, addMosaic} = require('../lib/common');
 const {getMoment} = require('../lib/moment');
 const {processInAC} = require('../lib/env');
 
@@ -18,7 +18,7 @@ const beforeProcessExit = async () => {
   await uploadProductEnvToAction(true);
 };
 
-const _request = (cookie, {form, body, qs, headers = {}, ...others}) => {
+const _request = (cookie, {form, body, qs, headers = {}, ...others}, currentCookieTimes) => {
   const options = {form, body, qs, ...others};
 
   [form, qs].forEach(objectValuesStringify);
@@ -56,6 +56,8 @@ const _request = (cookie, {form, body, qs, headers = {}, ...others}) => {
 
   const _printLog = (result, type) => {
     printLog('jdAPI', 'request', {
+      currentCookieTimes,
+      pin: cookie ? addMosaic(new Cookie(cookie).get('pt_pin')) : '',
       url: rpOptions.uri || rpOptions.url,
       result, ..._.pick(rpOptions, ['qs', 'form']),
     }, type, processInAC ? void 0 : 300);
@@ -133,12 +135,12 @@ class Api {
 
     let data;
     for (let i = 0; i < repeatTimes; i++) {
-      data = await _request(this.cookie, options);
+      data = await _request(this.cookie, options, this.currentCookieTimes);
       if (!ignoreNotLogin && this.notLogin(data) && i === 0) {
         await require('./base').changeCK(this, true);
         process.off('beforeExit', beforeProcessExit).on('beforeExit', beforeProcessExit);
         // 重新请求一次
-        data = await _request(this.cookie, options);
+        data = await _request(this.cookie, options, this.currentCookieTimes);
       }
       if (repeatFn(data)) {
         await sleep(2);
