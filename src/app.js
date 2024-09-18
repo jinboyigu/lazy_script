@@ -17,7 +17,7 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
   ...[
     require('./jd/sign/beanSmallBean'),
     // TODO 确认 turnTableFarm 是否正常
-    // require('./jd/fruit/turnTableFarm'),
+    require('./jd/fruit/turnTableFarm'),
     require('./jd/dwapp/PointsGasStation'),
     require('./jd/superLeague'),
     require('./jd/newtry'),
@@ -46,7 +46,7 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
 
   // custom
   [[5], require('./jd/applet/morningHbReward')],
-  // [[6], require('./jd/fruit/turnTableFarm'), 0, true],
+  [[6], require('./jd/fruit/turnTableFarm'), 0, true],
   [[0, 7, 12, 18, 22, 23], require('./jd/fruit')],
   [[5, 10, 19, 20], require('./jd/fruit/1')],
   [[0, 12, 18, 22, 23], require('./jd/plantBean')],

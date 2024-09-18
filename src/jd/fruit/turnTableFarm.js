@@ -11,7 +11,7 @@ class TurntableFarm extends Template {
   static scriptName = 'TurntableFarm';
   static scriptNameDesc = '东东农场-天天红包';
   static shareCodeTaskList = [];
-  static commonParamFn = () => ({'version': 22, 'channel': 1});
+  static commonParamFn = () => ({'version': 24, 'channel': 1});
 
   static apiOptions = {
     signData: {appid: 'wh5'},
@@ -20,6 +20,21 @@ class TurntableFarm extends Template {
 
   static isSuccess(data) {
     return _.property('code')(data) === '0';
+  }
+
+  static async beforeRequest(api) {
+    // 从 https://storage.360buyimg.com/babel/00600381/1456188/production/dev/app.dee901ec.js 中获取
+    const originConfig = {
+      'initForFarm': '8a2af',
+    };
+    const config = {};
+    Object.entries(originConfig).forEach(([key, appId]) => {
+      config[key] = {appId};
+    });
+    this.injectEncryptH5st(api, {
+      config,
+      signFromKEDAYA: true,
+    });
   }
 
   static apiNamesFn() {
@@ -60,8 +75,19 @@ class TurntableFarm extends Template {
             result.push({list, option: {maxTimes, times, waitDuration}});
           }
 
+          const initForFarm = (body = {}) => api.doFormBody('initForFarm', {'version': 26, 'channel': 1, 'babelChannel': '522', ...body}, {
+            appid: 'signed_wh5',
+            client: 'apple',
+            clientVersion: '12.3.1',
+            body: {'version': 26, 'channel': 1, 'babelChannel': '522'},
+          }, {
+            headers: {
+              referer: 'https://carry.m.jd.com/babelDiy/Zeus/3KSjXqQabiTuD1cJ28QskrpWoBKT/index.html',
+            },
+          });
+
           const {shareCodeAddOn} = data;
-          const farmShareCode = getEnv('JD_FRUIT_SELF_SHARE_CODE', api.getPin())/* || await api.doFormBody('initForFarm').then(_.property('farmUserPro.shareCode'));*/
+          const farmShareCode = getEnv('JD_FRUIT_SELF_SHARE_CODE', api.getPin()) || await initForFarm().then(_.property('farmUserPro.shareCode'));
           if (!farmShareCode) {
             return result;
           }
@@ -74,7 +100,7 @@ class TurntableFarm extends Template {
             list,
             option: {
               firstFn: (shareCode) => {
-                // api.doFormBody('initForFarm', {shareCode});
+                return initForFarm({shareCode});
               },
             },
           });
