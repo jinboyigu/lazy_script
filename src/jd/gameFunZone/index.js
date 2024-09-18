@@ -50,7 +50,7 @@ class GameFunZone extends Template {
     const {signList} = await api.doFormBody('dj_interact_games_lobby', {
       'refreshType': 1,
       'source': '1',
-    }).then(_.property('task'));
+    }).then(_.property('task')) || {};
     if (!signList) return api.log('无签到任务');
     for (const {taskEncryptionCode, isTodaySign} of signList) {
       if (isTodaySign !== 1) continue;
