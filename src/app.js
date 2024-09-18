@@ -37,6 +37,7 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
     require('./jd/statistics/bean'),
     require('./jd/sign'),
     require('./jd/purchaseCard'),
+    require('./jd/chatReward'),
   ].map(target => [[0, 22], target]),
   // run 3
   ...[
