@@ -247,8 +247,8 @@ class Fruit1 extends Template {
           'shareChannel': 'ttt19',
           'assistChannel': '',
         }).then(_.property('data')) || {};
-        const {bizCode, bizMsg} = data.data || {};
-        api.log(`助力 ${inviteCode} 结果: ${JSON.stringify(data)}`);
+        const {bizCode, bizMsg} = data || {};
+        api.log(`助力 ${inviteCode} 结果: ${bizCode === 0 ? '成功' : bizMsg}`);
         if ([0/* 成功 */, 5004/* 没次数 */].includes(bizCode)) break;
       }
     }
@@ -283,8 +283,23 @@ class Fruit1 extends Template {
     }
 
     async function log() {
-      const {treeFullStage, treeLevel, skuName} = await doFormBody('farm_home').then(_.property('data.result'));
-      api.log(`当前种植进度: ${treeFullStage / 5 * 100}%, 剩余水滴: ${bottleWater}, 名称: ${skuName}, 等级: ${treeLevel}`);
+      const {
+        treeFullStage,
+        treeLevel,
+        skuName,
+        waterTips,
+      } = await doFormBody('farm_home').then(_.property('data.result'));
+      let msg = `当前进度: ${waterTips}(${treeFullStage}), 剩余水滴: ${bottleWater}, 名称: ${skuName}, 等级: ${treeLevel}`;
+      const levelWaters = [
+        0,
+        0,
+        12500,
+        20000,
+      ];
+      if (treeFullStage === 4) {
+        msg += `, 还差水滴: ${levelWaters[treeLevel] - bottleWater}`;
+      }
+      api.log(msg);
     }
   }
 }
