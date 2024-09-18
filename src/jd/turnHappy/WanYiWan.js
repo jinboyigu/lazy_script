@@ -11,7 +11,7 @@ class WanYiWan extends Template {
   static dirname = __dirname;
   static shareCodeTaskList = [];
   static commonParamFn = () => ({
-    body: {'version': 3},
+    body: {'version': 7},
     appid: 'signed_wh5',
   });
   static keepIndependence = true;
@@ -44,9 +44,12 @@ class WanYiWan extends Template {
     self.injectEncryptH5st(api, {
       config: {
         wanyiwan_home: {appId: 'c81ad'},
+        wanyiwan_home_ext_info: {appId: 'd96dc'},
         wanyiwan_sign: {appId: 'd12dd'},
         wanyiwan_do_task: {appId: '89db2'},
         wanyiwan_assist: {appId: 'ba505'},
+        wanyiwan_exchange_page: {appId: 'ba505'},
+        wanyiwan_exchange: {appId: '399a0'},
       },
       signFromKEDAYA: true,
     });
@@ -56,17 +59,23 @@ class WanYiWan extends Template {
     const self = this;
 
     await self.beforeRequest(api);
-    const exchange = _.get(self._command, 0);
+    const exchangeValue = _.get(self._command, 0);
+    const exchangeType = _.get(self._command, 1);
 
-    if (exchange) {
-      await handleExchange(exchange);
+    if (exchangeValue) {
+      await handleExchange(exchangeValue, exchangeType);
     } else {
       await handleDoTask();
-      await handleExchange();
     }
+    const userScore = await api.doFormBody('wanyiwan_home', {
+      'outsite': 0,
+      'firstCall': 0,
+      'babelChannel': 'ttt4',
+    }).then(_.property('data.result.score'));
+    api.log(`当前奖票: ${userScore}`);
 
     async function handleDoTask() {
-      const {signBoard, taskBoard} = await api.doFormBody('wanyiwan_home', {
+      const {signBoard, taskBoard} = await api.doFormBody('wanyiwan_home_ext_info', {
         'outsite': 0,
         'firstCall': 0,
         'lbsSwitch': false,
@@ -161,20 +170,39 @@ class WanYiWan extends Template {
       }
     }
 
-    async function handleExchange(rewardType = 3/* 京豆 */) {
+    // rewardType 1 红包
+    // rewardType 2 优惠券
+    // rewardType 3 京豆
+    // rewardType 4 现金
+    async function handleExchange(targetValue = 0, rewardType = 1) {
+      if (!targetValue) return api.logBoth(`请指定兑换金额`);
       const {
         hotExchanges,
         moreExchanges,
-      } = await api.doFormBody('wanyiwan_exchange_page', {version: 4}).then(_.property('data.result'));
+        score,
+      } = await api.doFormBody('wanyiwan_exchange_page', {showShortcut: true}).then(_.property('data.result'));
       const allExchanges = hotExchanges.concat(moreExchanges);
-      const enableExchanges = allExchanges.filter(o => o.hasStock && o.exchangeStatus === 1 && o.rewardType === rewardType);
+      const enableExchanges = allExchanges.filter(o => o.hasStock && o.exchangeStatus === 1 && o.rewardType === rewardType && o.exchangeScore <= score);
       if (!enableExchanges.length) {
         return api.logBoth(`未找到可兑换的`);
       }
-      for (const {rewardType: type, assignmentId} of enableExchanges) {
+      for (const {
+        rewardType: type,
+        assignmentId,
+        exchangeScore: actualExchangeScore,
+        hbValue,
+        discount,
+        beanPrize,
+        withdrawValue
+      } of enableExchanges) {
+        const value = +(hbValue || discount || beanPrize || withdrawValue);
+        if (targetValue && value !== targetValue) {
+          continue;
+        }
         await api.doFormBody('wanyiwan_exchange', {
           assignmentId,
           type,
+          actualExchangeScore,
         }).then(data => {
           if (self.isSuccess(data)) {
             api.logBoth(`兑换成功: ${_.get(data, 'data.result.rewardName')}`);
