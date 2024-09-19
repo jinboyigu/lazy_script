@@ -62,20 +62,23 @@ class WanYiWan extends Template {
     const exchangeValue = _.get(self._command, 0);
     const exchangeType = _.get(self._command, 1);
 
+    const home = () => api.doFormBody('wanyiwan_home', {
+      'outsite': 0,
+      'firstCall': 0,
+      'babelChannel': 'ttt4',
+    }).then(_.property('data.result')) || {};
+
     if (exchangeValue) {
       await handleExchange(exchangeValue, exchangeType);
     } else {
       await handleDoTask();
     }
-    const userScore = await api.doFormBody('wanyiwan_home', {
-      'outsite': 0,
-      'firstCall': 0,
-      'babelChannel': 'ttt4',
-    }).then(_.property('data.result.score'));
+    const {userScore} = await home();
     api.log(`当前奖票: ${userScore}`);
 
     async function handleDoTask() {
-      const {signBoard, taskBoard} = await api.doFormBody('wanyiwan_home_ext_info', {
+      const {signBoard} = await home();
+      const {taskBoard} = await api.doFormBody('wanyiwan_home_ext_info', {
         'outsite': 0,
         'firstCall': 0,
         'lbsSwitch': false,
