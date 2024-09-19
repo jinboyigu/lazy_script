@@ -27,7 +27,7 @@ function patch() {
 
 module.exports = function Algo(algoOptions) {
   patch();
-  const jdAlgo = require('./util/jdAlgo');
+  const jdAlgo = require('./util/jdAlgo-decrypted');
   const {version = '4.7', type = 'main'} = algoOptions || {};
   const algo = new jdAlgo({version, type});
   return {
