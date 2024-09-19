@@ -312,6 +312,7 @@ function downloadFile(urls, dirname) {
  * @description 敏感信息部分打码
  */
 function addMosaic(str, options) {
+  if (!str) return '';
   const {prefix = 1, suffix = 1, mosaicL = 3, mosaic = '*'} = options || {};
   return str.substring(0, prefix) + Array(mosaicL).fill(mosaic).join('') + str.substring(str.length - suffix);
 }
