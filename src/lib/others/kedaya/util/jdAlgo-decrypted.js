@@ -695,8 +695,9 @@ class jdAlgo {
       process['communal']['rand'](0, _0x3f0005) != _0x3f0005 && (_0x70598['CKHDI'] !== _0x70598['CKHDI'] ? _0x31e17f = 1 : _0x3d5f5e = 1);
     }
     _0x404e20['process'] && (process['communal']['algo'] = this);
+    const appId = this['appId'];
     let _0xd0cf00 = {}
-      , _0x6fd793 = this['_dict'][this['appId']]['version']
+      , _0x6fd793 = this['_dict'][appId]['version']
       , _0x28ba09 = this['_idAry'][_0x6fd793] || {};
     if (_0x28ba09['tk'] && _0x404e20['cookie'] && _0x404e20['cookie']['match'](/pin=([^;]+)/)) {
       _0x26e519 = 1;
@@ -726,18 +727,18 @@ class jdAlgo {
       } else
         var _0x1e4843 = 'os';
       let _0x1717e5 = this['_userFp'][_0x1e4843] || {}
-        , _0x530410 = this['appId'] + '_' + _0x6fd793
+        , _0x530410 = appId + '_' + _0x6fd793
         , _0x18caff = _0x1717e5[_0x530410] || this['_fingerPrint'](_0x6fd793);
       _0x1717e5[_0x530410] = _0x18caff;
       let _0x508960 = this['_mC'](_0x18caff, _0x6fd793);
-      this['_dict'][this['appId']]['tk'] = _0x508960,
-        this['_dict'][this['appId']]['fp'] = _0x18caff,
-        _0xd0cf00 = this['_dict'][this['appId']],
+      this['_dict'][appId]['tk'] = _0x508960,
+        this['_dict'][appId]['fp'] = _0x18caff,
+        _0xd0cf00 = this['_dict'][appId],
         this['_userFp'][_0x1e4843] = _0x1717e5;
     } else {
-      if (!this['_dict'][this['appId']]['tk']) {
-        if (!this['_dict'][this['appId']]['lock']) {
-          this['_dict'][this['appId']]['lock'] = 1;
+      if (!this['_dict'][appId]['tk']) {
+        if (!this['_dict'][appId]['lock']) {
+          this['_dict'][appId]['lock'] = 1;
           let _0x14843b = {
             'wc': 0,
             'wd': 0,
@@ -761,17 +762,17 @@ class jdAlgo {
             'random': _0x70598['VlFNf'],
             'referer': '',
             'v': _0x70598['bcUST'],
-            'ai': this['appId'],
-            'fp': this['_dict'][this['appId']]['fp'],
+            'ai': appId,
+            'fp': this['_dict'][appId]['fp'],
           };
-          this['_dict'][this['appId']]['expandParams'] = this['_aes2'](JSON['stringify'](_0x14843b, null, 2), _0x28ba09['exKey'] || _0x70598['FbhiH'], _0x6fd793),
-            await this['_algo'](this['appId']),
-            _0xd0cf00 = this['_dict'][this['appId']];
+          this['_dict'][appId]['expandParams'] = this['_aes2'](JSON['stringify'](_0x14843b, null, 2), _0x28ba09['exKey'] || _0x70598['FbhiH'], _0x6fd793),
+            await this['_algo'](appId),
+            _0xd0cf00 = this['_dict'][appId];
         } else
           for (let _0x422992 of _0x70598['Upvxw'](Array, 20)) {
-            if (this['_dict'][this['appId']]['tk']) {
+            if (this['_dict'][appId]['tk']) {
               if ('cHHJc' === _0x70598['HxlaJ']) {
-                _0xd0cf00 = this['_dict'][this['appId']];
+                _0xd0cf00 = this['_dict'][appId];
                 break;
               } else {
                 var _0x2d1294 = 1
@@ -795,12 +796,12 @@ class jdAlgo {
               await process['communal']['wait'](300);
           }
       } else
-        _0xd0cf00 = this['_dict'][this['appId']];
+        _0xd0cf00 = this['_dict'][appId];
     }
     let _0xc5cc70 = this['_idAry'][_0xd0cf00['version']] || {};
     var _0x4dec91 = _0xc5cc70['crypto'];
     let _0x2ce92a = _0xc5cc70['pad'] || '';
-    _0x26e519 ? _0xd0cf00['encrypt'] = this['__genDefaultKey'](_0xd0cf00['tk'], _0xd0cf00['fp'], _0x70598['gTfud'](this['ts'], _0x2ce92a), this['appId'], _0xd0cf00['version']) : _0x70598['tBVle'] === _0x70598['tBVle'] ? _0xd0cf00['encrypt'] = await _0xd0cf00['func'](_0xd0cf00['tk'], _0xd0cf00['fp'], _0x70598['Pesjx'](this['ts'], _0x2ce92a), this['appId'], _0x4dec91)['toString'](_0x4dec91['enc']['Hex']) : _0x483909 += '0' + _0xe05771;
+    _0x26e519 ? _0xd0cf00['encrypt'] = this['__genDefaultKey'](_0xd0cf00['tk'], _0xd0cf00['fp'], _0x70598['gTfud'](this['ts'], _0x2ce92a), appId, _0xd0cf00['version']) : _0x70598['tBVle'] === _0x70598['tBVle'] ? _0xd0cf00['encrypt'] = await _0xd0cf00['func'](_0xd0cf00['tk'], _0xd0cf00['fp'], _0x70598['Pesjx'](this['ts'], _0x2ce92a), appId, _0x4dec91)['toString'](_0x4dec91['enc']['Hex']) : _0x483909 += '0' + _0xe05771;
     let _0x483ca5, _0x36391e, _0x552e7b = _0x404e20['context'] || {};
     if (_0x287569['_stk'])
       _0x36391e = {
@@ -1108,12 +1109,12 @@ class jdAlgo {
         for (let _0x3ec274 in _0x5cedba) {
           this[_0x3ec274] = _0x3bc822[_0x3ec274];
         }
-        !this['_dict'][this['appId']] && (this['_dict'][this['appId']] = {
+        !this['_dict'][appId] && (this['_dict'][appId] = {
           'fp': this['_fingerPrint'](this['version']),
           'version': this['version'],
           'type': this['type'] || '',
           'lock': 0,
-          'appId': this['appId'],
+          'appId': appId,
         });
       } else
         _0x36391e = {
