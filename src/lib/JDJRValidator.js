@@ -238,10 +238,10 @@ class JDJRValidator {
 
     if (result.message === 'success') {
       // console.log(result);
-      console.log('JDJR验证用时: %fs', (getMoment().valueOf() - this.t) / 1000);
+      console.log('JDJR验证用时: %fs', (getMoment().valueOf() - this.t) / 1000, '失败次数:', this.validateTimes);
       return result;
     } else {
-      console.count('验证失败');
+      // console.count('验证失败');
       this.validateTimes++;
       if (this.validateTimes > this.maxValidateTimes) throw new Error('超出验证次数');
       // console.count(JSON.stringify(result));
