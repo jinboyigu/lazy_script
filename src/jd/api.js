@@ -142,7 +142,7 @@ class Api {
         // 重新请求一次
         data = await _request(this.cookie, options, this.currentCookieTimes);
       }
-      if (repeatFn(data)) {
+      if (await repeatFn(data)) {
         await sleep(2);
       } else {
         break;

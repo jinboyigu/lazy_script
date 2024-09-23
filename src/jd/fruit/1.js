@@ -28,7 +28,12 @@ class Fruit1 extends Template {
   static apiOptions() {
     return {
       options: {
-        errorTryMaxTimes: 0,
+        repeatFn: async data => {
+          if (+data.code === 405) {
+            await sleep(5);
+            return true;
+          }
+        },
         headers: {
           'x-referer-page': 'https://h5.m.jd.com/pb/015686010/Bc9WX7MpCW7nW9QjZ5N3fFeJXMH/index.html',
           referer: 'https://h5.m.jd.com/',
