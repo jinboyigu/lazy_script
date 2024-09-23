@@ -87,10 +87,18 @@ class AppletMini extends Template {
     if (self.isFirstLoop() && isShareIndex) {
       await sleep(10);
     }
-    const {signInfo, scanTaskList, assistTask, hasLogin} = await doPathBody('miniTask_hbChannelPage', {
+    const {signInfo, scanTaskList, assistTask, hasLogin, stop} = await doPathBody('miniTask_hbChannelPage', {
       'source': 'task',
       'businessSource': 'cjs',
-    }).then(_.property('data'));
+    }).then(data => {
+      if (self.isSuccess(data)) {
+        return data.data;
+      } else {
+        api.log(data.message);
+        return {stop: true};
+      }
+    });
+    if (stop) return;
     if (!hasLogin) {
       throw api.logBoth('未登录');
     }
