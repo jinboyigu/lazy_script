@@ -25,10 +25,15 @@ class PlantBean extends Template {
 
   static apiOptions = {
     options: {
+      repeatFn: async data => {
+        if (data.code === '413') {
+          await sleep(5);
+          return true;
+        }
+      },
       headers: {
         referer: 'https://plantearth.m.jd.com/',
       },
-      needDelay: 3,
     },
   };
 
@@ -255,6 +260,6 @@ function getCurrentRound(data) {
   return roundList.find(o => o['roundState'] === '2') || {};
 }
 
-singleRun(PlantBean).then();
+singleRun(PlantBean, ['start', 'cron']).then();
 
 module.exports = PlantBean;
