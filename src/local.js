@@ -10,7 +10,7 @@ require('./appBase')([
   [[0, 4, 8, 9, 12, 20, 22], require('./jd/joy')],
   [[1, 7, 18], require('./jd/dwapp/PointsGasStation')],
   [[7, 15, 21], require('./jd/plantBean')],
-  [[23], require('./jd/turnHappy/WanYiWan')],
+  [[10, 12, 23], require('./jd/turnHappy/WanYiWan')],
   [[0, 10, 20], require('./jd/lite/JoyPark')],
   // 定时任务
   [[19], require('./jd/superRedBagDraw'), 25],
