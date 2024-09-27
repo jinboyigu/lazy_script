@@ -37,7 +37,6 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
     require('./jd/statistics/bean'),
     require('./jd/sign'),
     require('./jd/purchaseCard'),
-    require('./jd/chatReward'),
   ].map(target => [[0, 22], target]),
   // run 3
   ...[
@@ -48,6 +47,7 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
   [[5], require('./jd/applet/morningHbReward')],
   [[6], require('./jd/fruit/turnTableFarm'), 0, true],
   [[0, 7, 12, 18, 22, 23], require('./jd/fruit')],
+  [[0, 16, 22, 23], require('./jd/chatReward')],
   [[7, 12, 18, 20], require('./jd/fruit/1')],
   [[0, 12, 18, 22, 23], require('./jd/plantBean')],
   [[0, 7, 22, 23], require('./jd/lite/HappyDig')],
