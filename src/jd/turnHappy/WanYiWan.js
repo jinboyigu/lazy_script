@@ -66,6 +66,7 @@ class WanYiWan extends Template {
     await self.beforeRequest(api);
     const exchangeValue = _.get(self._command, 0);
     const exchangeType = _.get(self._command, 1);
+    let userScore = 0;
 
     const home = () => api.doFormBody('wanyiwan_home', {
       'outsite': 0,
@@ -78,11 +79,11 @@ class WanYiWan extends Template {
     } else {
       await handleDoTask();
     }
-    const {userScore} = await home();
     api.log(`当前奖票: ${userScore}`);
 
     async function handleDoTask() {
-      const {signBoard} = await home();
+      const {score, signBoard} = await home();
+      userScore = score;
       const {taskBoard} = await api.doFormBody('wanyiwan_home_ext_info', {
         'outsite': 0,
         'firstCall': 0,
