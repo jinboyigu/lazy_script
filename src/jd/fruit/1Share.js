@@ -47,8 +47,10 @@ class Fruit1Share extends Template {
     const self = this;
 
     self.injectEncryptH5st(api, {
-      config: {},
-      signFromSecurity: true,
+      config: {
+        miniTask_ddFarmJump: {appId: '519fd'},
+      },
+      signFromKEDAYA: true,
     });
   }
 
@@ -60,7 +62,7 @@ class Fruit1Share extends Template {
 
     for (const inviteCode of self.getShareCodeFn()) {
       const {subCode, message} = await api.doFormBody('miniTask_ddFarmJump', {
-        'taskId': '6297',
+        'taskId': '6495',
         inviteCode,
         'taskType': 'WECHAT_SHARE',
       }) || {};
