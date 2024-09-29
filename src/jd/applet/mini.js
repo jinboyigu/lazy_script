@@ -22,7 +22,7 @@ class AppletMini extends Template {
     osVersion: 'iOS 17.5',
     clientType: 'wxapp',
     client: 'apple',
-    clientVersion: '9.19.240',
+    clientVersion: '9.21.200',
     appid: 'hot_channel',
     loginWQBiz: 'signcomponent',
     loginType: 11,
@@ -63,6 +63,8 @@ class AppletMini extends Template {
         mini_doSign: {appId: '60d61'},
         MiniTask_ScanTask: {appId: '60d61'},
         MiniTask_ScanReward: {appId: '60d61'},
+        MiniTask_ChannelPage: {appId: '60d61'},
+        miniTask_superSaveGetRights: {appId: '87bb2'},
       },
       signFromSecurity: true,
     });
@@ -127,6 +129,7 @@ class AppletMini extends Template {
       await handleDoSign();
       await handleDoShare();
     } else {
+      await handleSignGetCoupons();
       await handleDoTask();
     }
 
@@ -188,6 +191,34 @@ class AppletMini extends Template {
           await sleep(2);
         }
       }
+    }
+
+    // 每天领神券
+    async function handleSignGetCoupons() {
+      if (!self.isFirstLoop()) return;
+      await doPathBody('MiniTask_ChannelPage', {
+        'source': 'task',
+        'silverHairInfo': {'oldVersion': '0', 'crowdIdentificationSigns': '0', 'openType': '0'},
+        'expose': false,
+        'xyhfAuth': 2,
+        'businessSource': 'qiwei',
+        'versionFlag': 'new',
+      }).then(async data => {
+        const floors = _.get(data, 'data.newChannelPage.floors', []);
+        const target = floors.find(o => o.type === 6 && o.signList);
+        if (!target) return;
+        for (const {currentDay, rewardStatus} of target.signList) {
+          if (!currentDay || rewardStatus) continue;
+          await doPathBody('miniTask_superSaveGetRights', {itemId: '1'}).then(data => {
+            if (self.isSuccess(data)) {
+              const rewards = _.get(data, 'data.rights', []).map(o => `${o.category}(${o.quota}-${o.discount})`).join(', ');
+              api.log(`[${target.floorTitle}] 签到成功, 获得 ${rewards}`);
+            } else {
+              api.log(`[${target.floorTitle}] 签到失败, ${JSON.stringify(data)}`);
+            }
+          });
+        }
+      });
     }
   }
 }
