@@ -68,7 +68,7 @@ class WanYiWan extends Template {
     const exchangeType = _.get(self._command, 1);
     let userScore = 0;
 
-    const home = () => api.doFormBody('wanyiwan_home', {
+    const home = async () => await api.doFormBody('wanyiwan_home', {
       'outsite': 0,
       'firstCall': 0,
       'babelChannel': 'ttt4',
