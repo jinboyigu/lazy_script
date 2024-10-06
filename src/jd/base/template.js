@@ -182,7 +182,7 @@ class Template extends Base {
     const origin = _.get(api, 'options.headers.origin');
     let algo;
     if (signFromKEDAYA) {
-      const key = `${JSON.stringify(algoOptions)}`;
+      const key = `${api.currentCookieIndex}${JSON.stringify(algoOptions)}`;
       if (algoCaches[key]) {
         algo = algoCaches[key];
       } else {
