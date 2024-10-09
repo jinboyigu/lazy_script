@@ -302,7 +302,8 @@ class Fruit1 extends Template {
         20000,
       ];
       if (treeFullStage === 4) {
-        msg += `, 还差水滴: ${levelWaters[treeLevel] - bottleWater}`;
+        const remain = levelWaters[treeLevel] - bottleWater;
+        msg += remain > 0 ? `, 还差水滴: ${remain}` : `, 可以收获了(再浇水${levelWaters[treeLevel] * +waterTips.match(/\d+\.?\d+/)[0] / 100 / 10}次)!`;
       }
       api.log(msg);
     }
