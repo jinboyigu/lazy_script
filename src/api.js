@@ -137,7 +137,12 @@ async function run(data, output) {
   const serialRunTargets = [];
   const serialRunByCronTargets = [];
   const specialTargets = [];
-  for (const [hours, target, minute, isCron = false] of data) {
+  for (const [hours, target, minute, option] of data) {
+    const {isCron = false, weekday, day} = option || {};
+    if ((weekday && getMoment().weekday() !== weekday)
+      || (day && getMoment().date() !== day)) {
+      continue;
+    }
     if (hours.includes('*') || hours.includes(nowHour)) {
       if (minute) {
         specialTargets.push([minute, target]);

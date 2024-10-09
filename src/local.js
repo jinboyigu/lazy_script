@@ -11,7 +11,7 @@ require('./appBase')([
   [[1, 7, 18], require('./jd/dwapp/PointsGasStation')],
   [[7, 15, 21], require('./jd/plantBean')],
   [[10, 12, 23], require('./jd/turnHappy/WanYiWan')],
-  [[0, 10, 20], require('./jd/lite/JoyPark')],
+  [[0, 10, 20], require('./jd/lite/JoyPark'), {weekday: 1}],
   // 定时任务
   [[19], require('./jd/superRedBagDraw'), 25],
   [[23, 10, 22], require('./jd/fission'), 32],

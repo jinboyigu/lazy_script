@@ -12,7 +12,7 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
   [['*'], _.noop],
 ] : [
   // 实时执行
-  [['*'], require('./jd/plantBean'), 0, true],
+  [['*'], require('./jd/plantBean'), 0, {isCron: true}],
   // hour0
   ...[
     require('./jd/sign/beanSmallBean'),
@@ -45,7 +45,7 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
 
   // custom
   [[5], require('./jd/applet/morningHbReward')],
-  [[6], require('./jd/fruit/turnTableFarm'), 0, true],
+  [[6], require('./jd/fruit/turnTableFarm'), 0, {isCron: true}],
   [[0, 7, 12, 18, 22, 23], require('./jd/fruit')],
   [[0, 16, 22, 23], require('./jd/chatReward')],
   [[7, 12, 18, 20], require('./jd/fruit/1')],
