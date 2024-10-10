@@ -5,6 +5,14 @@ const {getMoment} = require('../../lib/moment');
 const _ = require('lodash');
 const {getEnv} = require('../../lib/env');
 
+// 等级
+const levelWaters = [
+  0,
+  0,
+  [0, 60, 300, 400, 12500],
+  [0, 60, 300, 400, 20000],
+];
+
 class Fruit1 extends Template {
   static scriptName = 'Fruit1';
   static scriptNameDesc = '东东农场(新)';
@@ -29,7 +37,7 @@ class Fruit1 extends Template {
     return {
       options: {
         repeatFn: async data => {
-          if (+data.code === 405) {
+          if ([404, 405].includes(+data.code)) {
             await sleep(5);
             return true;
           }
@@ -81,7 +89,13 @@ class Fruit1 extends Template {
 
     self.initShareCodeTaskList(shareCodes || []);
     await self.beforeRequest(api);
-    const doFormBody = (functionId, body) => api.doFormBody(functionId, _.assign({'version': 5}, body));
+    const doFormBody = (functionId, body) => api.doFormBody(functionId, _.assign({
+      version: 7,
+      channelParam: '1',
+    }, body));
+
+    const waterToMature = _.get(self._command, 0);
+    const waterTimes = _.get(self._command, 1);
 
     const {currentCookieIndex} = api;
     let plantId = getEnv('JD_FRUIT1_PLANT_SKU_ID', currentCookieIndex);
@@ -93,11 +107,23 @@ class Fruit1 extends Template {
       farmHomeShare: {inviteCode},
     } = await doFormBody('farm_home').then(_.property('data.result'));
     self.isFirstLoop() && self.updateShareCodeFn(inviteCode);
-    if (treeFullStage === 5) {
-      api.log('可以兑换商品了');
+    const isFull = treeFullStage === 5;
+    if (isFull) {
+      api.logBoth('已经成功领取优惠券, 请在 app 中查看!');
     } else {
-      await handlePlant(!skuName || treeCurrentState === 1);
+      if (waterToMature || waterTimes) {
+        if (self.isFirstLoop()) {
+          if (waterToMature) {
+            await log(waterToMature);
+          } else if (waterTimes) {
+            await handleWater(waterTimes, true);
+          }
+        }
+        return;
+      }
     }
+    await handlePlant(!skuName || treeCurrentState === 1 || isFull, isFull);
+
 
     if (self.isFirstLoop()) {
       if (self.getNowHour() < 10) {
@@ -112,7 +138,7 @@ class Fruit1 extends Template {
     }
 
     // 种植
-    async function handlePlant(needPlant) {
+    async function handlePlant(needPlant, twice = false) {
       if (!needPlant) return;
       const farmTreeLevels = await doFormBody('farm_tree_board').then(_.property('data.result.farmTreeLevels'));
       if (!plantId) {
@@ -122,6 +148,9 @@ class Fruit1 extends Template {
       for (const {farmLevelTrees, level, needDays} of farmTreeLevels) {
         const target = farmLevelTrees.find(o => o.skuId === `${plantId}`);
         if (target) {
+          if (twice) {
+            await doFormBody('farm_plant_tree', {level, type: 'plantLevel'});
+          }
           await doFormBody('farm_plant_tree', {uid: target.uid}).then(data => {
             if (self.isSuccess(data)) {
               api.log(`种植成功, 名称: ${target.skuName}, 等级: ${level}, 需要天数: ${needDays}`);
@@ -259,21 +288,34 @@ class Fruit1 extends Template {
     }
 
     // 浇水
-    async function handleWater(times) {
-      let finishTimes = times;
+    async function handleWater(times, showFinish = false) {
+      let finishTimes = 0;
+      showFinish && api.logBoth(`准备浇水次数: ${times}, 预计在 ${getMoment().add(times * 3, 's').format()} 后完成`);
       for (let i = 0; i < times; i++) {
         const stop = await doFormBody('farm_water', {
           'waterType': 1,
           'babelChannel': 'ttt7',
           'lbsSwitch': true,
-        }).then(data => !self.isSuccess(data));
+        }).then(async data => {
+          if (self.isSuccess(data)) {
+            ++finishTimes;
+            const {bottleWater, stagePrize, treeFullStage} = data.data.result;
+            if (stagePrize) {
+              api.logBoth(`完成${treeFullStage - 1}阶段获得奖励: ${stagePrize.map(o => `${o.value}${o.prizeDesc}`).join(', ')}`);
+            }
+          } else if (data.code === '405') {
+            // 活动太火爆了， 请稍后再试~
+            await sleep(5);
+          } else {
+            return true;
+          }
+        });
         if (stop) {
-          finishTimes = i;
           break;
         }
-        await sleep(3);
+        await sleep();
       }
-      api.log(`成功浇水次数: ${finishTimes}`);
+      api[showFinish ? 'logBoth' : 'log'](`成功浇水次数: ${finishTimes}`);
     }
 
     async function handleReceiveAssit() {
@@ -287,25 +329,35 @@ class Fruit1 extends Template {
       }
     }
 
-    async function log() {
+    async function log(waterToMature) {
       const {
         treeFullStage,
         treeLevel,
         skuName,
         waterTips,
       } = await doFormBody('farm_home').then(_.property('data.result'));
-      let msg = `当前进度: ${waterTips}(${treeFullStage}), 剩余水滴: ${bottleWater}, 名称: ${skuName}, 等级: ${treeLevel}`;
-      const levelWaters = [
-        0,
-        0,
-        12500,
-        20000,
-      ];
-      if (treeFullStage === 4) {
-        const remain = levelWaters[treeLevel] - bottleWater;
-        msg += remain > 0 ? `, 还差水滴: ${remain}` : `, 可以收获了(再浇水${levelWaters[treeLevel] * +waterTips.match(/\d+\.?\d+/)[0] / 100 / 10}次)!`;
+      let msg = `当前进度: ${waterTips}(stage: ${treeFullStage}), 剩余水滴: ${bottleWater}, 名称: ${skuName}, 等级: ${treeLevel}`;
+      const target = levelWaters[treeLevel];
+      let canHarvest;
+      let waterTimes = 0;
+      if (target) {
+        let remainWater = target[treeFullStage] * +waterTips.match(/\d+\.?\d+/)[0] / 100;
+        remainWater += _.sum(_.takeRight(target, target.length - 1 - treeFullStage));
+        const harvestWater = remainWater - bottleWater;
+        canHarvest = harvestWater <= 0;
+        waterTimes = Math.ceil(remainWater / 10);
+        msg += canHarvest ? `, 可以收获了(再浇水${waterTimes}次)!` : `, 还差水滴: ${harvestWater}`;
       }
-      api.log(msg);
+      if (waterToMature) {
+        api.clog(msg);
+        if (canHarvest) {
+          await handleWater(waterTimes, true);
+        } else {
+          api.clog('当前还不能收获, 请过几天再尝试');
+        }
+      } else {
+        api.log(msg);
+      }
     }
   }
 }
