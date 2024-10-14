@@ -1,10 +1,11 @@
 const Template = require('../base/template');
 
-const {sleep, writeFileJSON, singleRun, replaceObjectMethod, addMosaic} = require('../../lib/common');
+const {sleep, writeFileJSON, singleRun, replaceObjectMethod, addMosaic, matchMiddle} = require('../../lib/common');
 const {getMoment} = require('../../lib/moment');
 const _ = require('lodash');
 
 let helpCompleted = false;
+const indexUrl = 'https://pro.m.jd.com/mall/active/4SJgvbvkFsTLRLhZqGU5ASjt1ahB/index.html?stath=47&navh=44&babelChannel=ttt16&tttparams=TkZciIbTeyJnTGF0IjoiMjIuOTQyOTA2Iiwic2NhbGUiOiIzIiwidW5fYXJlYSI6IjE5XzE2MDFfMzY5NTNfNTA0MDAiLCJkTGF0IjoiIiwid2lkdGgiOiIxMTcwIiwicHJzdGF0ZSI6IjAiLCJhZGRyZXNzSWQiOiI1MTU2MDkwNDExIiwibGF0IjoiMjMuMDU2OTY0IiwicG9zTGF0IjoiMjIuOTQyOTA2IiwicmZzIjoiMDAwMCIsInBvc0xuZyI6IjExMy40NzQ4MDEiLCJncHNfYXJlYSI6IjE5XzE2MDFfMzY5NTNfNjI4NjgiLCJsbmciOiIxMTMuMzg3ODU2IiwidWVtcHMiOiIwLTAtMCIsImdMbmciOiIxMTMuNDc0ODAxIiwibW9kZWwiOiJpUGhvbmUxMywzIiwiZExuZyI6Ii8J9';
 
 class Fission1 extends Template {
   static scriptName = 'Fission1';
@@ -32,7 +33,7 @@ class Fission1 extends Template {
       options: {
         headers: {
           origin: 'https://pro.m.jd.com',
-          'referer': 'https://prodev.m.jd.com/mall/active/4SJgvbvkFsTLRLhZqGU5ASjt1ahB/index.html?stath=47&navh=44&from=kouling&wegameVersion=3&activityChannel=jdapp&tttparams=AJ5LwIUleyJnTGF0IjoiMjIuOTQyOTA2Iiwic2NhbGUiOiIzIiwidW5fYXJlYSI6IjE5XzE2MDFfMzY5NTNfNTA0MDAiLCJkTGF0IjoiIiwid2lkdGgiOiIxMTcwIiwicHJzdGF0ZSI6IjAiLCJhZGRyZXNzSWQiOiI1MTU2MDkwNDExIiwibGF0IjoiMC4wMDAwMDAiLCJwb3NMYXQiOiIyMi45NDI5MDYiLCJyZnMiOiIwMDAwIiwicG9zTG5nIjoiMTEzLjQ3NDgwMSIsImdwc19hcmVhIjoiMF8wXzBfMCIsImxuZyI6IjAuMDAwMDAwIiwidWVtcHMiOiIwLTAtMCIsImdMbmciOiIxMTMuNDc0ODAxIiwibW9kZWwiOiJpUGhvbmUxMywzIiwiZExuZyI6Ii8J9&wegameInviteId=CeymEOdTGnhBzMjmwC12IA&wegameLinkid=xtOvTHVt_TBrdVhwSZO6zg',
+          'referer': indexUrl,
         },
       },
     };
@@ -40,6 +41,16 @@ class Fission1 extends Template {
 
   static async beforeRequest(api) {
     const self = this;
+
+    if (api.currentCookieIndex === 0) {
+      self.linkId = await api.doGetUrl(indexUrl, {
+        headers: {
+          cookie: '',
+          'user-agent': 'jdapp;',
+        },
+      }).then((data => matchMiddle(data, {reg: /"linkId":"([^"']*)"/}))) || self.linkId;
+    }
+
     self.injectEncryptH5st(api, {
       config: {
         fissionHome: {appId: '973a9'},
