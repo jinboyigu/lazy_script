@@ -9,7 +9,8 @@ const config = [
   ['7232231843406286848', 'http://3.cn/24-3EZkY'],
   ['7229441891987623936', 'http://3.cn/23D-Lt3H'],
   ['7221851013660020736', 'http://t.cn/A6R4lpkV'],
-  ['7241982806455226368', '小程序'],
+  ['7241982806455226368'],
+  ['7246018119133564928'],
 ];
 
 class ChatReward extends Template {
@@ -52,7 +53,9 @@ class ChatReward extends Template {
     const self = this;
 
     await self.beforeRequest(api);
+    let i = 0;
     for (const item of config) {
+      i++;
       const [activityId, url, stop] = item;
       if (stop) {
         continue;
@@ -62,20 +65,20 @@ class ChatReward extends Template {
         item[2] = message;
       }
       if (message) {
-        api.log(`[${activityId}] ${message}(${url})`);
+        api.log(`[${i}-${activityId}] ${message}(${url || ''})`);
         continue;
       }
       if (userTypeCheck && userRewardStatus === 0) {
         await api.doGetBody('chatReward_doReward', {activityId});
-        await mainPage(activityId);
+        await mainPage(activityId, i);
       }
     }
 
-    async function mainPage(activityId) {
+    async function mainPage(activityId, index) {
       const data = await api.doGetBody('chatReward_mainPage', {activityId});
       const {data: {rewardInfo}} = data;
       if (rewardInfo && !_.isEmpty(rewardInfo)) {
-        api.logBoth(`已领取: ${rewardInfo.rewardValue}(${rewardInfo.expireTime})`);
+        api.logBoth(`[${index}-${activityId}] 已领取: ${rewardInfo.rewardValue}(${rewardInfo.expireTime})`);
       }
       return data;
     }
