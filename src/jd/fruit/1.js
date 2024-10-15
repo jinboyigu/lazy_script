@@ -122,7 +122,7 @@ class Fruit1 extends Template {
         return;
       }
     }
-    await handlePlant(!skuName || treeCurrentState === 1 || isFull, isFull);
+    await handlePlant(treeCurrentState === 1 || isFull, isFull);
 
 
     if (self.isFirstLoop()) {
@@ -140,7 +140,9 @@ class Fruit1 extends Template {
     // 种植
     async function handlePlant(needPlant, twice = false) {
       if (!needPlant) return;
-      const farmTreeLevels = await doFormBody('farm_tree_board').then(_.property('data.result.farmTreeLevels'));
+      const farmTreeLevels = await doFormBody('farm_tree_board', {version: 3}).then(_.property('data.result.farmTreeLevels'));
+      // pc: https://item.jd.com/skuId.html
+      // h5: https://item.m.jd.com/product/skuId.html
       if (!plantId) {
         // 随机种植一个
         plantId = farmTreeLevels[2].farmLevelTrees[currentCookieIndex].skuId;
@@ -336,7 +338,7 @@ class Fruit1 extends Template {
         skuName,
         waterTips,
       } = await doFormBody('farm_home').then(_.property('data.result'));
-      let msg = `当前进度: ${waterTips}(stage: ${treeFullStage}), 剩余水滴: ${bottleWater}, 名称: ${skuName}, 等级: ${treeLevel}`;
+      let msg = `当前进度: ${waterTips}(stage: ${treeFullStage}), 剩余水滴: ${bottleWater}, 名称: ${skuName || '未知'}, 等级: ${treeLevel}`;
       const target = levelWaters[treeLevel];
       let canHarvest;
       let waterTimes = 0;
