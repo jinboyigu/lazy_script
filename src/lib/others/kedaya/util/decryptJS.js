@@ -33,6 +33,11 @@ function main(filePath) {
       });
     }
   }
+  // TODO 字符串的里面的可能要重新调整, 比如
+  //  \x0a => \n
+  //  \x27 => '
+  //  \x22 => "
+  //  \x20 =>
   // 替换十六进制为十进制
   newJs = newJs.replace(/\s?[^_](0x\w+)/g, (v1, v2) => {
     if (isNaN(+v2)) {
@@ -61,4 +66,5 @@ function main(filePath) {
   }
 }
 
+// TODO jdAlgo.js 还需要转换 this['appId'], 比如 _0x4b167d = this['_dict'][appId]['version'] => _0x4b167d = this['_dict'][this['appId']]['version']
 main('./jdAlgo.js');
