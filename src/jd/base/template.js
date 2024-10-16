@@ -170,7 +170,7 @@ class Template extends Base {
     defaultData = this.commonParamFn(),
     config,
     removeEncryptKeys = ['_stk', '_ste'],
-    replaceMethods = ['doFormBody', 'doGetBody'],
+    replaceMethods = ['doFormBody', 'doGetBody', 'doSign'],
     beforeEncryptFn,
     afterEncryptFn = _.noop,
     signKeys = [],

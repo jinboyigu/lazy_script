@@ -1,8 +1,8 @@
 const rp = require('request-promise');
 const _ = require('lodash');
 const Cookie = require('../lib/cookie');
-const {uploadProductEnvToAction} = require('../lib/env');
-const {printLog, sleep, objectValuesStringify, addMosaic} = require('../lib/common');
+const {uploadProductEnvToAction, getEnv} = require('../lib/env');
+const {printLog, sleep, objectValuesStringify, addMosaic, convertQuery} = require('../lib/common');
 const {getMoment} = require('../lib/moment');
 const {processInAC} = require('../lib/env');
 
@@ -18,7 +18,7 @@ const beforeProcessExit = async () => {
   await uploadProductEnvToAction(true);
 };
 
-const _request = (cookie, {form, body, qs, headers = {}, ...others}, currentCookieTimes) => {
+const _request = async (cookie, {form, body, qs, headers = {}, ...others}, currentCookieTimes) => {
   const options = {form, body, qs, ...others};
 
   [form, qs].forEach(objectValuesStringify);
@@ -33,6 +33,28 @@ const _request = (cookie, {form, body, qs, headers = {}, ...others}, currentCook
   const errorTryMaxTimes = _.isNil(options['errorTryMaxTimes']) ? 1 : options['errorTryMaxTimes'];
   delete options['ignorePrintLog'];
   delete options['errorTryMaxTimes'];
+
+  async function requestToSign(options) {
+    const uri = getEnv('JD_SIGN_API');
+    const sign = options['sign'];
+    delete options['sign'];
+    if (!uri || !sign) return;
+    const body = options.form || options.body || options.qs;
+    const result = await rp({...DEFAULT_OPTION, uri, timeout: 1000 * 5, body: {...body, ..._.pick({...options.form, ...options.body, ...options.qs}, 'functionId')}}).catch(() => {
+      return false;
+    });
+    if (!_.get(result, 'IsSuccess')) {
+      return console.log(`请确认 Sign Api(${uri}) 是否正确`);
+    }
+    for (const key of ['form', 'body', 'qs']) {
+      if (options[key]) {
+        options[key] = convertQuery(result.data.convertUrl);
+        break;
+      }
+    }
+  }
+
+  await requestToSign(options);
 
   const defaultOption = {...DEFAULT_OPTION};
   if (others.url) {
@@ -200,6 +222,10 @@ class Api {
 
   doForm(functionId, form, options = {}) {
     return this.doFunctionId(functionId, _.merge({form}, options));
+  }
+
+  doSign(functionId, body, form, options) {
+    return this.doFormBody(functionId, body, form, {sign: true, ...options});
   }
 
   doFormBody(functionId, body, signData, options) {

@@ -88,7 +88,9 @@ class FirePower extends Template {
       return;
     }
 
-    // TODO 未完成
+    if (self.getNowHour() === 0) {
+      await getCoupons();
+    }
     await handleDoTask();
 
     // TODO 本次不需要
@@ -124,7 +126,7 @@ class FirePower extends Template {
           unionActId,
           'actId': 'ahzKcXspskaU1aRUQvrTBehkrHk',
           'platform': 4,
-          unionShareId: "",
+          unionShareId: '',
           'd': wordRandom(),
           taskId,
         };
@@ -178,8 +180,15 @@ class FirePower extends Template {
             'jumpUrl': encodeURIComponent(adInfo.target_url),
             'jumpType': 1,
           });
-          // TODO 目前还是完成任务, 需要手动完成
+          await api.doSign('apResetTiming', {
+            'timerId': 'bJEwwhJl',
+            'uniqueId': taskId,
+          });
           await sleep(waitDuration);
+          await api.doSign('apCheckTimingEnd', {
+            'timerId': 'bJEwwhJl',
+            'uniqueId': taskId,
+          });
           await queryFullGroupInfoMap();
         } else if (/点击/.test(showInfo)) {
           let unionActTask = new URL(taskTargetUrl).searchParams.get('unionActTask');

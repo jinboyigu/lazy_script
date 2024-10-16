@@ -1,0 +1,3 @@
+[submodule "src/lib/others/SeanSuny/Signapi"] 
+	path = src/lib/others/SeanSuny/Signapi
+	url = https://github.com/SeanSuny/Signapi.git

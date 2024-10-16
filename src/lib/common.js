@@ -426,7 +426,11 @@ async function exec(command, options = {}) {
     });
     return commands;
   }
-};
+}
+
+function convertQuery(str) {
+  return Object.fromEntries(new URLSearchParams(str));
+}
 
 module.exports = {
   sleep,
@@ -467,4 +471,6 @@ module.exports = {
 
   exec,
   execAsync,
+
+  convertQuery,
 };
