@@ -140,7 +140,7 @@ class Fruit1 extends Template {
     // 种植
     async function handlePlant(needPlant, twice = false) {
       if (!needPlant) return;
-      const farmTreeLevels = await doFormBody('farm_tree_board', {version: 3}).then(_.property('data.result.farmTreeLevels'));
+      const farmTreeLevels = await doFormBody('farm_tree_board', {boardType: 'sku'}).then(_.property('data.result.farmTreeLevels'));
       // pc: https://item.jd.com/skuId.html
       // h5: https://item.m.jd.com/product/skuId.html
       if (!plantId) {
@@ -153,7 +153,7 @@ class Fruit1 extends Template {
           if (twice) {
             await doFormBody('farm_plant_tree', {level, type: 'plantLevel'});
           }
-          await doFormBody('farm_plant_tree', {uid: target.uid}).then(data => {
+          await doFormBody('farm_plant_tree', {uid: target.uid, type: 'plantSku'}).then(data => {
             if (self.isSuccess(data)) {
               api.log(`种植成功, 名称: ${target.skuName}, 等级: ${level}, 需要天数: ${needDays}`);
             } else {
@@ -321,7 +321,7 @@ class Fruit1 extends Template {
     }
 
     async function handleReceiveAssit() {
-      const {assistStageList} = await doFormBody('farm_assist_init_info').then(_.property('data.result'));
+      const assistStageList = await doFormBody('farm_assist_init_info').then(_.property('data.result.assistStageList')) || [];
       for (const {stageStaus} of assistStageList) {
         if (stageStaus === 2) {
           await doFormBody('farm_assist_receive_award').then(data => {
