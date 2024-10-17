@@ -74,7 +74,7 @@ class EarnJoinGroup extends Template {
       'venueUrl': '',
     });
 
-    const shareCookieIndex = _.first(self._command) || 1 || getEnv('JD_EARNJOINGROUP_SHARE_COOKIE_INDEX', 0, -1);
+    const shareCookieIndex = _.first(self._command) || getEnv('JD_HB_COOKIE_INDEX', 0, -1);
 
     if (shareCookieIndex < 0) return api.logBoth('请手动指定 cookie index');
     if (self.isFirstLoop() && api.currentCookieIndex === shareCookieIndex) {

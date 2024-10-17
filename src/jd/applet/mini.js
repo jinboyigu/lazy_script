@@ -5,6 +5,7 @@ const {getMoment} = require('../../lib/moment');
 const {formatPasteData} = require('../../lib/charles');
 const _ = require('lodash');
 const {sleepTime} = require('../../lib/cron');
+const {getEnv} = require('../../lib/env');
 
 class AppletMini extends Template {
   static scriptName = 'AppletMini';
@@ -77,7 +78,7 @@ class AppletMini extends Template {
 
     const doPathBody = (functionId, body) => api.doPathBody(functionId, body, {functionId});
 
-    const shareIndex = _.first(self._command) || 1;
+    const shareIndex = _.first(self._command) || getEnv('JD_HB_COOKIE_INDEX', 0, 0);
     const waitToDoShare = self.getNowHour() === 23;
     const {currentCookieIndex} = api;
     const isShareIndex = currentCookieIndex === shareIndex;
