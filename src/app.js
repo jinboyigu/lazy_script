@@ -23,7 +23,7 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
     require('./jd/newtry'),
     require('./jd/seckillView'),
     require('./jd/fission'),
-    require('./jd/fission/1'),
+    // require('./jd/fission/1'),
     require('./jd/applet/sign'),
     require('./jd/bSign'),
     require('./jd/richTree'),
