@@ -8,9 +8,17 @@ class NewTry extends Template {
   static scriptName = 'NewTry';
   static scriptNameDesc = '逛新品赢红包';
   static dirname = __dirname;
-  static shareCodeTaskList = [];
+  static defaultShareCodes = [
+    'Sv_h1QhgY81XeKR6b1A',
+    'S7a4gE0Ic8A',
+    'S-akZNEhNqhCPQUKp84M',
+    'S5KkcMWdhhwWERkeG8q5f',
+    'S5KkcRkoZ_ALUdROgkqIJdw',
+  ];
   static commonParamFn = () => ({
     appid: 'newtry',
+    client: 'ios',
+    clientVersion: '13.2.10',
   });
   static keepIndependence = true;
   static times = 1;
@@ -42,9 +50,8 @@ class NewTry extends Template {
 
     await self.beforeRequest(api);
 
-
     await handleDoTask();
-    await handleLottery();
+    // await handleLottery();
 
     async function qryH5BabelFloors() {
       const floorKey = '102983671';
@@ -57,18 +64,19 @@ class NewTry extends Template {
 
     async function handleDoTask() {
       const {assignments: {assignmentList}} = await qryH5BabelFloors();
-      for (const {ext, encryptAssignmentId: encAid, completionFlag} of assignmentList) {
+      for (const {ext, encryptAssignmentId: encAid, completionFlag, assignmentName} of assignmentList) {
         if (completionFlag) continue;
-        const {waitDuration, extraType} = ext;
-        const _doTask = (action, itemId) => api.doFormBody('luban_executeWorkflow', {
+        const {waitDuration, extraType, shoppingActivity} = ext;
+        const _doTask = (action, itemId, url) => api.doFormBody('luban_executeWorkflow', {
           'workflowId': '5b7b7ba0683542e3838798b04e2d8e92',
           action,
           encAid,
           itemId,
           ...!action && {'completionFlag': true},
+          jumpUrl: url,
         }).then(data => {
           if (action === 0 && self.isSuccess(data)) {
-            const successRewards = Object.values(_.get(data, 'rewardsInfo.successRewards'))[0];
+            const successRewards = Object.values(_.get(data, 'rewardsInfo.successRewards', {}))[0];
             if (successRewards) {
               api.log(`完成任务, 获得: ${successRewards.map(o => `${o.discount}${o.rewardName}`).join()}`);
             } else {
@@ -76,12 +84,22 @@ class NewTry extends Template {
             }
           }
         });
-        for (const o of ext[extraType] || []) {
+        // TODO 确认助力逻辑
+        if (/助力/.test(assignmentName)) {
+          const shareCodes = [].concat(self.defaultShareCodes);
+          shareCodes.splice(api.currentCookieIndex, 1);
+          for (const itemId of shareCodes) {
+            await _doTask(0, itemId);
+          }
+          continue;
+        }
+        for (const o of [].concat(ext[extraType] || [])) {
           if (o.status === 2) continue;
           const itemId = o.itemId || o.skuId;
-          await _doTask(waitDuration ? 1 : 0, itemId);
+          const url = _.get(shoppingActivity, '[0].url');
+          await _doTask(waitDuration ? 1 : 0, itemId, url);
           await sleep(waitDuration);
-          waitDuration && await _doTask(0, itemId);
+          waitDuration && await _doTask(0, itemId, url);
         }
       }
     }
