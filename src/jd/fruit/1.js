@@ -305,7 +305,7 @@ class Fruit1 extends Template {
             if (stagePrize) {
               api.logBoth(`完成${treeFullStage - 1}阶段获得奖励: ${stagePrize.map(o => `${o.value}${o.prizeDesc}`).join(', ')}`);
             }
-          } else if (data.code === '405') {
+          } else if (['404', '405'].includes(data.code)) {
             // 活动太火爆了， 请稍后再试~
             await sleep(5);
           } else {
