@@ -31,6 +31,8 @@ class Base {
   static currentCookieTimes = 0;
   // 当前循环次数, 不可更改
   static currentTimes = 1;
+  // 是否是第一次执行
+  static isFirstRun = true;
   // 脚本名称(用于获取相关属性)
   static scriptName = 'scriptName';
   // 脚本名称(用于日志输出)
@@ -508,8 +510,9 @@ class Base {
       // TODO 并发的情况下 api 的赋值不可用
       self.api = api;
       const currentCookieIndex = currentCookieTimes - 1;
-      if (currentCookieIndex === 0) {
+      if (self.isFirstRun) {
         api.isFirst = true;
+        self.isFirstRun = false;
       }
       // TODO 先用 currentCookieIndex 后面再整体改名
       api.currentCookieIndex = api.currentCookieTimes = currentCookieIndex;

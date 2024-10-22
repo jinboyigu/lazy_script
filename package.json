@@ -5,6 +5,7 @@
   "main": "app.js",
   "dependencies": {
     "@octokit/core": "^3.5.1",
+    "@xdooi/consoletable": "^1.0.3",
     "cron": "^1.8.2",
     "crypto-js": "^4.0.0",
     "download": "^8.0.0",
