@@ -102,13 +102,8 @@ class FirePower extends Template {
         if (data.code === 1) {
           throw api.logBoth(data.msg, false);
         }
-        const {status, joinNum} = _.last(_.get(data, 'longGroupData.groupInfo', [])) || {};
-        if (status === 2) {
-          throw api.log(`火力值已达到最高值 ${joinNum}`);
-        }
         return _.get(data, 'dayGroupData.groupInfo', []);
       });
-      const currentCookieTimes = api.currentCookieTimes;
       // 随机生成7位
       const wordRandom = (length = 7) => {
         const words = [];
@@ -235,6 +230,7 @@ class FirePower extends Template {
         api.log(`成功完成任务 ${successTimes} 次`);
       } else if (!_.isEmpty(groupInfo)) {
         api.logBoth(`今天任务已完成`);
+        await getCoupons(void 0, 3);
       }
     }
 
@@ -248,7 +244,7 @@ class FirePower extends Template {
     }
 
     // 领取/助力
-    async function getCoupons(unionShareId = '') {
+    async function getCoupons(unionShareId = '', type = 1) {
       const body = {
         actId, unionActId, d,
         'platform': 1,
@@ -259,15 +255,17 @@ class FirePower extends Template {
           'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.42(0x18002a2e) NetType/WIFI Language/zh_CN',
         },
       };
-      // 先检查是否有次数
-      const {code, msg} = await api.doFormBody('showCoupon', body, void 0, options);
-      if (code !== 0) {
-        api.clog('可能是 CSID 失效了');
-        return api.clog(msg);
+      if (type === 1) {
+        // 先检查是否有次数
+        const {code, msg} = await api.doFormBody('showCoupon', body, void 0, options);
+        if (code !== 0) {
+          api.clog('可能是 CSID 失效了');
+          return api.clog(msg);
+        }
       }
       await api.doFormBody('getCoupons', {
         ...body,
-        'type': 1,
+        type,
       }, void 0, options).then(logGetCoupon);
     }
 
