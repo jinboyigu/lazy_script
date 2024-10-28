@@ -34,6 +34,7 @@ class StatisticsOrder extends Template {
           referer: 'https://servicewechat.com/wx91d27dbf599dff74/769/page-frame.html',
           'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.52(0x18003426) NetType/WIFI Language/zh_CN',
         },
+        repeatFn: data => data.body.errorCode === '601',
       },
     };
   }
@@ -59,14 +60,13 @@ class StatisticsOrder extends Template {
 
     await self.beforeRequest(api);
     const allOrderList = [];
-    for (let i = 1; i < 10; i++) {
-      const result = await getList(i, 50);
+    for (let i = 1; i < 20; i++) {
+      const result = await getList(i, 10);
       const orderList = _.get(result, 'body.orderList', []);
-      const validList = orderList.filter(o => getMoment(o.submitDate).isAfter(startDay) && getMoment(o.submitDate).isBefore(endDay)).filter(o => !/支付抽奖权益包|省钱包|京东省省卡|商家赠|开方服务|咨询服务|京东E卡|180天只换不修|话费充值|全额返超值权益包/.test(o.wareInfoList[0].wareName));
-      if (_.isEmpty(validList)) break;
+      const validList = orderList.filter(o => getMoment(o.submitDate).isAfter(startDay) && getMoment(o.submitDate).isBefore(endDay)).filter(o => !/秒送加速省|支付抽奖权益包|省钱包|京东省省卡|商家赠|开方服务|咨询服务|京东E卡|180天只换不修|话费充值|全额返超值权益包/.test(o.wareInfoList[0].wareName));
       allOrderList.push(...validList);
       if (orderList.some(o => getMoment(o.submitDate).isBefore(startDay))) break;
-      await sleep(2);
+      await sleep(5);
     }
 
     // 处理数据和输出
