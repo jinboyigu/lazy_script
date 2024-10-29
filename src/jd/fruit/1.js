@@ -27,7 +27,7 @@ class Fruit1 extends Template {
   static commonParamFn = () => ({
     appid: 'signed_wh5',
     client: 'apple',
-    clientVersion: '13.2.2',
+    clientVersion: '13.6.2',
   });
   static keepIndependence = true;
   static needInApp = false;
@@ -37,7 +37,7 @@ class Fruit1 extends Template {
     return {
       options: {
         repeatFn: async data => {
-          if ([404, 405].includes(+data.code)) {
+          if ([405].includes(+data.code)) {
             await sleep(5);
             return true;
           }
@@ -305,7 +305,7 @@ class Fruit1 extends Template {
             if (stagePrize) {
               api.logBoth(`完成${treeFullStage - 1}阶段获得奖励: ${stagePrize.map(o => `${o.value}${o.prizeDesc}`).join(', ')}`);
             }
-          } else if (['404', '405'].includes(data.code)) {
+          } else if (showFinish && ['404', '405'].includes(data.code)) {
             // 活动太火爆了， 请稍后再试~
             await sleep(5);
           } else {
