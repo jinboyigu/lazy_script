@@ -66,5 +66,5 @@ function main(filePath) {
   }
 }
 
-// TODO jdAlgo.js 还需要转换 this['appId'], 比如 _0x4b167d = this['_dict'][appId]['version'] => _0x4b167d = this['_dict'][this['appId']]['version']
+// TODO jdAlgo.js 还需要转换 this['appId'], 比如 _0x4b167d = this['_dict'][this['appId']]['version'] => _0x4b167d = this['_dict'][appId]['version']
 main('./jdAlgo.js');
