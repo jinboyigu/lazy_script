@@ -60,7 +60,8 @@ class Day20241028 extends Template {
       '10.26': ['2'],
       '10.27': ['白开水'],
       '10.28': ['榴莲'],
-      ...todayAnswers && {[getMoment().format('MM.DD')]: todayAnswers.split(',')},
+      '10.29': ['3000'],
+      ...todayAnswers && {[getMoment().format('MM.DD')]: `${todayAnswers}`.split(',')},
     };
     await api.doFormBody('atop_channel_question_list').then(async data => {
       const taskList = _.get(data, 'data.floorData.items[0].dateGroupQuestionList');
