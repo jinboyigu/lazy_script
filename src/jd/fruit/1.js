@@ -28,6 +28,7 @@ class Fruit1 extends Template {
     appid: 'signed_wh5',
     client: 'apple',
     clientVersion: '13.6.2',
+    'x-api-eid-token' : 'jdd03M7UO6SRTFR5GQS7SPKPOGT7ZZB6KH2I7CUXZGVFSPJ5773VII5RHNSVRM4FK4RSLDCBRG3QQUS4WNC5PZ2767E6D3QAAAAMS3MH5UIAAAAAADBKH7G44EP47M4X',
   });
   static keepIndependence = true;
   static needInApp = false;
@@ -185,10 +186,13 @@ class Fruit1 extends Template {
       } of taskList) {
         const receive = () => doFormBody('farm_task_receive_award', {taskType, taskId, 'channel': 0}).then(data => {
           api.log(`获得水滴: ${_.get(data, 'data.result.taskAward[0].awardValue')}`);
+          return data;
         });
         if (taskStatus === 2) {
           for (let i = 0; i < taskDoTimes; i++) {
-            await receive();
+            const data = await receive();
+            if (_.get(data, 'data.bizCode') === 6007) break;
+            await sleep(2);
           }
           continue;
         }
