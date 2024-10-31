@@ -184,6 +184,7 @@ class EarnJoinGroup extends Template {
 
     async function handleUpdateGroup() {
       const configIds = [
+        1231,// 超级裂变-校园（新）
         1223,// 超级裂变清单-农场
         1159,// 超级裂变x校园
         1157,// 超级裂变清单
@@ -204,7 +205,7 @@ class EarnJoinGroup extends Template {
         }).then(data => {
           const floors = _.get(data, 'data.pages[0].stepPages[0].floors');
           _.filter(floors.map(o => {
-            const styleConfig = _.get(o, 'config.tagName') === 'MpmSuperfission' && _.get(o, 'config.styleConfig');
+            const styleConfig = _.get(o, 'config.styleConfig');
             if (!styleConfig) return;
             const {start, end} = styleConfig;
             if (getMoment().isAfter(end) || getMoment().isBefore(start)) return;
