@@ -61,6 +61,9 @@ class Day20241028 extends Template {
       '10.27': ['白开水'],
       '10.28': ['榴莲'],
       '10.29': ['3000'],
+      '10.30': ['年轮'],
+      '10.31': ['海阔天空'],
+      '11.01': ['风浪越大鱼越贵！'],
       ...todayAnswers && {[getMoment().format('MM.DD')]: `${todayAnswers}`.split(',')},
     };
     await api.doFormBody('atop_channel_question_list').then(async data => {
