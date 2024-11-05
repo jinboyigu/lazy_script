@@ -44,28 +44,68 @@ class PurchaseCard extends Template {
 
     await self.beforeRequest(api);
 
+    const cardIdEnc = '_vxHkMHQS98=';
     await handleSign();
 
     async function handleSign() {
-      const userRewards = await api.doFormBody('vvipcocoon_purchaseCard_couponInfo', {
-        'cardIdEnc': '_vxHkMHQS98=',
-        'tabCardIdEnc': '_vxHkMHQS98=',
+      const data = await api.doFormBody('vvipcocoon_purchaseCard_couponInfo', {
+        cardIdEnc,
+        tabCardIdEnc: cardIdEnc,
         'invitorInfo': '',
         'paramData': {'platform': 1, 'pageClickKey': ''},
         'address': '',
         'channel': '314',
         'appVersion': '0',
-      }).then(_.property('data.extraRightsDTO.userRewards')) || [];
-      const target = userRewards.find(o => o.status === 2);
-      if (!target) return api.log('今天已经领取或者未开通');
-      await api.doFormBody('vvipcocoon_extraRightsDispatch', {
-        'receiveKey': target.receiveKey,
-        'channel': '314',
-        'floorType': 5,
-        'address': 'iOmxOgGJp10LNqUffyvPP+lrTLk7YNv0',
-      }).then(data => {
-        api.log(`${data.data.materialText} ${data.data.showAmount}`);
       });
+      await _sign();
+      await _sign1();
+
+      async function _sign() {
+        const target = _.get(data, 'data.extraRightsDTO.userRewards', []).find(o => o.status === 2);
+        if (!target) return api.log('[每日签到] 今天已经领取或者未开通');
+        await api.doFormBody('vvipcocoon_extraRightsDispatch', {
+          'receiveKey': target.receiveKey,
+          'channel': '314',
+          'floorType': 5,
+          'address': 'iOmxOgGJp10LNqUffyvPP+lrTLk7YNv0',
+        }).then(data => {
+          api.log(`[每日签到] ${data.data.materialText} ${data.data.showAmount}`);
+        });
+      }
+
+      // 额外的打卡领券任务(7天打卡4次)
+      async function _sign1() {
+        const progressTaskList = _.get(data, 'data.cocoonTaskDTO.progressTaskList', []);
+        for (const {
+          instanceMainTitle,
+          instanceThreshold,
+          instanceTotalProgress,
+          instanceId,
+          signToday,
+          instanceStatus,
+          rewardList,
+          rewardStatus
+        } of progressTaskList) {
+          if (!instanceMainTitle.match('打卡') || (instanceThreshold === instanceTotalProgress) || (rewardStatus === 1) || (instanceStatus !== 0)) continue;
+          const rewardData = `(${rewardList.map(o => `${o.couponQuota}-${o.couponDiscount}${o.couponLimitStr}`).join()})`;
+          const log = msg => api.log(`[${instanceMainTitle}] ${msg}`);
+          if (signToday) {
+            log(`今天已打卡${rewardData}`);
+            continue;
+          }
+          await api.doFormBody('vvipcocoon_taskSign', {
+            instanceId,
+            'floorType': 6,
+            cardIdEnc,
+          }).then(data => {
+            if (data.success) {
+              log(`今日打卡成功${rewardData}`);
+            } else {
+              log(`打卡失败, ${JSON.stringify(data)}`);
+            }
+          });
+        }
+      }
     }
   }
 }
