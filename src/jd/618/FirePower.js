@@ -172,7 +172,7 @@ class FirePower extends Template {
           await api.doFormBody('apStartTiming', {
             'timerId': 'bJEwwhJl',
             'uniqueId': taskId,
-            'jumpUrl': encodeURIComponent(adInfo.target_url),
+            'jumpUrl': encodeURIComponent(adInfo ? adInfo.target_url : taskTargetUrl),
             'jumpType': 1,
           });
           await api.doSign('apResetTiming', {
