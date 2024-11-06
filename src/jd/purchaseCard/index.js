@@ -47,7 +47,7 @@ class PurchaseCard extends Template {
     const cardIdEnc = '_vxHkMHQS98=';
     await handleSign();
 
-    async function handleSign() {
+    async function handleSign(onlyCheckIn = false) {
       const data = await api.doFormBody('vvipcocoon_purchaseCard_couponInfo', {
         cardIdEnc,
         tabCardIdEnc: cardIdEnc,
@@ -57,7 +57,7 @@ class PurchaseCard extends Template {
         'channel': '314',
         'appVersion': '0',
       });
-      await _sign();
+      !onlyCheckIn && await _sign();
       await _sign1();
 
       async function _sign() {
@@ -83,12 +83,30 @@ class PurchaseCard extends Template {
           instanceId,
           signToday,
           instanceStatus,
-          rewardList,
+          rewardList = [],
           rewardStatus
         } of progressTaskList) {
-          if (!instanceMainTitle.match('打卡') || (instanceThreshold === instanceTotalProgress) || (rewardStatus === 1) || (instanceStatus !== 0)) continue;
           const rewardData = `(${rewardList.map(o => `${o.couponQuota}-${o.couponDiscount}${o.couponLimitStr}`).join()})`;
           const log = msg => api.log(`[${instanceMainTitle}] ${msg}`);
+          if (rewardStatus === 1) {
+            await api.doFormBody('vvipcocoon_taskRewardReceive', {
+              instanceId,
+              'floorType': 6,
+              cardIdEnc,
+              'receiveKey': rewardList[0].receiveKey,
+            }).then(data => {
+              if (data.success) {
+                log(`领取成功 ${rewardData}`);
+                if (_.get(data, 'data.newTask')) {
+                  // 继续打卡
+                  return handleSign(true);
+                }
+              } else {
+                log(`领取失败 ${JSON.stringify(data)}`);
+              }
+            });
+          }
+          if (!instanceMainTitle.match('打卡') || (instanceThreshold === instanceTotalProgress) || (rewardStatus === 1) || (instanceStatus !== 0)) continue;
           if (signToday) {
             log(`今天已打卡${rewardData}`);
             continue;
