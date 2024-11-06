@@ -4,6 +4,7 @@ const {sleep, writeFileJSON, singleRun, replaceObjectMethod} = require('../../li
 const {getMoment} = require('../../lib/moment');
 const _ = require('lodash');
 const {getEnv} = require('../../lib/env');
+const md5 = require('js-md5');
 
 // 等级
 const levelWaters = [
@@ -12,6 +13,8 @@ const levelWaters = [
   [0, 60, 300, 400, 12500],
   [0, 60, 300, 400, 20000],
 ];
+
+const clientVersion = '13.6.2';
 
 class Fruit1 extends Template {
   static scriptName = 'Fruit1';
@@ -27,8 +30,8 @@ class Fruit1 extends Template {
   static commonParamFn = () => ({
     appid: 'signed_wh5',
     client: 'apple',
-    clientVersion: '13.6.2',
-    'x-api-eid-token' : 'jdd03M7UO6SRTFR5GQS7SPKPOGT7ZZB6KH2I7CUXZGVFSPJ5773VII5RHNSVRM4FK4RSLDCBRG3QQUS4WNC5PZ2767E6D3QAAAAMS3MH5UIAAAAAADBKH7G44EP47M4X',
+    clientVersion,
+    'x-api-eid-token': 'jdd03M7UO6SRTFR5GQS7SPKPOGT7ZZB6KH2I7CUXZGVFSPJ5773VII5RHNSVRM4FK4RSLDCBRG3QQUS4WNC5PZ2767E6D3QAAAAMS75L7ZOIAAAAADUWEC4MQ567K7EX',
   });
   static keepIndependence = true;
   static needInApp = false;
@@ -40,6 +43,10 @@ class Fruit1 extends Template {
         repeatFn: async data => {
           if ([405].includes(+data.code)) {
             await sleep(5);
+            return true;
+          } else if (data.code === '404') {
+            // 运行环境异常
+            await sleep(5 * 60);
             return true;
           }
         },
@@ -293,7 +300,12 @@ class Fruit1 extends Template {
     // 浇水
     async function handleWater(times, showFinish = false) {
       let finishTimes = 0;
-      showFinish && api.logBoth(`准备浇水次数: ${times}, 预计在 ${getMoment().add(times * 3, 's').format()} 后完成`);
+      const waitWaterSecond = 1;
+      // 增加频率限制, 避免 404
+      const oneRoundWaitSecond = 60;
+      const oneRoundMaxTimes = 4;
+      let oneRoundTimes = 1;
+      showFinish && api.logBoth(`准备浇水次数: ${times}, 预计在 ${getMoment().add(times * waitWaterSecond + times / oneRoundMaxTimes * oneRoundWaitSecond, 's').format()} 后完成`);
       for (let i = 0; i < times; i++) {
         const stop = await doFormBody('farm_water', {
           'waterType': 1,
@@ -306,9 +318,6 @@ class Fruit1 extends Template {
             if (stagePrize) {
               api.logBoth(`完成${treeFullStage - 1}阶段获得奖励: ${stagePrize.map(o => `${o.value}${o.prizeDesc}`).join(', ')}`);
             }
-          } else if (showFinish && ['404', '405'].includes(data.code)) {
-            // 活动太火爆了， 请稍后再试~
-            await sleep(5);
           } else {
             return true;
           }
@@ -316,7 +325,13 @@ class Fruit1 extends Template {
         if (stop) {
           break;
         }
-        await sleep();
+        // TODO 应该是无效请求
+        // await _report(api);
+        if (++oneRoundTimes > oneRoundMaxTimes) {
+          await sleep(oneRoundWaitSecond);
+          oneRoundTimes = 1;
+        }
+        await sleep(waitWaterSecond);
       }
       api[showFinish ? 'logBoth' : 'log'](`成功浇水次数: ${finishTimes}`);
     }
@@ -362,6 +377,115 @@ class Fruit1 extends Template {
         api.log(msg);
       }
     }
+  }
+}
+
+async function _report(api) {
+  return report2({
+    'event_id': 'Babel_dev_other_NewFarm_Main_Water',
+    'event_param': '{"aid":"01568601","babelChannel":"ttt6","newfarm_watercount":"10","newfarm_stage":"4","newfarm_label":"3","newfarm_round":"5"}',
+    'psn': '5a44015a5e835b3dcb903c9a6b9d66573473c14d|1316',
+    'psq': '1',
+    'page_id': 'NewFarm_Main',
+    'page_name': 'https://h5.m.jd.com/pb/015686010/Bc9WX7MpCW7nW9QjZ5N3fFeJXMH/index.html',
+    'page_param': 'babelChannel=ttt7',
+    'pv_sid': '306',
+    'pv_seq': '3',
+    'ma_is_sparse': '0',
+    'ma_b_group': '-1',
+  });
+
+  async function report2(p) {
+    let ts = new Date().getTime().toString();
+    let token = md5(ts + '5YT%aC89$22OI@pQ');
+    let pin = api.getPin();
+    let json = {
+      'pin_sid': '4d10dd0fce8ec6dd4f3bfa21b3aef59w',
+      'report_ts': ts,
+      'scr': '375x667',
+      'token': token,
+      'ut': 's',
+      'clt': 'web',
+      'jvr': '3.0.12',
+      'std': 'MO-J2011-1',
+      'tpc': 'traffic-jdm.cl',
+      'uuid': '1718552076019430492770',
+      'cli': 'IOS-M',
+      'osv': '',
+      'uid': '',
+      'biz': 'mba',
+      'mba_muid': '1718552076019430492770',
+      'mba_sid': '22',
+      'proj_id': '3',
+      'reserved3': '122270672.1718552076019430492770.1718552076.1718552076.1718615329.2_122270672_kong_t_1000582354__jingfen_bd5c3117144f4c7ea91e8de1a3ec02f7_1718374977703_122270672.13.1718552076019430492770_2.1718615329__122270672.13.1718552076019430492770_2.1718615329___JF8EAIJnNSttCx5QVxkCGxQQTlgDWw8OH0cLbzMMAQlYG1ZRSQMYRRZ7XlVdWBRKEB9vYhRXXlNIVw4fBCsiEEpcVVpUC0kTBl9XDVwzREsZTFZPViITS21Vbm0JexcFX2EEXFxYTVQ1KwMrEyBKbRYwBl0lE1c4blZTX11KAFFOClYiEXte',
+      'osp': 'iphone',
+      'data': [{
+        'ma_route_ready': '1',
+        'ma_log_id': '1718552076019430492770-1718617041919-1540707312',
+        'ma_pv_log_id': '1718552076019430492770-1718617035844-1342850999',
+        'ref': 'MyJdMTAManager',
+        'ctm': new Date().getTime().toString(),
+        'pin': pin,
+        'ctp': 'https://h5.m.jd.com/pb/015686010/Bc9WX7MpCW7nW9QjZ5N3fFeJXMH/index.html',
+        'par': 'babelChannel=ttt7',
+        'usc': 'kong',
+        'umd': 'jingfen',
+        'utr': 'bd5c3117144f4c7ea91e8de1a3ec02f7',
+        'ucp': 't_1000582354_',
+        'jdv': '122270672|kong|t_1000582354_|jingfen|bd5c3117144f4c7ea91e8de1a3ec02f7|1718374977703',
+        'vts': 2,
+        'seq': 13,
+        'browser_ver': '0',
+        'browser': 'JDAPP',
+        'fst': 1718552076,
+        'pst': 1718552076,
+        'vct': 1718615329,
+        'clr': '32-bit',
+        'bsl': 'zh-cn',
+        'bsc': 'UTF-8',
+        'jav': 0,
+        'flv': '',
+        'tit': '东东农场',
+        'hash': '',
+        'tad': '1',
+        'dataver': '0.1',
+        'is_wq': 0,
+        'chan_type': 6,
+        'rpd': 'MyJD_Main',
+        'app_device': 'IOS',
+        'pap': `JA2015_311210|${clientVersion}|IOS`,
+        'typ': 'cl',
+        'lgt': 'cl',
+        'tar': '',
+        'apv': clientVersion,
+        'mba_seq': '4',
+        'event_id': 'Babel_dev_other_NewFarm_Main_Resource2',
+        'event_param': '{"aid":"01568601","babelChannel":"ttt7","newfarm_jump_link":"https://lotterydraw-new.jd.com/?id=VssYBUKJOen7HZXpC8dRFA"}',
+        'psn': '713528612071b94e23fcd28144db476f856f9fc5|82',
+        'psq': '2',
+        'page_id': 'NewFarm_Main',
+        'page_name': 'https://h5.m.jd.com/pb/015686010/Bc9WX7MpCW7nW9QjZ5N3fFeJXMH/index.html',
+        'page_param': 'babelChannel=ttt7',
+        'pv_sid': '22',
+        'pv_seq': '4',
+        'ma_is_sparse': '0',
+        'ma_b_group': '-1',
+        'unpl': 'JF8EAIJnNSttCx5QVxkCGxQQTlgDWw8OH0cLbzMMAQlYG1ZRSQMYRRZ7XlVdWBRKEB9vYhRXXlNIVw4fBCsiEEpcVVpUC0kTBl9XDVwzREsZTFZPViITS21Vbm0JexcFX2EEXFxYTVQ1KwMrEyBKbRYwBl0lE1c4blZTX11KAFFOClYiEXte',
+        'mjds': '',
+        'mode_tag': '0',
+      }],
+    };
+    json = {...json, ...p};
+    await api.commonDo({
+      url: 'https://uranus.jd.com/log/m?std=MO-J2011-1',
+      cookie: '',
+      method: 'POST',
+      body: json,
+      headers: {
+        referer: 'https://lotterydraw-new.jd.com/?id=VssYBUKJOen7HZXpC8dRFA',
+        'user-agent': `jdapp;iPhone;${clientVersion};;;M/5.0;appBuild/169370;jdSupportDarkMode/0;ef/1;ep/%7B%22ciphertype%22%3A5%2C%22cipher%22%3A%7B%22ud%22%3A%22DzOzDJS4DtOyCNcnYtu0ZJSzZwDuCtqnDNHuYtG3DwY4DJZwEWZtDG%3D%3D%22%2C%22sv%22%3A%22CJUkDy41%22%2C%22iad%22%3A%22%22%7D%2C%22ts%22%3A1718615435%2C%22hdid%22%3A%22JM9F1ywUPwflvMIpYPok0tt5k9kW4ArJEU3lfLhxBqw%3D%22%2C%22version%22%3A%221.0.3%22%2C%22appname%22%3A%22com.360buy.jdmobile%22%2C%22ridx%22%3A-1%7D;Mozilla/5.0 (iPhone; CPU iPhone OS 15_7_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148;supportJDSHWK/1;`,
+      },
+    });
   }
 }
 
