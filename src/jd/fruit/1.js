@@ -15,6 +15,7 @@ const levelWaters = [
 ];
 
 const clientVersion = '13.6.2';
+const frequencyLimit = {max: 4, wait: 60};
 
 class Fruit1 extends Template {
   static scriptName = 'Fruit1';
@@ -40,11 +41,13 @@ class Fruit1 extends Template {
   static apiOptions() {
     return {
       options: {
+        frequencyLimit,
         repeatFn: async data => {
-          if ([405].includes(+data.code)) {
+          const code = +data.code;
+          if ([405].includes(code)) {
             await sleep(5);
             return true;
-          } else if (data.code === '404') {
+          } else if (code === 404) {
             // 运行环境异常
             await sleep(5 * 60);
             return true;
@@ -301,11 +304,7 @@ class Fruit1 extends Template {
     async function handleWater(times, showFinish = false) {
       let finishTimes = 0;
       const waitWaterSecond = 1;
-      // 增加频率限制, 避免 404
-      const oneRoundWaitSecond = 60;
-      const oneRoundMaxTimes = 4;
-      let oneRoundTimes = 1;
-      showFinish && api.logBoth(`准备浇水次数: ${times}, 预计在 ${getMoment().add(times * waitWaterSecond + times / oneRoundMaxTimes * oneRoundWaitSecond, 's').format()} 后完成`);
+      showFinish && api.logBoth(`准备浇水次数: ${times}, 预计在 ${getMoment().add(times * 1.5 + times / frequencyLimit.max * (frequencyLimit.wait + 5), 's').format()} 后完成`);
       for (let i = 0; i < times; i++) {
         const stop = await doFormBody('farm_water', {
           'waterType': 1,
@@ -327,10 +326,6 @@ class Fruit1 extends Template {
         }
         // TODO 应该是无效请求
         // await _report(api);
-        if (++oneRoundTimes > oneRoundMaxTimes) {
-          await sleep(oneRoundWaitSecond);
-          oneRoundTimes = 1;
-        }
         await sleep(waitWaterSecond);
       }
       api[showFinish ? 'logBoth' : 'log'](`成功浇水次数: ${finishTimes}`);

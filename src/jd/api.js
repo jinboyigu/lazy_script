@@ -40,7 +40,12 @@ const _request = async (cookie, {form, body, qs, headers = {}, ...others}, curre
     delete options['sign'];
     if (!uri || !sign) return;
     const body = options.form || options.body || options.qs;
-    const result = await rp({...DEFAULT_OPTION, uri, timeout: 1000 * 5, body: {...body, ..._.pick({...options.form, ...options.body, ...options.qs}, 'functionId')}}).catch(() => {
+    const result = await rp({
+      ...DEFAULT_OPTION,
+      uri,
+      timeout: 1000 * 5,
+      body: {...body, ..._.pick({...options.form, ...options.body, ...options.qs}, 'functionId')},
+    }).catch(() => {
       return false;
     });
     if (!_.get(result, 'IsSuccess')) {
@@ -116,6 +121,8 @@ class Api {
     this.signData = signData || {};
     this.options = options || {};
     this.formatData = formatData;
+    // 存放频率限制的 functionId
+    this.frequencyLimitCache = {};
   }
 
   set cookie(v) {
@@ -134,16 +141,26 @@ class Api {
     const self = this;
     // 请求优先展示 functionId, 以便定位和排查问题
     const priorityProperty = 'functionId';
+    let functionId;
     ['qs', 'form'].forEach(key => {
       if (priorityProperty in (options[key] || {})) {
         options[key] = _.assign({[priorityProperty]: options[key][priorityProperty]}, options[key]);
+        functionId = options[key][priorityProperty];
       }
     });
     if (options['blockRequest']) {
       return Promise.resolve({});
     }
 
-    const {repeatTimes = 3, repeatFn = _.noop, setCookieKeys, ignoreNotLogin, genUserAgent} = options;
+    let {
+      repeatTimes = 3,
+      repeatFn = _.noop,
+      setCookieKeys,
+      ignoreNotLogin,
+      genUserAgent,
+      frequencyLimit = {},
+    } = options;
+    frequencyLimit = {...{max: 0, wait: 60}, ...frequencyLimit};
     if (setCookieKeys) {
       _.assign(options, {
         resolveWithFullResponse: true,
@@ -154,6 +171,8 @@ class Api {
     if (genUserAgent) {
       genUserAgent(options);
     }
+
+    const frequencyLimitCache = this.frequencyLimitCache;
 
     let data;
     for (let i = 0; i < repeatTimes; i++) {
@@ -167,6 +186,18 @@ class Api {
       if (await repeatFn(data)) {
         await sleep(2);
       } else {
+        const {max: maxTimes, wait: waitSeconds} = frequencyLimit;
+        if (maxTimes) {
+          const functionIdLimit = frequencyLimitCache[functionId] = frequencyLimitCache[functionId] || {
+            times: 1,
+            nowTime: getMoment().valueOf(),
+          };
+          if (++functionIdLimit.times > frequencyLimit.max) {
+            await sleep((getMoment().valueOf() + waitSeconds * 1000 - functionIdLimit.nowTime) / 1000);
+            functionIdLimit.times = 1;
+          }
+          functionIdLimit.nowTime = getMoment().valueOf();
+        }
         break;
       }
     }
