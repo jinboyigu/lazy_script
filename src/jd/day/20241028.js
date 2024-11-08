@@ -28,7 +28,9 @@ class Day20241028 extends Template {
 
   static apiOptions() {
     return {
-      options: {},
+      options: {
+        frequencyLimit: {max: 4},
+      },
     };
   }
 
@@ -64,6 +66,13 @@ class Day20241028 extends Template {
       '10.30': ['年轮'],
       '10.31': ['海阔天空'],
       '11.01': ['风浪越大鱼越贵！'],
+      '11.02': ['芒果', '火'],
+      '11.03': '五',
+      '11.04': ['送分', '体育'],
+      '11.05': ['黑土', '萝卜'],
+      '11.06': '后来',
+      '11.07': '最长的电影',
+      '11.08': '凤凰传奇',
       ...todayAnswers && {[getMoment().format('MM.DD')]: `${todayAnswers}`.split(',')},
     };
     await api.doFormBody('atop_channel_question_list').then(async data => {
@@ -71,7 +80,8 @@ class Day20241028 extends Template {
       for (const {dateQuestionList} of taskList.reverse()) {
         for (const [i, {encryptAssignmentId, startDateStr, question, completionFlag}] of dateQuestionList.entries()) {
           if (completionFlag) continue;
-          const answer = answers[startDateStr][i];
+          const answer = _.concat(answers[startDateStr])[i];
+          if (!answer) return api.clog(`${question}(${startDateStr}) 当前无答案!`);
           await api.doFormBody('atop_channel_submit_answer', {encryptAssignmentId, answer}).then(data => {
             let msg = `${question}(${startDateStr}) ${data.message}`;
             if (data.success) {
