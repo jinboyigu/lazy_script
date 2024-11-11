@@ -32,7 +32,7 @@ class Fruit1 extends Template {
     appid: 'signed_wh5',
     client: 'apple',
     clientVersion,
-    'x-api-eid-token': 'jdd03M7UO6SRTFR5GQS7SPKPOGT7ZZB6KH2I7CUXZGVFSPJ5773VII5RHNSVRM4FK4RSLDCBRG3QQUS4WNC5PZ2767E6D3QAAAAMS75L7ZOIAAAAADUWEC4MQ567K7EX',
+    // 'x-api-eid-token': 'jdd03M7UO6SRTFR5GQS7SPKPOGT7ZZB6KH2I7CUXZGVFSPJ5773VII5RHNSVRM4FK4RSLDCBRG3QQUS4WNC5PZ2767E6D3QAAAAMS75L7ZOIAAAAADUWEC4MQ567K7EX',
   });
   static keepIndependence = true;
   static needInApp = false;
@@ -42,12 +42,12 @@ class Fruit1 extends Template {
     return {
       options: {
         frequencyLimit,
-        repeatFn: async data => {
+        repeatFn: async (data, functionId) => {
           const code = +data.code;
           if ([405].includes(code)) {
             await sleep(5);
             return true;
-          } else if (code === 404) {
+          } else if (code === 404 && functionId === 'farm_water') {
             // 运行环境异常
             await sleep(5 * 60);
             return true;

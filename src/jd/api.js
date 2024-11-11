@@ -183,7 +183,7 @@ class Api {
         // 重新请求一次
         data = await _request(this.cookie, options, this.currentCookieTimes);
       }
-      if (await repeatFn(data)) {
+      if (await repeatFn(data, functionId)) {
         await sleep(2);
       } else {
         const {max: maxTimes, wait: waitSeconds} = frequencyLimit;
