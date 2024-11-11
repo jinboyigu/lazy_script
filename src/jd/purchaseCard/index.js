@@ -105,6 +105,7 @@ class PurchaseCard extends Template {
                 log(`领取失败 ${JSON.stringify(data)}`);
               }
             });
+            break;
           }
           if (!instanceMainTitle.match('打卡') || (instanceThreshold === instanceTotalProgress) || (rewardStatus === 1) || (instanceStatus !== 0)) continue;
           if (signToday) {
