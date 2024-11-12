@@ -8,12 +8,13 @@ const _ = require('lodash');
 async function updateNewEnvByCharles() {
   const {JD_COOKIE_OPTION} = readFileJSON('../../../.env.product.json', __dirname);
   if (!JD_COOKIE_OPTION) return console.log('无需更新');
-  const result = readDirJSON(__dirname);
+  const result = readDirJSON(require('path').resolve(__dirname, '../../../'));
   const cookieKeys = [
     // 标识, 需更新的cookie 字段, [header 值(默认为 cookie), 判断方法]
     ['wq_uin', 'wq_skey'],
     ['pt_pin', 'pt_key'],
-    ['', 'wskey', ['j-e-c', v => {
+    // https://blackhole.m.jd
+    ['pin_hash', 'wskey', ['j-e-c', v => {
       let pin;
       try {
         pin = JSON.parse(decodeURIComponent(v)).cipher.pin;
