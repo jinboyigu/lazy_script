@@ -18,7 +18,7 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
     require('./jd/sign/beanSmallBean'),
     // TODO 确认 turnTableFarm 是否正常
     require('./jd/fruit/turnTableFarm'),
-    require('./jd/dwapp/PointsGasStation'),
+    // require('./jd/dwapp/PointsGasStation'),
     require('./jd/superLeague'),
     require('./jd/newtry'),
     require('./jd/seckillView'),
