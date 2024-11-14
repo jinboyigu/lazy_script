@@ -44,6 +44,7 @@ class StatisticsOrder extends Template {
     self.injectEncryptH5st(api, {
       config: {
         common_order_list: {appId: '2d275'},
+        order_common_order_detail: {appId: '35c6f'},
       },
       algoOptions: {
         type: 'wechat',
@@ -63,20 +64,44 @@ class StatisticsOrder extends Template {
     for (let i = 1; i < 20; i++) {
       const result = await getList(i, 10);
       const orderList = _.get(result, 'body.orderList', []);
-      const validList = orderList.filter(o => getMoment(o.submitDate).isAfter(startDay) && getMoment(o.submitDate).isBefore(endDay)).filter(o => !/秒送加速省|支付抽奖权益包|省钱包|京东省省卡|商家赠|开方服务|咨询服务|京东E卡|180天只换不修|话费充值|全额返超值权益包/.test(o.wareInfoList[0].wareName));
+      const validList = orderList.filter(o => getMoment(o.submitDate).isAfter(startDay) && getMoment(o.submitDate).isBefore(endDay)).filter(o => !/权益包|30天全保换新|秒送加速省|支付抽奖权益包|省钱包|京东省省卡|商家赠|开方服务|咨询服务|京东E卡|180天只换不修|话费充值|全额返超值权益包/.test(o.wareInfoList[0].wareName));
       allOrderList.push(...validList);
       if (orderList.some(o => getMoment(o.submitDate).isBefore(startDay))) break;
       await sleep(5);
     }
 
+    for (const order of allOrderList) {
+      const {shouldPay, orderId} = order;
+      // 粗略估计
+      if (+shouldPay < 2) {
+        // 获取详情
+        await getDetail(orderId).then(data => {
+          const billsList = _.get(data, 'body.orderPriceInfo.billsList', []);
+          for (const {title, money} of billsList) {
+            const config = [
+              ['eCard', '礼品卡和领货码'],
+              ['superCard', '京东超市卡'],
+            ];
+            const target = config.find(array => array[1] === title);
+            if (target) {
+              order[target[0]] = +money.replace('- ¥ ', '');
+            }
+          }
+        });
+        await sleep(3);
+      }
+    }
+
     // 处理数据和输出
     const waitPayList = _.sortBy(allOrderList.filter(o => o.orderStatusInfo.originOrderStatus === 1), 'submitDate');
     const paidList = _.sortBy(allOrderList.filter(o => o.orderStatusInfo.originOrderStatus > 1), 'submitDate');
-    const formatList = list => list.map(({wareInfoList, submitDate, shouldPay}) => [
+    const formatList = list => list.map(({wareInfoList, submitDate, shouldPay, eCard = 0, superCard = 0}) => [
       wareInfoList.map(o => `${o.wareName}(${o.num} 件)`).join('\n'),
       wareInfoList.map(o => `https://item.m.jd.com/product/${o.skuId}`).join('\n'),
-      submitDate,
+      getMoment(submitDate).format(),
       shouldPay,
+      eCard,
+      superCard,
     ]);
     // TODO 按需开启日志输出
     0 && api.log(['----等待付款----', ...waitPayList, '----已付款----', ...paidList]
@@ -92,17 +117,21 @@ class StatisticsOrder extends Template {
           link: '购买链接',
           time: '下单时间',
           price: paid ? '实付' : '应付',
+          eCard: 'E卡',
+          superCard: '超市卡',
         },
         ...formatList(list).map((array, i) => [i + 1, ...array]),
       ], {head: 'def'});
     };
     drawTable(waitPayList);
     drawTable(paidList, true);
-    const filePath = require('path').resolve(__dirname, `order_${startDay}_${getMoment().format('YYYY-MM-DD')}.csv`);
-    // 复制到 wps 前可能需要手动到浏览器用 copy 成纯文本
+    const getFilePath = (isCsv = true, needCookieIndex = false) => require('path').resolve(__dirname, `order_${needCookieIndex ? `${api.currentCookieIndex}_` : ''}${startDay}_${getMoment().format('YYYY-MM-DD')}.${isCsv ? 'csv' : 'json'}`);
+    const filePath = getFilePath();
+    // 复制到 wps 前需 copy 成纯文本
     const data = formatList(paidList).map(array => [...array.map(s => `"${s}"`), '京东', api.pinLabel].join('\t')).join('\n');
     const first = api.isFirst;
     fs.writeFileSync(filePath, `${data}${first ? '\n' : ''}`, {flag: first ? 'w' : 'a'});
+    writeFileJSON(formatList(paidList), getFilePath(false, true));
 
 
     function getList(page = 1, pageSize = 10) {
@@ -120,6 +149,24 @@ class StatisticsOrder extends Template {
         'orderListTag': '4096',
         page,
         pageSize,
+        'oldAgeStyle': '0',
+      });
+    }
+
+    function getDetail(orderId) {
+      return api.doGetBody('order_common_order_detail', {
+        'externalLoginType': 1,
+        'appType': '1',
+        'bizType': '2',
+        'source': 'wx_inner_orderList_orderDetail',
+        'token': '',
+        'deviceUUId': '',
+        'platform': 2,
+        'uuid': '66489454451071729268909745',
+        'systemBaseInfo': {'SDKVersion': '3.6.5', 'hostVersionName': '8.0.53', 'system': 'iOS 17.5'},
+        'appVersion': '1.0.0',
+        orderId,
+        'referer': 'http://wq.jd.com/wxapp/pages/order/list/index',
         'oldAgeStyle': '0',
       });
     }
