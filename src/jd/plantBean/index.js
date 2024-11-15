@@ -25,6 +25,7 @@ class PlantBean extends Template {
 
   static apiOptions = {
     options: {
+      frequencyLimit: {max: 4},
       repeatFn: async data => {
         if (data.code === '413') {
           await sleep(5);
