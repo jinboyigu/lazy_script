@@ -11,8 +11,9 @@ const levelWaters = [
   0,
   0,
   [0, 60, 300, 400, 12500],
-  [0, 60, 300, 400, 20000],
+  [0, 60, 300, 400, 25000],
 ];
+const getWaterTipsNumber = s => +s.match(/\d+\.?\d+/)[0] / 100;
 
 const clientVersion = '13.6.2';
 const frequencyLimit = {max: 4, wait: 60};
@@ -304,8 +305,10 @@ class Fruit1 extends Template {
     async function handleWater(times, showFinish = false) {
       let finishTimes = 0;
       const waitWaterSecond = 1;
-      showFinish && api.logBoth(`准备浇水次数: ${times}, 预计在 ${getMoment().add(times * 1.5 + times / frequencyLimit.max * (frequencyLimit.wait + 5), 's').format()} 后完成`);
-      for (let i = 0; i < times; i++) {
+      let firstTips;
+      const logToFinish = (num, msg = '预估') => api.logBoth(`${msg}准备浇水次数: ${num}, 预计在 ${getMoment().add(num * 1.5 + num / frequencyLimit.max * (frequencyLimit.wait + 5), 's').format()} 后完成`);
+      showFinish && logToFinish(times);
+      for (let i = 0; i < showFinish ? Infinity : times; i++) {
         const stop = await doFormBody('farm_water', {
           'waterType': 1,
           'babelChannel': 'ttt7',
@@ -313,9 +316,23 @@ class Fruit1 extends Template {
         }).then(async data => {
           if (self.isSuccess(data)) {
             ++finishTimes;
-            const {bottleWater, stagePrize, treeFullStage} = data.data.result;
+            const {bottleWater, stagePrize, treeFullStage, waterTips} = data.data.result;
+            if (treeFullStage === 4 && showFinish) {
+              firstTips = firstTips || waterTips;
+              if (i === 1) {
+                const remainWatter = 10 / (getWaterTipsNumber(firstTips) - getWaterTipsNumber(waterTips)) * getWaterTipsNumber(waterTips);
+                logToFinish(Math.ceil(remainWatter / 10), '实际');
+                if (remainWatter > bottleWater) {
+                  api.log(`还差 ${Math.ceil(remainWatter - bottleWater)} 滴水才能收获`);
+                  return true;
+                }
+              }
+            }
             if (stagePrize) {
               api.logBoth(`完成${treeFullStage - 1}阶段获得奖励: ${stagePrize.map(o => `${o.value}${o.prizeDesc}`).join(', ')}`);
+            }
+            if (treeFullStage === 5) {
+              return true;
             }
           } else {
             return true;
@@ -354,7 +371,7 @@ class Fruit1 extends Template {
       let canHarvest;
       let waterTimes = 0;
       if (target) {
-        let remainWater = target[treeFullStage] * +waterTips.match(/\d+\.?\d+/)[0] / 100;
+        let remainWater = target[treeFullStage] * getWaterTipsNumber(waterTips);
         remainWater += _.sum(_.takeRight(target, target.length - 1 - treeFullStage));
         const harvestWater = remainWater - bottleWater;
         canHarvest = harvestWater <= 0;
