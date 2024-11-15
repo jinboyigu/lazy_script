@@ -48,7 +48,8 @@ class Day20241112 extends Template {
     if (_.get(homeData, 'data.result.signButton.status') !== 1) return;
     await api.doFormBody('deliverySign_sign').then(data => {
       if (self.isSuccess(data)) {
-        api.log(`签到成功(获得: ${_.get(data, 'data.result.value')})`);
+        // api.log(`签到成功(获得: ${_.get(data, 'data.result.value')})`);
+        api.log(`签到成功(获得: ${JSON.stringify(data)})`);
       } else {
         api.log(`签到失败: ${JSON.stringify(data)}`);
       }
