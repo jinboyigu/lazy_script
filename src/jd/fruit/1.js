@@ -308,7 +308,7 @@ class Fruit1 extends Template {
       let firstTips;
       const logToFinish = (num, msg = '预估') => api.logBoth(`${msg}准备浇水次数: ${num}, 预计在 ${getMoment().add(num * 1.5 + num / frequencyLimit.max * (frequencyLimit.wait + 5), 's').format()} 后完成`);
       showFinish && logToFinish(times);
-      for (let i = 0; i < showFinish ? Infinity : times; i++) {
+      for (let i = 0; i < (showFinish ? Infinity : times); i++) {
         const stop = await doFormBody('farm_water', {
           'waterType': 1,
           'babelChannel': 'ttt7',
