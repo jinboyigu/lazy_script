@@ -75,7 +75,7 @@ class PurchaseCard extends Template {
 
       // 额外的打卡领券任务(7天打卡4次)
       async function _sign1() {
-        const progressTaskList = _.get(data, 'data.cocoonTaskDTO.progressTaskList', []);
+        const progressTaskList = _.get(data, 'data.cocoonTaskDTO.progressTaskList', []) || [];
         for (const {
           instanceMainTitle,
           instanceThreshold,
