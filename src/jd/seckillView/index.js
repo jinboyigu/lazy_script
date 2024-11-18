@@ -16,6 +16,7 @@ class SecKillView extends Template {
   static times = 1;
   static needOriginProMd = true;
   static needInApp = false;
+  static activityEndTime = '2024-11-15';
 
   static apiOptions() {
     return {
