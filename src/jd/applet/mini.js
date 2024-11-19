@@ -206,7 +206,7 @@ class AppletMini extends Template {
         'versionFlag': 'new',
       }).then(async data => {
         const floors = _.get(data, 'data.newChannelPage.floors', []);
-        const target = floors.find(o => o.type === 6 && o.signList);
+        const target = floors.find(o => o.floorTitle === '每天领神券' && o.signList);
         if (!target) return;
         for (const {currentDay, rewardStatus} of target.signList) {
           if (!currentDay || rewardStatus) continue;
