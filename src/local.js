@@ -16,6 +16,7 @@ require('./appBase')([
   [[7, 12, 18, 20, 22], require('./jd/fruit/1')],
   [[20], require('./jd/applet/hbrain')],
   [[7, 18], require('./jd/purchaseCard')],
+  [[0, 7, 12, 18, 22, 23], require('./jd/fruit')],
   // 定时任务
   [[19], require('./jd/superRedBagDraw'), 25],
   [[23, 10, 22], require('./jd/fission'), 32],
