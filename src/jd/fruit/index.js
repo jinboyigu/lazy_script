@@ -308,7 +308,8 @@ class Fruit extends Template {
         if (waterFriendGotAward) return;
         // 优先给 default shareCode 浇水
         for (const shareCode of getShareCodesByDefault(true)) {
-          await handleWaterFriend(shareCode);
+          const stop = await handleWaterFriend(shareCode);
+          if (stop) break;
         }
 
         if (waterFriendCountKey >= waterFriendMax) {
@@ -316,10 +317,10 @@ class Fruit extends Template {
         }
 
         async function handleWaterFriend(shareCode) {
-          if (waterFriendCountKey >= waterFriendMax) return;
+          if (waterFriendCountKey >= waterFriendMax) return true;
           await sleep(2);
           return api.doFormBody('waterFriendForFarm', {shareCode}).then(data => {
-            if (!self.isSuccess(data)) return;
+            if (!self.isSuccess(data)) return true;
             ++waterFriendCountKey;
           });
         }
