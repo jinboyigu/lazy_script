@@ -25,7 +25,6 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
     require('./jd/fission'),
     // require('./jd/fission/1'),
     require('./jd/applet/sign'),
-    require('./jd/bSign'),
     require('./jd/richTree'),
     require('./jd/lhb4b'),
     require('./jd/superBrand/Product'),

@@ -6,6 +6,10 @@
 
 require('./appBase')([
   // 实时执行
+  // hour0
+  ...[
+    require('./jd/bSign'),
+  ].map(target => [[0], target]),
   [['*'], require('./jd/fruit/1Wheels')],
   [[0, 4, 8, 9, 12, 20, 22], require('./jd/joy')],
   [[1, 7, 18], require('./jd/dwapp/PointsGasStation')],

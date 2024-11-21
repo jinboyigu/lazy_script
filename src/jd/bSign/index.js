@@ -42,7 +42,7 @@ class BSign extends Template {
         apTaskDrawAward: {appId: '6f2b6'},
         apDoLimitTimeTask: {appId: 'ebecc'},
       },
-      signFromSecurity: true,
+      signFromKEDAYA: true,
     });
   }
 
@@ -88,9 +88,20 @@ class BSign extends Template {
           itemId,
         };
         if (!canDrawAwardNum) {
-          await api.doFormBody('apStartTaskTime', {taskId, itemId});
-          await sleep(timeLimitPeriod);
-          await api.doFormBody('apDoLimitTimeTask');
+          const taskList = await api.doFormBody('apTaskDetail', {
+            taskType,
+            taskId,
+            'channel': 4,
+            'checkVersion': true,
+          }).then(data => {
+            const {status, taskItemList} = data.data;
+            return _.takeRight(taskItemList, status.finishNeed - status.userFinishedTimes);
+          });
+          for (const {itemId} of taskList) {
+            await api.doFormBody('apStartTaskTime', {taskId, itemId, 'taskInsert': true, 'channel': 4});
+            await sleep(timeLimitPeriod);
+            await api.doFormBody('apDoLimitTimeTask');
+          }
         }
         await sleep(2);
         await api.doFormBody('apTaskDrawAward', body);
