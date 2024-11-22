@@ -64,7 +64,11 @@ class AppletSign extends Template {
     await self.beforeRequest(api);
 
     const doPathBody = functionId => api.doPathBody(functionId, void 0, {functionId: `SignComponent_${functionId}`});
-    const completionFlag = await doPathBody('querySignList').then(_.property('data.completionFlag'));
+    const data = await doPathBody('querySignList');
+    if (!self.isSuccess(data)) {
+      return api.log(data.message);
+    }
+    const completionFlag = _.get(data, 'data.completionFlag');
     if (!completionFlag) {
       await doPathBody('doSignTask').then(data => {
         if (self.isSuccess(data)) {
