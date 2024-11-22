@@ -18,7 +18,7 @@ class Lhb4b extends Template {
   static keepIndependence = true;
   static needInSpeedApp1 = true;
   static times = 1;
-  static activityEndTime = '2024-12-31';
+  static activityEndTime = '2024-11-22';
 
   static apiOptions() {
     return {
@@ -81,13 +81,20 @@ class Lhb4b extends Template {
         canDrawAwardNum
       } of taskList || []) {
         if (taskTitle.match('下单') || taskFinished) continue;
-        const body = {
+        const taskList = await api.doFormBody('apTaskDetail', {
+          taskType,
           taskId,
-          itemId,
-        };
-        await api.doFormBody('apStartTaskTime', body);
-        await sleep(timeLimitPeriod);
-        await api.doFormBody('apDoLimitTimeTask');
+          'channel': 4,
+          'checkVersion': true,
+        }).then(data => {
+          const {status, taskItemList} = data.data;
+          return _.takeRight(taskItemList, status.finishNeed - status.userFinishedTimes);
+        });
+        for (const {itemId} of taskList) {
+          await api.doFormBody('apStartTaskTime', {taskId, itemId, 'taskInsert': true, 'channel': 4});
+          await sleep(timeLimitPeriod);
+          await api.doFormBody('apDoLimitTimeTask');
+        }
       }
     }
 
