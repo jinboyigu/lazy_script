@@ -6,6 +6,13 @@ const {printLog, sleep, objectValuesStringify, addMosaic, convertQuery} = requir
 const {getMoment} = require('../lib/moment');
 const {processInAC} = require('../lib/env');
 
+const joinUrl = (target, subPath) => {
+  subPath = _.concat(subPath).join('/');
+  const url = new URL(target);
+  url.pathname = subPath.startsWith('/') ? subPath : `${url.pathname}/${subPath}`;
+  return url.href;
+};
+
 const requestURI = 'https://api.m.jd.com/client.action';
 const DEFAULT_OPTION = {
   method: 'POST',
@@ -266,7 +273,7 @@ class Api {
 
   doPath(functionId, form = {}, options = {}) {
     return this.do(_.merge({
-      uri: `${this.options.uri}/${functionId}`,
+      uri: joinUrl(this.options.uri, functionId),
       form,
     }, options));
   }
@@ -276,7 +283,7 @@ class Api {
       form.body = body;
     }
     return this.do(_.merge({
-      uri: `${this.options.uri}/${functionId}`,
+      uri: joinUrl(this.options.uri, functionId),
       form,
     }, options));
   }
@@ -287,9 +294,6 @@ class Api {
 
   doGet(functionId, qs = {}, options) {
     functionId && _.assign(qs, {functionId});
-    if (functionId !== 'vvipclub_lotteryTask') {
-      // return;
-    }
     return this.do(_.merge({qs, method: 'GET'}, options));
   }
 
@@ -311,13 +315,8 @@ class Api {
   }
 
   doGetPath(functionId, qs = {}, options = {}) {
-    let prefix = this.options.uri;
-    if (functionId.startsWith('/')) {
-      prefix = new URL(this.options.uri).origin;
-      functionId = functionId.replace(/^\//, '');
-    }
     return this.do(_.merge({
-      uri: `${prefix}/${functionId}`,
+      uri: joinUrl(this.options.uri, functionId),
       qs,
       method: 'GET',
     }, options));
