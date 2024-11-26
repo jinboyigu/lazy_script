@@ -34,6 +34,7 @@ class Day20241112 extends Template {
       config: {
         deliverySign_home: {appId: 'e88fd'},
         deliverySign_sign: {appId: 'e88fd'},
+        deliverySign_continue_award: {appId: 'e88fd'},
       },
       signFromKEDAYA: true,
     });
@@ -53,6 +54,9 @@ class Day20241112 extends Template {
       } else {
         api.log(`签到失败: ${JSON.stringify(data)}`);
       }
+    });
+    await api.doFormBody('deliverySign_continue_award').then(data => {
+      api.log(`deliverySign_continue_award: ${JSON.stringify(data)}`);
     });
   }
 }
