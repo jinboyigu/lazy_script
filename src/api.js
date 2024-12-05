@@ -44,10 +44,11 @@ async function doRun(target, cookieData = getCookieData(target.scriptName), meth
   try {
     result = await _do();
   } catch (e) {
-    // TODO 估计不会抛出异常了, 因为基本在 base/index.js(keepIndependence=true)中捕获了
-    errorOutput.push(`[${name}] error:`);
-    errorOutput.push(e.stack);
-    errorOutput.push('----------------------');
+    if (e.stack) {
+      errorOutput.push(`[${name}] error:`);
+      errorOutput.push(e.stack);
+      errorOutput.push('----------------------');
+    }
     console.error(e);
   }
   console.timeEnd(timeLabel);
