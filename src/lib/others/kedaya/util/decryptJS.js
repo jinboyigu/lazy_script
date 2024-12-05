@@ -33,11 +33,6 @@ function main(filePath) {
       });
     }
   }
-  // TODO 字符串的里面的可能要重新调整, 比如
-  //  \x0a => \n
-  //  \x27 => '
-  //  \x22 => "
-  //  \x20 =>
   // 替换十六进制为十进制
   newJs = newJs.replace(/\s?[^_](0x\w+)/g, (v1, v2) => {
     if (isNaN(+v2)) {
@@ -45,7 +40,10 @@ function main(filePath) {
     } else {
       return v1.replace(v2, +v2);
     }
-  });
+  })
+  // 适配里的字符串被替换的问题
+  newJs = newJs.replace(/'function test/g, '`function test').replace(/str\);}'/g, 'str);}`')
+  .replace('\n@https:', '\\n@https:');
   const newFilePath = filePath.replace(/\.js$/, '-decrypted.js');
   console.log(`输出新文件路径为: ${newFilePath}`);
   fs.writeFileSync(newFilePath, newJs);
