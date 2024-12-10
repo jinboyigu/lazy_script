@@ -51,7 +51,6 @@ class Sign extends Template {
         'headers': {
           'referer': 'https://pro.m.jd.com',
         },
-        needDelay: 30,
       },
       isSuccessFn: data => _.get(data, 'code') === '0',
       rewardOutputFn: data => {

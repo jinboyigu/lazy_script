@@ -954,7 +954,7 @@ class jdAlgo {
     }
     _0x3950af['userAgent'] = _0x5b66f1;
     let _0x3f6cf9 = 0;
-    const appId = this['appId'];
+    const appId = _0x3950af['algo'].appId || this['appId'];
     if (_0x3950af['algo']) {
       if (_0x2c5ca9['blRIf'] === _0x2c5ca9['blRIf']) {
         if (_0x3950af['algo']['random']) {

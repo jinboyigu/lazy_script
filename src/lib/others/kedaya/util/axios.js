@@ -14,7 +14,7 @@ module.exports = function (params) {
       form[key] = decodeURIComponent(value);
     });
     // 需要固定值, 不然可能会出错
-    form['osVersion'] = '17.5';
+    // form['osVersion'] = '17.5';
     return Promise.resolve({data: {form, headers: params.headers}});
   }
   return new Api().commonDo({
