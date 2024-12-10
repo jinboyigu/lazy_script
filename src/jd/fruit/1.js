@@ -43,7 +43,7 @@ class Fruit1 extends Template {
     return {
       options: {
         frequencyLimit,
-        repeatFn: async (data, functionId) => {
+        repeatFn: async (data = {}, functionId) => {
           const code = +data.code;
           if ([405].includes(code)) {
             await sleep(5);
