@@ -27,7 +27,7 @@ class PlantBean extends Template {
     options: {
       frequencyLimit: {max: 4},
       repeatFn: async data => {
-        if (data.code === '413') {
+        if (data.code === '413' || _.get(data, 'data.nutrState') === '5') {
           await sleep(5);
           return true;
         }
