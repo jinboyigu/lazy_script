@@ -19,7 +19,7 @@ class FirePower extends Template {
     client: 'apple',
     clientVersion: '13.2.10',
   });
-  static activityEndTime = '2024-11-11';
+  static activityEndTime = '2025-01-12';
   static concurrent = () => this._command[0];
 
   static apiOptions() {
@@ -40,10 +40,10 @@ class FirePower extends Template {
     //   setCookieKeys: ['CSID'],
     // });
     // CSID 需从 charles 中获取, 不然可能会无效
-    api.cookieInstance.set('CSID', 'Rjo9HXBSXgpcEwFcWU8NFApjJSsnLABeFFheVxRdDgJqe3Z7d3hxchVWVS1TWlRRWnZmYA1SRBRsZBt5XFtfOkdRXkNEXUdGbXBmc3s%3d');
-    await api.doGetUrl('https://u.jd.com/jda?e=99_1|1_28|||&p=JF8BAPEJK1olXDYDZBoCUBVIMzZNXhpXVhgcFR0DFxcIWDoXSQVJQ1pSCQNDWBlSWyhcBSlNFVhdIA5YDitsQyxMXF9HBlR2DVg2ezleUXFQRA5BFBlbEQIABg9IWzFXawlQJVMOVl5dAEgnXWhPYxtpA2ZnEA4fYDRidCxIQDlxLQoOZF9tCEoWAWwOGFIUXTYyVFptQyUWM244G10WVA8EUFpcC0oUA18IHWvA0qrX2_JfC08TAG04K1kVXQ4BZF1tAEN5AyIIdVgcEEtPZG5dD3sUM18LGloUXTYyitDJdzhlYB8IfwlWIgYCKwdbaZWZl184&a=fCg9UgoiAwwHO1BcXkQYFFlidHB8fV9bRFgzVRBSUll%2bAQAPDSwjLw%3d%3d&refer=norefer&d=COquWpM&h5st=-555503503', {
+    api.cookieInstance.set('CSID', 'FmY6GSJfXloARgAIWRJWRQlscHtwLAcNFVoHARYOWgVqeXdzfXN%2bcR5UOkFRWFNIR3Z7fQhGVhZkbB16U1I3VUdaQFxFXllZZn5mdnlQ');
+    await api.doGetUrl('https://u.jd.com/jda?e=99_2|1_6_1|||&p=JF8BAPMJK1olXDYDZBoCUBVIMzZNXhpXVhgcFR0DFxcIWDoXSQVJQ1pSCQNDWBlSWyhcBVlmJmIAA1wZfUtDWzh1ZDJuHAN3DBoVchJ1U2oWQwRACU8dDRsBVUVTXDdWRCtHGH5XWFxdC0oUMyp7XCgSJRgCNCpHaxFxYWp4fA1oFEAOWG5cOEkXCmcAElsXXjYyVFptQyUWM244G10XWA4EU1hbCEgXBF8IHWtKB1JdBAFtOEkXAG4LK1glVQ5sVxNdZkx5AyJFVmslXQEyV25tC0oWAm84K4WY7X0BKD8bC05vYWcOZw8QPFPc2e5MdDwVAWcJK2s&a=fCg9UgoiAwwHO1BcXkQYFFlidX50elJaRlYzVRBSUll%2bAQAPDSwjLw%3d%3d&refer=norefer&d=sGjGIpA&h5st=527651151', {
       headers: {
-        referer: 'https://u.jd.com/COquWpM',
+        referer: 'https://u.jd.com/sGjGIpA',
       },
       setCookieKeys: ['unpl'],
     });
@@ -70,8 +70,8 @@ class FirePower extends Template {
     // TODO 待移除
     const unionShareIds = getEnv('JD_FIREPOWER_UNIONSHAREIDS') || [];
 
-    const unionActId = '31192';
-    const actId = '2QPgcbnrRzSas2AFvNxFrcXb73zi';
+    const unionActId = '31202';
+    const actId = '2zD3BYBigkvTWMuzfEp9fBq4SR1s';
     const d = ''; // 短链接(?s=$d)
 
     const getCouponCronHour = _.first(self._command);
