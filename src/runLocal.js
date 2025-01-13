@@ -9,6 +9,7 @@ const schedule = require('node-schedule');
   const nodeCommand = (file, method = 'start', cookieIndex = '*', command1) => `node ${file} ${method} ${cookieIndex} ${command1}`;
   const execNode = (...args) => exec(nodeCommand(...args));
   schedule.scheduleJob('20 * * * *', () => {
+    exec('node src/lib/others/kedaya/util/download.js');
     exec('node src/local.js');
     // 更新github
     exec('git pull --rebase');

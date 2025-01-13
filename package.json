@@ -31,6 +31,7 @@
     "tail": "^2.0.4"
   },
   "scripts": {
+    "postinstall" : "node src/lib/others/kedaya/util/download.js",
     "dev": "node ./run.js src/app.js",
     "local": "node ./run.js src/local.js",
     "cron": "node ./run.js src/cron.js",

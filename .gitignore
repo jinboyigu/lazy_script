@@ -29,3 +29,6 @@ src/jd/*/*.json
 
 src/jd/*.url
 src/jd/*/*.url
+
+# remote
+src/lib/others/kedaya/util/jdAlgo.js
