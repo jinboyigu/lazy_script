@@ -19,7 +19,7 @@ class FirePower extends Template {
     client: 'apple',
     clientVersion: '13.2.10',
   });
-  static activityEndTime = '2025-01-12';
+  static activityEndTime = '2025-01-23';
   static concurrent = () => this._command[0];
 
   static apiOptions() {
