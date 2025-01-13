@@ -54,14 +54,32 @@ class Day20241028 extends Template {
 
     // 需手动更新答案
     const answers = {
-      '12.19': '想',
-      '12.20': ['五', '北斗'],
-      '12.21': ['小狗'],
-      '12.22': ['青花瓷'],
-      '12.23': ['兰亭序'],
-      '12.24': ['2'],
       ...todayAnswers && {[getMoment().format('MM.DD')]: `${todayAnswers}`.split(',')},
     };
+    const answersList = {
+      1: [
+        '东海龙王',
+        '风火轮',
+        '翠果',
+        '一丈红',
+        '326',
+        '枣泥',
+        '宋',
+        '小甜甜',
+        '牛夫人',
+        '蝎子',
+        '青蛇',
+        '2',
+        '浙江',
+      ],
+    };
+    const format = v => +v < 10 ? `0${v}` : v;
+    _.forEach(answersList, (array, month) => {
+      array.forEach((v, i) => {
+        answers[`${format(month)}.${format(i + 1)}`] = v;
+      });
+    });
+
     await api.doFormBody('atop_channel_question_list').then(async data => {
       const taskList = _.get(data, 'data.floorData.items[0].dateGroupQuestionList');
       for (const {dateQuestionList} of taskList.reverse()) {
