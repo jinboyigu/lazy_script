@@ -27,9 +27,10 @@ function patch() {
 
 module.exports = function Algo(algoOptions) {
   patch();
-  const jdAlgo = require('./util/jdAlgo-decrypted');
+  const jdAlgo = require('./util/jdAlgo');
+  class _jdAlgo extends jdAlgo {}
   const {version = 'latest', type = 'main'} = algoOptions || {};
-  const algo = new jdAlgo({version, type});
+  const algo = new _jdAlgo({version, type});
   return {
     sign: async options => {
       let {url = `https://api.m.jd.com/client.action`, appId, form} = options || {};
