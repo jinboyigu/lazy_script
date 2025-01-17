@@ -45,13 +45,13 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
   ].map(target => [[0, 7, 22], target]),
 
   // custom
-  [[5], require('./jd/applet/morningHbReward')],
+  // [[5], require('./jd/applet/morningHbReward')],
   [[6], require('./jd/fruit/turnTableFarm'), 0, {isCron: true}],
   [[0, 16, 22, 23], require('./jd/chatReward')],
   // [[7, 12, 18, 20], require('./jd/fruit/1')],
   [[0, 12, 18, 22, 23], require('./jd/plantBean')],
   [[0, 7, 22, 23], require('./jd/lite/HappyDig')],
-  [[0, 7, 22, 23], require('./jd/applet/mini')],
+  // [[0, 7, 22, 23], require('./jd/applet/mini')],
   // 定时任务
   [[23], require('./jd/local/EarnJoinGroup'), 60],
 ], {name: require('path').basename(__filename)});
