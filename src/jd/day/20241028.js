@@ -56,6 +56,10 @@ class Day20241028 extends Template {
     const answers = {
       ...todayAnswers && {[getMoment().format('MM.DD')]: `${todayAnswers}`.split(',')},
     };
+
+    // 往期答案
+    // https://kurl03.cn/7MR3UB
+    const getAnswer = str => str.split('\n').map(v => v.trim()).filter(v => v).map(v => v.replace('：', ':').split('答案')[1].replace(/^:/, '').trim()).reverse();
     const answersList = {
       1: [
         '东海龙王',
@@ -71,6 +75,9 @@ class Day20241028 extends Template {
         '青蛇',
         '2',
         '浙江',
+        '江苏', '杭州', '雄黄', '卓傲', '蛇形', '大兴安岭', '河南', '风', '灶',
+        '蛇',
+        '4',
       ],
     };
     const format = v => +v < 10 ? `0${v}` : v;
