@@ -81,7 +81,18 @@ class Day20241028 extends Template {
         '虎',
         '羊皮',
         '桃',
+        '鞭炮',
+        '乐快年新'.split(''),
+        '春风',
+        '姨妈',
       ],
+      2: [
+        '婶婶',
+        '孩子',
+        '立春',
+        '来了',
+        '八',
+      ]
     };
     const format = v => +v < 10 ? `0${v}` : v;
     _.forEach(answersList, (array, month) => {
