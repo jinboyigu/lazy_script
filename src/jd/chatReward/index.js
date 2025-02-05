@@ -5,12 +5,6 @@ const {getMoment} = require('../../lib/moment');
 const _ = require('lodash');
 
 const config = [
-  ['7221851452157726720', 'http://3.cn/23xR50-q'],
-  ['7232231843406286848', 'http://3.cn/24-3EZkY'],
-  ['7229441891987623936', 'http://3.cn/23D-Lt3H'],
-  ['7221851013660020736', 'http://t.cn/A6R4lpkV'],
-  ['7241982806455226368'],
-  ['7246018119133564928'],
 ];
 
 class ChatReward extends Template {
