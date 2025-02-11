@@ -217,9 +217,11 @@ class Template extends Base {
             // uuid: 'c6993893af46e44aa14818543914768cf2509fbf',
             // openudid: 'c6993893af46e44aa14818543914768cf2509fbf',
             client: 'apple',
-            clientVersion: '13.1.0',
             ...form,
           };
+          if (form.client === 'apple') {
+            form.clientVersion = '15.0.15';
+          }
         }
         beforeEncryptFn && (form = beforeEncryptFn(functionId, form));
         // TODO 整理成通用方法
