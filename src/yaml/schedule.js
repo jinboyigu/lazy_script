@@ -69,7 +69,7 @@ const config = {
         {'name': 'Checkout codes', 'uses': 'actions/checkout@v2'},
         {
           'name': 'Cache node modules',
-          'uses': 'actions/cache@v2',
+          'uses': 'actions/cache@v3',
           'env': {'cache-name': 'cache-node-modules'},
           'with': {
             'path': '~/.npm',
