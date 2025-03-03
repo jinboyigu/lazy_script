@@ -390,6 +390,8 @@ async function exec(command, options = {}) {
     stdio: ['inherit', 'inherit', 'inherit'],
     /* 避免路径错误 */
     cwd: path.resolve(__dirname, '../../'),
+    // windows 需要在 PATH 中添加 git/usr/bin 路径, 不然idea执行node脚本可能会报 shell 命令找不到
+    shell: process.platform === 'win32',
     ...options,
   });
 
