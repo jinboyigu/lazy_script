@@ -23,6 +23,8 @@ function patch() {
   profile.communal.forEach(key => {
     process.communal[key] = common[key];
   });
+  // 给 jdAlog.js 中使用
+  process.communal.dirname = path.resolve(__dirname, './');
 }
 
 module.exports = function Algo(algoOptions) {

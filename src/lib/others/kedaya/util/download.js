@@ -9,11 +9,9 @@ async function main() {
   for (const [name, url] of config) {
     const stream = fs.createWriteStream(path.resolve(__dirname, name));
     await request(url).pipe(stream).on('close', function (err) {
-      console.log(`${name}] download success`);
+      console.log(`[${name}] download success`);
     });
   }
 }
 
 // main();
-
-

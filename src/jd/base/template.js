@@ -220,7 +220,7 @@ class Template extends Base {
             ...form,
           };
           if (form.client === 'apple') {
-            form.clientVersion = '15.0.15';
+            form.clientVersion = '15.0.25';
           }
         }
         beforeEncryptFn && (form = beforeEncryptFn(functionId, form));
