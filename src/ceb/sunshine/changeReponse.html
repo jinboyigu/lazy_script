@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>自动更改报文</title>
+    <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
+</head>
+<body>
+<div style="margin: 100px 20px">
+    替换语句: <input name="target" value="canExchange == '1'" style="width: 600px; height: 30px"/>
+    <br>
+    <br>
+    输入: <textarea rows="20" cols="100" id="input"></textarea>
+    <br>
+    <br>
+    <button style="width: 750px; height: 40px">替换并复制</button>
+    <br>
+    <br>
+    <div class="j-status"></div>
+    <br>
+    <br>
+    输出: <textarea rows="20" cols="100" id="output"></textarea>
+</div>
+<script>
+    (function () {
+        let timer;
+        const $input = $('#input'),
+            $status = $('.j-status'),
+            $output = $('#output');
+        $input.on('keydown', e => {
+            e.which === 13 && handleReplaceText();
+        });
+        $('button').click(handleReplaceText);
+
+        function handleReplaceText() {
+            const target = $('input[name="target"]').val();
+            $output.val('');
+            let origin = $input.val();
+            const output = origin.replace(target, 'true');
+            let success = output !== origin;
+            $status.text(success ? '替换并复制成功' : `没有找到 ${target}, 请检查输入!`);
+            clearTimeout(timer);
+            timer = setTimeout(() => $status.text(''), 3000);
+            if (!success) return;
+            $output.val(output);
+            $input.val('');
+            handleCopy(output);
+        }
+
+        function handleCopy(text) {
+            const $copy = $(`<div style="display:none" id="copy_${new Date().valueOf()}"></div>`);
+            $copy.attr('data-clipboard-text', text);
+            $('body').append($copy);
+            const clipboard = new ClipboardJS($copy[0]);
+            clipboard.on('success', e => {
+                $.notify?.success(`"${text}" copy success`);
+                $copy.remove();
+            }).on('error', () => {
+                $.notify?.error(`"${text}" copy failed`);
+                $copy.remove();
+            });
+            $copy.trigger('click');
+        }
+    })();
+</script>
+</body>
+</html>
