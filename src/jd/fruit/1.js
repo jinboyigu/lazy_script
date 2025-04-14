@@ -42,6 +42,7 @@ class Fruit1 extends Template {
   static apiOptions() {
     return {
       options: {
+        forceHttp: true,
         frequencyLimit,
         repeatFn: async (data = {}, functionId) => {
           const code = +data.code;
@@ -55,10 +56,8 @@ class Fruit1 extends Template {
           }
         },
         headers: {
-          'x-referer-page': 'https://h5.m.jd.com/pb/015686010/Bc9WX7MpCW7nW9QjZ5N3fFeJXMH/index.html',
-          referer: 'https://h5.m.jd.com/',
-          'x-rp-client': 'h5_1.0.0',
-          'request-from': 'native',
+          origin: 'https://pro.m.jd.com',
+          referer: 'https://pro.m.jd.com/mall/active/42HV4J3Q87B2xFQMJk81PCc1mEs3/index.html?stath=47&navh=44&tttparams=NBoOIf6WeyJyZnMiOiIwMDAwIiwicG9zTG5nIjoiMTEzLjQ3NDcxOCIsInVlbXBzIjoiMC0wLTAiLCJnTG5nIjoiMTEzLjQ3NDcxOCIsImdMYXQiOiIyMi45NDMxMDUiLCJsbmciOiIxMTMuMzg3ODM2Iiwib3MiOiIxNy41IiwiZExuZyI6IiIsImRMYXQiOiIiLCJwcnN0YXRlIjoiMCIsImdwc19hcmVhIjoiMTlfMTYwMV8zNjk1M182Mjg2OCIsInNjYWxlIjoiMyIsImFkZHJlc3NJZCI6IjEwNzMyODQ1NjE1IiwidW5fYXJlYSI6IjE5XzE2MDFfMzY5NTNfNTA0MDAiLCJjb3JuZXIiOjEsIndpZHRoIjoiMTE3MCIsImxhdCI6IjIzLjA1Njk2NSIsIm1vZGVsIjoiaVBob25lMTMsMyIsImFyZWFDb2RlIjoiMCIsInBvc0xhdCI6IjIyLjk0MzEwNS8J9&babelChannel=ttt6&jumpFrom=1',
         },
       },
     };
@@ -103,7 +102,7 @@ class Fruit1 extends Template {
     self.initShareCodeTaskList(shareCodes || []);
     await self.beforeRequest(api);
     const doFormBody = (functionId, body) => api.doFormBody(functionId, _.assign({
-      version: 7,
+      version: 16,
       channelParam: '1',
     }, body));
 
@@ -179,7 +178,10 @@ class Fruit1 extends Template {
     async function handleDoTask() {
       const taskList = await doFormBody('farm_task_list', {
         'channel': 0,
-        'babelChannel': 'ttt7',
+        'pushSwitch': false,
+        'showSubscribe': true,
+        'babelChannel': 'ttt6',
+        'showDesktopTask': false,
         'lbsSwitch': true,
       }).then(_.property('data.result.taskList')) || [];
       for (const {
@@ -205,7 +207,7 @@ class Fruit1 extends Template {
           }
           continue;
         }
-        if (/助力|下单/.test(mainTitle) || taskStatus === 3) continue;
+        if (/助力|下单|登录/.test(mainTitle) || taskStatus === 3) continue;
 
         if (/浇水/.test(mainTitle)) {
           const remainTimes = taskLimitTimes - taskDoTimes;
@@ -307,11 +309,11 @@ class Fruit1 extends Template {
       let finishTimes = 0;
       const waitWaterSecond = 1;
       let firstTips;
-      const logToFinish = (num, msg = '预估') => api.logBoth(`${msg}准备浇水次数: ${num}, 预计在 ${getMoment().add(num * 1.5 + num / frequencyLimit.max * (frequencyLimit.wait + 5), 's').format()} 后完成`);
+      const logToFinish = (num, msg = '预估') => api.logBoth(`${msg}准备浇水次数: ${(num /= 5)}, 预计在 ${getMoment().add(num * 1.5 + num / frequencyLimit.max * (frequencyLimit.wait + 5), 's').format()} 后完成`);
       showFinish && logToFinish(times);
       for (let i = 0; i < (showFinish ? Infinity : times); i++) {
         const stop = await doFormBody('farm_water', {
-          'waterType': 1,
+          'waterType': showFinish ? 2/* 连浇5次 */ : 1,
           'babelChannel': 'ttt7',
           'lbsSwitch': true,
         }).then(async data => {

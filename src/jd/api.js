@@ -35,11 +35,13 @@ const _request = async (cookie, {form, body, qs, headers = {}, ...others}, curre
   }
 
   const ignorePrintLog = options['ignorePrintLog'] || false;
+  const forceHttp = options['forceHttp'];
   let errorTryTimes = 0;
   // 默认错误后需要再重试一下
   const errorTryMaxTimes = _.isNil(options['errorTryMaxTimes']) ? 1 : options['errorTryMaxTimes'];
   delete options['ignorePrintLog'];
   delete options['errorTryMaxTimes'];
+  delete options['forceHttp'];
 
   async function requestToSign(options) {
     const uri = getEnv('JD_SIGN_API');
@@ -87,6 +89,12 @@ const _request = async (cookie, {form, body, qs, headers = {}, ...others}, curre
   }
 
   const {followRedirect} = rpOptions;
+
+  if (forceHttp) {
+    ['url', 'uri'].forEach(key => {
+      rpOptions[key] && (rpOptions[key] = rpOptions[key].replace(/^https/, 'http'));
+    });
+  }
 
   const _printLog = (result, type) => {
     printLog('jdAPI', 'request', {

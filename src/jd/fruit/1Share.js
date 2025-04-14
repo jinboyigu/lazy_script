@@ -19,7 +19,7 @@ class Fruit1Share extends Template {
     osVersion: 'iOS 17.5',
     clientType: 'wxapp',
     client: 'apple',
-    clientVersion: '9.21.60',
+    clientVersion: '10.16.80',
     appid: 'hot_channel',
     loginType: 11,
   });
@@ -32,7 +32,7 @@ class Fruit1Share extends Template {
       options: {
         qs: {
           g_ty: 'ls',
-          g_tk: '1069559957',
+          g_tk: '1276240975',
         },
         headers: {
           referer: 'https://servicewechat.com/wx91d27dbf599dff74/762/page-frame.html',
@@ -62,7 +62,7 @@ class Fruit1Share extends Template {
 
     for (const inviteCode of self.getShareCodeFn()) {
       const {subCode, message} = await api.doFormBody('miniTask_ddFarmJump', {
-        'taskId': '6495',
+        'taskId': '11335',
         inviteCode,
         'taskType': 'WECHAT_SHARE',
       }) || {};
