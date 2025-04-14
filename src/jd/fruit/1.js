@@ -93,6 +93,7 @@ class Fruit1 extends Template {
     self.injectEncryptH5st(api, {
       config,
       signFromKEDAYA: true,
+      logBill: true,
     });
   }
 

@@ -8,7 +8,17 @@ const vm = require('vm');
 const fs = require('fs');
 
 function main(filePath) {
-  const ctx = {require, module};
+  const ctx = {
+    require: v => {
+      try {
+        require(v);
+      } catch (e) {
+        return () => {};
+      }
+      return require(v);
+    },
+    module,
+  };
   vm.createContext(ctx);
   const jsContent = fs.readFileSync(filePath).toString();
   vm.runInContext(jsContent, ctx);
@@ -16,7 +26,7 @@ function main(filePath) {
   const keys = Object.keys(ctx).filter(key => key.startsWith('_0x') && _.isFunction(ctx[key])); // ['_0x2388', '_0x4486']
   const allKeys = keys.map(key => _.uniq(getKey([key]))).filter(array => array.length > 1);
   // 替换加密的 function 为字符串
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 5; i++) {
     for (const allKey of allKeys) {
       allKey.forEach(_key => {
         newJs = newJs.replace(new RegExp(`${_key}\\(0x\\w+\\)`, 'g'), (v1) => {
@@ -33,6 +43,33 @@ function main(filePath) {
       });
     }
   }
+
+  // 转换 function 内声明的Object
+  let matched;
+  const regExp = new RegExp(`const (_0x\\w+ = _0x\\w+, )+(_0x\\w+) = {`, 'g');
+  const objectKeys = [];
+  while ((matched = regExp.exec(newJs)) !== null) {
+    if (matched.index === regExp.lastIndex) {
+      regExp.lastIndex++; // 防止零宽度匹配导致的死循环
+    }
+    _.last(matched) && objectKeys.push(_.last(matched));
+  }
+  objectKeys.forEach(key => {
+    newJs = newJs.replace(new RegExp(`${key}\\['\\w+'\\]`, 'g'), (v1, v2) => {
+      let jsContent = newJs.match(new RegExp(`${key} = {\\r?\\n(.*,\\r?\\n)*\\s+}`));
+      if (!jsContent) {
+        jsContent = newJs.match(new RegExp(`${key} = {.*};`));
+      }
+
+      if (!jsContent) {
+        return v1;
+      }
+      const _ctx = {};
+      vm.createContext(_ctx);
+      vm.runInContext(`var ${jsContent[0]}; var _value = ${v1}`, _ctx);
+      return _.isString(_ctx._value) ? `\`${_ctx._value}\`` : `(${_ctx._value})`;
+    });
+  });
   // 替换十六进制为十进制
   newJs = newJs.replace(/\s?[^_](0x\w+)/g, (v1, v2) => {
     if (isNaN(+v2)) {
@@ -40,10 +77,9 @@ function main(filePath) {
     } else {
       return v1.replace(v2, +v2);
     }
-  })
+  });
   // 适配里的字符串被替换的问题
-  newJs = newJs.replace(/'function test/g, '`function test').replace(/str\);}'/g, 'str);}`')
-  .replace('\n@https:', '\\n@https:');
+  newJs = newJs.replace(/'function test/g, '`function test').replace(/str\);}'/g, 'str);}`').replace('\n@https:', '\\n@https:');
   const newFilePath = filePath.replace(/\.js$/, '-decrypted.js');
   console.log(`输出新文件路径为: ${newFilePath}`);
   fs.writeFileSync(newFilePath, newJs);

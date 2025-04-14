@@ -38,6 +38,12 @@ class Cookie {
   toObject() {
     return _.assign({}, this.cookieObject);
   }
+
+  putAll(data) {
+    Object.keys(data).forEach(key => {
+      this.cookieObject[key] = data[key];
+    });
+  }
 }
 
 // name1=value1;name2=value2

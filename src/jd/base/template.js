@@ -5,6 +5,7 @@ const EncryptH5st = require('../../lib/EncryptH5st');
 const {getMoment} = require('../../lib/moment');
 const {genParamsSign} = require('../../lib/security');
 const Algo = require('../../lib/others/kedaya');
+const LogBill = require('../../lib/others/kedaya/util/logBill');
 const algoCaches = {};
 
 class Template extends Base {
@@ -178,6 +179,7 @@ class Template extends Base {
     signFromKEDAYA = false,
     algoOptions = {},
     updateForm = true,
+    logBill = false,
   }) {
     const origin = _.get(api, 'options.headers.origin');
     let algo;
@@ -188,6 +190,10 @@ class Template extends Base {
       } else {
         algo = algoCaches[key] = Algo(algoOptions);
       }
+    }
+
+    if (logBill) {
+      api.cookieInstance.putAll(LogBill(api.cookieInstance.toObject()));
     }
 
     replaceMethods.forEach(method => {
