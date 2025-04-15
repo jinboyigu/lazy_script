@@ -54,8 +54,8 @@ class BeanSmallBean extends Template {
 
     const taskList = await getTaskList();
     for (let {taskId, status, subTitleName, maxTimes, times, subTaskVOS, waitDuration = 0} of taskList) {
-      const {title} = subTaskVOS[0] || {};
-      if (maxTimes === times || status === 2 || ['下单抵现', '双签领豆'].includes(title)) continue;
+      const {title} = _.get(subTaskVOS, '0') || {title: subTitleName};
+      if (maxTimes === times || status === 2 || ['下单抵现', '双签领豆', '秒杀'].includes(title)) continue;
       waitDuration = waitDuration || _.last(subTitleName.match(/(\d+)s/));
       for (let i = times; i < maxTimes; i++) {
         const taskInfo = _.property('subTaskVOS')(await getTaskById(taskId));
