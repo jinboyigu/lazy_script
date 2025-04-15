@@ -14,6 +14,7 @@ require('./appBase')([
   [[0, 4, 8, 9, 12, 20, 22], require('./jd/joy')],
   [[1, 7, 18], require('./jd/dwapp/PointsGasStation')],
   [[7, 15, 21], require('./jd/plantBean')],
+  [[7, 21], require('./jd/sign')],
   [[10, 12, 23], require('./jd/turnHappy/WanYiWan')],
   [[0, 10, 20], require('./jd/lite/JoyPark'), {weekday: 1}],
   [[0], require('./jd/618/FirePower')],
