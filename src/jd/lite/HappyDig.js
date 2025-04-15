@@ -104,7 +104,8 @@ class LiteHappyDig extends Template {
 
     async function handleDoShare() {
       if (self.doneShareTask) return;
-      const {markedPin, inviteCode} = await api.doGetBody('happyDigHome').then(_.property('data'));
+      const {markedPin, inviteCode} = await api.doGetBody('happyDigHome').then(_.property('data')) || {};
+      if (!markedPin) return;
       self.updateShareCodeFn({inviter: markedPin, inviteCode});
       // 只有一次助力机会
       const body = _.first(self.getShareCodeFn());
