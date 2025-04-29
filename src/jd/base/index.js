@@ -312,7 +312,7 @@ class Base {
     };
     const {tokenKey, url} = await handleGenToken();
     if (!tokenKey || !url) return;
-    if (tokenKey.startsWith('@')) {
+    if (tokenKey.startsWith('@') || tokenKey === 'xxx') {
       api.log(`tokenKey: ${tokenKey}`);
       api.logSignOut();
     }
@@ -325,6 +325,7 @@ class Base {
       // 	"url": "https://un.m.jd.com/cgi-bin/app/appjmp"
       // }
       return api.doForm('genToken', targetForm, {
+        forceHttp: true,
         ignoreDefault: true,
         headers: {
           // j-e-c, j-e-h 需自行抓包
