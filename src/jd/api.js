@@ -395,6 +395,7 @@ class Api {
     const config = [
       // https://api.m.jd.com/client.action?functionId=initForFarm&appid=wh5
       {code: '3', msg: 'not login'},
+      {code: '3'},
       // Health
       {'code': -30001, 'msg': '登陆失败'},
       // https://api.m.jd.com/api?functionId=interact_center_shopSign_signCollectGift
