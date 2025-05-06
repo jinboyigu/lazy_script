@@ -144,6 +144,10 @@ async function run(data, output) {
       || (day && getMoment().date() !== day)) {
       continue;
     }
+    const intervalHour = (hours.join('').match(/\*\/(\d)/) || [])[1];
+    if (nowHour % intervalHour === 0) {
+      hours.push(nowHour);
+    }
     if (hours.includes('*') || hours.includes(nowHour)) {
       if (minute) {
         specialTargets.push([minute, target]);
