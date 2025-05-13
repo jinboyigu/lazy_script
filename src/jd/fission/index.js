@@ -22,6 +22,7 @@ class Fission extends Template {
   });
   static keepIndependence = true;
   static needInApp = false;
+  static activityEndTime = '2025-05-01';
 
   static apiOptions() {
     return {
