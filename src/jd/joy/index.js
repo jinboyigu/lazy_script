@@ -24,7 +24,7 @@ class Joy extends Template {
       } : {
         appid: 'jdchoujiang_h5',
         client: 'iOS',
-        clientVersion: '13.2.0',
+        clientVersion: '15.1.20',
       },
       body: {reqSource},
     };
@@ -110,7 +110,8 @@ class Joy extends Template {
 
     self.injectEncryptH5st(api, {
       config,
-      signFromKEDAYA: true,
+      // signFromKEDAYA: true,
+      signFromSecurity: true,
     });
   }
 
@@ -170,8 +171,8 @@ class Joy extends Template {
           'opType': 1,
           'idfa': '',
           'openudid': 'c6993893af46e44aa14818543914768cf2509fbf',
-          'userId': '168871293.1713713834784621018719.1713713834.1723436630.1723448855.501',
-          'appInfo': '1170*2259^apple^iPhone13,3^17.5^13.2.0^wifi',
+          'userId': '122270672.1745890369106414970953.1745890369.1747282159.1747288793.135',
+          'appInfo': '1170*2259^apple^iPhone13,3^17.5^15.1.20^wifi',
           'unionId': '',
           'openId': '',
           'locationInfo': '19-1601-36953',
