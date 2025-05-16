@@ -67,7 +67,7 @@ class PlantBean extends Template {
         productNutrientsTask: {appId: 'a4e2d'},
         collectUserNutr: {appId: '14357'},
       },
-      signFromKEDAYA: true,
+      signFromSecurity: true,
       beforeEncryptFn: (functionId, form) => {
         if (functionId in monitorReferConfig) {
           form.body = {monitor_refer: monitorReferConfig[functionId], ...form.body};
