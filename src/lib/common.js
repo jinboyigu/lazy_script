@@ -360,7 +360,7 @@ function formatFullPath(config, action) {
 })();
 
 const execAsync = list => Promise.all(list.map(command => new Promise(resolve => {
-  exec(..._.toArray(command));
+  exec(command);
   resolve();
 })));
 
