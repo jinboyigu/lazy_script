@@ -11,6 +11,7 @@ const schedule = require('node-schedule');
   schedule.scheduleJob('20 * * * *', () => {
     exec('node src/lib/others/kedaya/util/download.js');
     exec('node src/local.js');
+    exec('node src/others.js');
     // 更新github
     exec('git pull --rebase');
   });

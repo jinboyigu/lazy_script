@@ -237,7 +237,7 @@ async function updateEnvFromMail(day = 7) {
       return result;
     }));
   const allNewEnvs = await getNewEnvs();
-  const log = msg => console.log(`${getMoment().format()} [updateEnvFromMail] ${msg}`);
+  const log = msg => console.log(`${getMoment().format()} [updateEnvFromMail] ${msg}`) || true;
   if (_.isEmpty(allNewEnvs)) return log(`没有找到相应数据(${nowMoment.formatDate()}~至今)`);
   const newEnv = _.merge({}, ...allNewEnvs.reverse());
   const oldProductEnv = getProductEnv();
