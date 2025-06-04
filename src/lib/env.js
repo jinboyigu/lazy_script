@@ -159,6 +159,7 @@ async function uploadProductEnvToAction(needInAction) {
     console.log('本地无需上传至github action');
     return;
   }
+  if (needInAction) return;
   const command = 'npm run build:UpdateActionEnv';
   console.log(command);
   await sleep(3);
