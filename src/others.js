@@ -31,13 +31,13 @@ async function beforeRun() {
     jdCookies.forEach(({cookies}, index) => {
       const cookie = new Cookie(cookies);
       const oldCookie = data.main.find(str => new Cookie(str).get('pt_pin') === cookie.get('pt_pin'));
-      if (cookies.wskey) {
+      /*if (cookies.wskey) {
         if (oldCookie) {
           cookieMain[index] = oldCookie;
         } else {
           cookieMain[index] = cookie.toString('pt_pin');
         }
-      } else if (cookies.pt_key) {
+      } else */if (cookies.pt_key) {
         cookieMain[index] = cookie.toString(['pt_pin', 'pt_key']);
       } else {
         cookieMain[index] = '';
@@ -76,7 +76,7 @@ async function beforeRun() {
   await beforeRun();
   // TODO 调整log输出
   require('./appBase')([
-    [[8, 20], run('jd_task_checkCookie')],
+    // [[8, 20], run('jd_task_checkCookie')],
     // hour0
     ...[
       'jd_task_union',
