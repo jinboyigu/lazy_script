@@ -182,7 +182,8 @@ class Template extends Base {
     logBill = false,
   }) {
     if (signFromKEDAYA) {
-      throw new Error('signFromKEDAYA is not supported');
+      // signFromKEDAYA is not supported
+      throw '';
     }
     const origin = _.get(api, 'options.headers.origin');
     let algo;

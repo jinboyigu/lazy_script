@@ -568,7 +568,7 @@ class Base {
         if (self.keepIndependence) {
           /* 存在抛出异常但是不想输出到 error.log 的情况 */
           e && api.log((e.stack || e).replace(`[${pinLabel}] `, ''), 'error');
-          console.error(e);
+          e && console.error(e);
         } else {
           throw e;
         }
