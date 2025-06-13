@@ -50,5 +50,5 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
   [[0, 7, 22, 23], require('./jd/lite/HappyDig')],
   // [[0, 7, 22, 23], require('./jd/applet/mini')],
   // 定时任务
-  [[23], require('./jd/local/EarnJoinGroup'), 60],
+  // [[23], require('./jd/local/EarnJoinGroup'), 60],
 ], {name: require('path').basename(__filename)});
