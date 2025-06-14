@@ -193,7 +193,7 @@ class Api {
     for (let i = 0; i < repeatTimes; i++) {
       data = await _request(this.cookie, options, this.currentCookieTimes);
       if (!ignoreNotLogin && this.notLogin(data) && i === 0) {
-        await require('./base').changeCK(this, true);
+        // await require('./base').changeCK(this, true);
         process.off('beforeExit', beforeProcessExit).on('beforeExit', beforeProcessExit);
         // 重新请求一次
         data = await _request(this.cookie, options, this.currentCookieTimes);

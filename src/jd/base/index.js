@@ -553,7 +553,7 @@ class Base {
       };
       if (self.needChangeCK && processInAC() && !changedCK[ptPin] && false) {
         changedCK[ptPin] = 1;
-        await self.changeCK(api, !processInAC() && [7, 10, 14, 18, 22].includes(getNowHour()));
+        //await self.changeCK(api, !processInAC() && [7, 10, 14, 18, 22].includes(getNowHour()));
       }
       // 停止运行该脚本
       if (disabled) return;
