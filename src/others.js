@@ -79,7 +79,8 @@ async function beforeRun() {
     // [[8, 20], run('jd_task_checkCookie')],
     // hour0
     ...[
-      'jd_task_union',
+      'jd_task_quanyi',
+      // 'jd_task_union',
       'jd_task_dwapp',
       'jd_task_daka',
       'jd_task_chuxu',
@@ -88,7 +89,7 @@ async function beforeRun() {
       'jd_task_xiaoge',
       'jd_task_deliverySign',
       'jd_task_plusBusiness',
-      'jd_task_pushRedpacket',
+      // 'jd_task_pushRedpacket',
       'jd_task_hudong',
       'jd_task_wanyiwan',
       'jd_task_wxFarm',
