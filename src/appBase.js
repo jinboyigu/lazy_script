@@ -24,7 +24,11 @@ module.exports = async (data = [], {sendLocalMail = false, name}) => {
   }
 
   if (sendLocalMail) {
-    data.push([[23], sendNotify.bind(0, {subjects: ['lazy_script_local', getNowDate()]}), 40]);
+    const logName = _.isString(sendLocalMail) ? sendLocalMail : '';
+    data.push([[23], sendNotify.bind(0, {
+      subjects: [`lazy_script_${logName || 'local'}`, getNowDate()],
+      logName,
+    }), 40]);
   }
   output('开始执行');
   await run(data, output);

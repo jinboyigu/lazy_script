@@ -68,7 +68,7 @@ async function doCron1(target, index = 0) {
   await doCron(target, getCookieData()[index]);
 }
 
-async function sendNotify({sendYesterdayLog = false, subjects = []}) {
+async function sendNotify({sendYesterdayLog = false, subjects = [], logName}) {
   if (mailer.disabledSend() && serverChan.disabled) return;
 
   const sortLogByName = content => getSortLogContent('name', content);
@@ -79,7 +79,7 @@ async function sendNotify({sendYesterdayLog = false, subjects = []}) {
     contents.push(sortLogByName(getFileContent(yesterdayLog)));
     contents.push(`\n--------------------------${getNowDate()}-start--------------------------\n`);
   }
-  contents.push(sortLogByName());
+  contents.push(logName ? getFileContent(getLogFile(logName)) : sortLogByName());
   // result.txt 不再输出
   // const resultContent = getFileContent(path.resolve(__dirname, '../dist/result.txt'));
   // contents.push(resultContent);

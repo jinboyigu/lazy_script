@@ -12,8 +12,12 @@ const Cookie = require('./lib/cookie');
 const {updateProcessEnv, getProductEnv} = require('./lib/env');
 const path = require('path');
 const vm = require('vm');
+const {getNowDate} = require('./lib/moment');
 const {cwd} = readFileJSON('../.env.local.json', __dirname, {}).OTHERS_CONFIG || {};
-const run = name => () => exec(`node main ${name}`, {cwd});
+const logFileName = `others`;
+
+const run = name => {
+  return () => exec(`node main ${name} | tee -a ${path.resolve(__dirname, `../logs/${logFileName}.${getNowDate()}.log`)}`, {cwd});};
 
 async function beforeRun() {
   // 其他仓库更新
@@ -101,5 +105,5 @@ async function beforeRun() {
     [[23, 10, 22], run('jd_task_inviteFission'), 32],
     [[19], run('jd_task_yaoyiyao')],
     [[17, 20, 22], run('jd_task_smAnswer')],
-  ], {name: require('path').basename(__filename), sendLocalMail: true});
+  ], {name: require('path').basename(__filename), sendLocalMail: logFileName});
 })();
