@@ -97,7 +97,7 @@ class PointsGasStation extends Template {
 
     async function handleDoTask() {
       const taskList = await api.doFormBody('dwapp_task_dwList').then(getData);
-      for (let {startDate, endDate, viewStatus, id, taskType, taskFlowChannelId} of taskList) {
+      for (let {startDate, endDate, viewStatus, id, taskType, taskFlowChannelId} of (taskList || [])) {
         if (getMoment().isBefore(startDate) || getMoment().isAfter(endDate) || viewStatus === 1 || viewStatus === 3) continue;
         await api.doBodyPath('dwRecord', {
           id, taskType,
