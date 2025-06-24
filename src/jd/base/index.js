@@ -436,7 +436,10 @@ class Base {
     const self = this;
     self._command = self._command || [];
     let currentCookieTimes = 0;
-    data = _.concat(data);
+    data = _.concat(data).filter(({cookie}) => {
+      // 过滤未登录账号
+      return cookie && ((cookie.pt_pin && !cookie.wskey) ? cookie.pt_key : true);
+    });
 
     const patchEndTime = v => v && !/:/.test(v) ? `${v} 23:59:59` : v;
     self['activityEndTime'] = patchEndTime(self['activityEndTime']);
@@ -483,10 +486,17 @@ class Base {
       needUpdateAction = false;
       // TODO 确认本地更新的话是否需要上传
       await uploadProductEnvToAction(true);
+      _sendNewEnv();
+    }
+
+    function _sendNewEnv() {
       const newEnv = {
         JD_COOKIE_OPTION: getProductEnv()['JD_COOKIE_OPTION'].map(o => {
           const cookies = o.cookies;
           const value = changedCK[cookies['pt_pin']];
+          if (value === 'invalidPtKey') {
+            return {cookies: {pt_key: ''}};
+          }
           if (value === 'notLogin') {
             return {cookies: {pt_key: '', wskey: ''}};
           }
@@ -498,6 +508,7 @@ class Base {
       };
       require('../../lib/mailer').sendNewEnv(newEnv);
     }
+
     await self.afterAllDone();
 
     async function _do(data) {
@@ -542,6 +553,8 @@ class Base {
       };
       // 提示未登录, 抛出异常
       api.logSignOut = (throwMsg = true) => {
+        changedCK[ptPin] = 'invalidPtKey';
+        _sendNewEnv();
         const msg = '未登录';
         api.log(msg);
         if (throwMsg) {
