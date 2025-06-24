@@ -3,6 +3,8 @@ const {readDirJSON} = require('../../lib/charles');
 const Cookie = require('../../lib/cookie');
 const _ = require('lodash');
 
+const [nodePath, filePath, changCK] = process.argv;
+
 // 从 Charles 抓包文件中获取 cookie 并自动更新
 // Charles可以设置自动保存来自动存储 json 格式文件
 async function updateNewEnvByCharles() {
@@ -63,6 +65,7 @@ async function updateNewEnvByCharles() {
   await sleep(5);
   console.log('5s后执行updateEnvFromMail');
   await exec('npm run shell:updateEnvFromMail');
+  if (!changCK) return;
   await sleep(2);
   console.log('执行ChangeCK');
   await exec('npm run build:ChangeCK');
