@@ -99,6 +99,7 @@ async function beforeRun() {
       'jd_task_wxFarm',
       'jd_task_receive',
       'jd_task_vote',
+      'jd_task_jinrong',
     ].map(name => [[0], run(name)]),
     [[7, 12, 18, 20, 22], run('jd_task_farmNew')],
     [[20], run('jd_task_hbRain')],
