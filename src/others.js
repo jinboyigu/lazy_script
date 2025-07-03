@@ -13,11 +13,13 @@ const {updateProcessEnv, getProductEnv} = require('./lib/env');
 const path = require('path');
 const vm = require('vm');
 const {getNowDate} = require('./lib/moment');
-const {cwd} = readFileJSON('../.env.local.json', __dirname, {}).OTHERS_CONFIG || {};
+let {cwd} = readFileJSON('../.env.local.json', __dirname, {}).OTHERS_CONFIG || {};
+if (cwd.startsWith('.')) {
+  cwd = path.resolve(__dirname, `../${cwd}`);
+}
 const logFileName = `others`;
 
-const run = name => {
-  return () => exec(`node main ${name} | tee -a ${path.resolve(__dirname, `../logs/${logFileName}.${getNowDate()}.log`)}`, {cwd});};
+const run = name => () => exec(`node main ${name} | tee -a ${path.resolve(__dirname, `../logs/${logFileName}.${getNowDate()}.log`)}`, {cwd});
 
 async function beforeRun() {
   // 其他仓库更新
@@ -41,7 +43,8 @@ async function beforeRun() {
         } else {
           cookieMain[index] = cookie.toString('pt_pin');
         }
-      } else */if (cookies.pt_key) {
+      } else */
+      if (cookies.pt_key) {
         cookieMain[index] = cookie.toString(['pt_pin', 'pt_key']);
       } else {
         cookieMain[index] = '';
