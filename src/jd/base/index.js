@@ -329,7 +329,7 @@ class Base {
       // 	"url": "https://un.m.jd.com/cgi-bin/app/appjmp"
       // }
       return api.doForm('genToken', targetForm, {
-        forceHttp: true,
+        // forceHttp: true,
         ignoreDefault: true,
         headers: {
           // j-e-c, j-e-h 需自行抓包
