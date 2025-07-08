@@ -6,14 +6,20 @@
 
 const _ = require('lodash');
 const fs = require('fs');
-const {exec, execAsync, sleep, readFileJSON} = require('./lib/common');
+const {exec, execAsync, sleep, readFileJSON, writeFileJSON} = require('./lib/common');
 const {updateEnvFromMail} = require('./lib/mailer');
 const Cookie = require('./lib/cookie');
 const {updateProcessEnv, getProductEnv} = require('./lib/env');
 const path = require('path');
 const vm = require('vm');
-const {getNowDate} = require('./lib/moment');
-let {cwd} = readFileJSON('../.env.local.json', __dirname, {}).OTHERS_CONFIG || {};
+const {getNowDate, getNowHour} = require('./lib/moment');
+const localEnv = readFileJSON('../.env.local.json', __dirname, {});
+let {cwd, needRunCommonTask} = localEnv.OTHERS_CONFIG || {};
+const updateLocalEnv = (needRunCommonTask) => {
+  localEnv.OTHERS_CONFIG.needRunCommonTask = needRunCommonTask;
+  writeFileJSON(localEnv, '../.env.local.json', __dirname);
+};
+needRunCommonTask && updateLocalEnv(false);
 if (cwd.startsWith('.')) {
   cwd = path.resolve(__dirname, `../${cwd}`);
 }
@@ -32,6 +38,7 @@ async function beforeRun() {
   // if (notUpdated) return console.log('无需更新 cookies');
   // 从邮件中同步其他仓库的cookie
   const jdCookies = getProductEnv().JD_COOKIE_OPTION;
+  (getNowHour() === 0) && jdCookies.some(o => !o.pt_key) && updateLocalEnv(true);
   updateConfigJS('cookie/jd.js', data => {
     const cookieMain = [];
     jdCookies.forEach(({cookies}, index) => {
@@ -81,29 +88,31 @@ async function beforeRun() {
 
 
   await beforeRun();
+
+  const getCommonTask = (hour = 0) => [
+    'jd_task_quanyi',
+    // 'jd_task_union',
+    'jd_task_dwapp',
+    'jd_task_daka',
+    'jd_task_chuxu',
+    'jd_task_beanHome',
+    // 'jd_task_luban',
+    'jd_task_xiaoge',
+    'jd_task_deliverySign',
+    'jd_task_plusBusiness',
+    // 'jd_task_pushRedpacket',
+    'jd_task_hudong',
+    'jd_task_wanyiwan',
+    'jd_task_wxFarm',
+    'jd_task_receive',
+    'jd_task_vote',
+    'jd_task_jinrong',
+  ].map(name => [[hour], run(name)]);
   // TODO 调整log输出
   require('./appBase')([
     // [[8, 20], run('jd_task_checkCookie')],
     // hour0
-    ...[
-      'jd_task_quanyi',
-      // 'jd_task_union',
-      'jd_task_dwapp',
-      'jd_task_daka',
-      'jd_task_chuxu',
-      'jd_task_beanHome',
-      // 'jd_task_luban',
-      'jd_task_xiaoge',
-      'jd_task_deliverySign',
-      'jd_task_plusBusiness',
-      // 'jd_task_pushRedpacket',
-      'jd_task_hudong',
-      'jd_task_wanyiwan',
-      'jd_task_wxFarm',
-      'jd_task_receive',
-      'jd_task_vote',
-      'jd_task_jinrong',
-    ].map(name => [[0], run(name)]),
+    ...getCommonTask(needRunCommonTask ? getNowHour() : 0),
     [[7, 12, 18, 20, 22], run('jd_task_farmNew')],
     [[20], run('jd_task_hbRain')],
     [[23, 10, 22], run('jd_task_inviteFission'), 32],
