@@ -117,6 +117,7 @@ async function beforeRun() {
     [[20], run('jd_task_hbRain')],
     [[23, 10, 22], run('jd_task_inviteFission'), 32],
     [[19], run('jd_task_yaoyiyao')],
+    [[22], run('jd_task_assets')],
     // [[17, 20, 22], run('jd_task_smAnswer')],
   ], {name: require('path').basename(__filename), sendLocalMail: logFileName});
 })();
