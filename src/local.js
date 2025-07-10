@@ -5,7 +5,7 @@
  */
 
 require('./appBase')([
-  [['*/3'], require('./jd/local/ChangeCK')],
+  [[9, 15, 20, 22], require('./jd/local/ChangeCK')],
   // 实时执行
   // hour0
   ...[
