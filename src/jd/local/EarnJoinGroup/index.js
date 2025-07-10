@@ -52,8 +52,11 @@ class EarnJoinGroup extends Template {
     self.injectEncryptH5st(api, {
       config: {
         miniCenterQueryNormalConfig: {appId: '1ffca'},
+        mainPage: {appId: '4d8ed'},
+        joinGroup: {appId: '4d8ed'},
       },
       signFromSecurity: true,
+      replaceMethods: ['doFormBody', 'doGetBody', 'doSign', 'doPathBody'],
     });
   }
 
@@ -186,7 +189,6 @@ class EarnJoinGroup extends Template {
       const configIds = [
         1231,// 超级裂变-校园（新）
         1223,// 超级裂变清单-农场
-        1159,// 超级裂变x校园
         1157,// 超级裂变清单
       ];
       for (const id of configIds) {
