@@ -25,7 +25,7 @@ require('./appBase')([
   // [[8], require('./jd/applet/mini')],
   // 定时任务
   [[19], require('./jd/superRedBagDraw'), 25],
-  [[23, 10, 22], require('./jd/fission'), 32],
+  // [[23, 10, 22], require('./jd/fission'), 32],
   [[23, 7, 15], require('./jd/joy/redeem'), 54],
   // [[23], require('./jd/turnHappy/WanYiWan'), 60],
 ], {name: require('path').basename(__filename), sendLocalMail: true});

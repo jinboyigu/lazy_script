@@ -116,7 +116,7 @@ async function beforeRun() {
     ...getCommonTask(needRunCommonTask ? getNowHour() : commonTaskHour),
     [[7, 12, 18, 20, 22], run('jd_task_farmNew')],
     [[20], run('jd_task_hbRain')],
-    [[23, 10, 22], run('jd_task_inviteFission'), 32],
+    // [[23, 10, 22], run('jd_task_inviteFission'), 32],
     [[19], run('jd_task_yaoyiyao')],
     [[22], run('jd_task_assets')],
     // [[17, 20, 22], run('jd_task_smAnswer')],
