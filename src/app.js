@@ -33,7 +33,7 @@ require('./appBase')(!global.isRunHour && !require('./lib/env').processInAC() ? 
   // run 2
   ...[
     require('./jd/statistics/RedEnvelope'),
-    require('./jd/statistics/bean'),
+    // require('./jd/statistics/bean'),
     require('./jd/sign'),
     require('./jd/purchaseCard'),
   ].map(target => [[0, 22], target]),
