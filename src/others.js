@@ -29,8 +29,9 @@ const logFileName = `others`;
 const run = name => () => exec(`node main ${name} | tee -a ${path.resolve(__dirname, `../logs/${logFileName}.${getNowDate()}.log`)}`, {cwd});
 
 async function beforeRun() {
+  const isCommonTask = getNowHour() === commonTaskHour;
   // 其他仓库更新
-  exec(`node patch.js`, {cwd});
+  isCommonTask && exec(`node patch.js`, {cwd});
 
   updateProcessEnv();
   const notUpdated = await updateEnvFromMail();
@@ -39,7 +40,7 @@ async function beforeRun() {
   // if (notUpdated) return console.log('无需更新 cookies');
   // 从邮件中同步其他仓库的cookie
   const jdCookies = getProductEnv().JD_COOKIE_OPTION;
-  (getNowHour() === commonTaskHour) && jdCookies.some(o => !o.pt_key) && updateLocalEnv(true);
+  isCommonTask && jdCookies.some(o => !o.pt_key) && updateLocalEnv(true);
   updateConfigJS('cookie/jd.js', data => {
     const cookieMain = [];
     jdCookies.forEach(({cookies}, index) => {
