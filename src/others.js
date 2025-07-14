@@ -15,7 +15,7 @@ const vm = require('vm');
 const {getNowDate, getNowHour} = require('./lib/moment');
 const localEnv = readFileJSON('../.env.local.json', __dirname, {});
 let {cwd, needRunCommonTask} = localEnv.OTHERS_CONFIG || {};
-const commonTaskHour = 9;
+const commonTaskHour = 10;
 const updateLocalEnv = (needRunCommonTask) => {
   localEnv.OTHERS_CONFIG.needRunCommonTask = needRunCommonTask;
   writeFileJSON(localEnv, '../.env.local.json', __dirname);
