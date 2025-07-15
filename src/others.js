@@ -31,7 +31,7 @@ const run = name => () => exec(`node main ${name} | tee -a ${path.resolve(__dirn
 async function beforeRun() {
   const isCommonTask = getNowHour() === commonTaskHour;
   // 其他仓库更新
-  isCommonTask && exec(`node patch.js`, {cwd});
+  // exec(`node patch.js`, {cwd});
 
   updateProcessEnv();
   const notUpdated = await updateEnvFromMail();
