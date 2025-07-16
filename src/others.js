@@ -15,7 +15,7 @@ const vm = require('vm');
 const {getNowDate, getNowHour} = require('./lib/moment');
 const localEnv = readFileJSON('../.env.local.json', __dirname, {});
 let {cwd, needRunCommonTask} = localEnv.OTHERS_CONFIG || {};
-const commonTaskHour = 10;
+const commonTaskHour = 0;
 const updateLocalEnv = (needRunCommonTask) => {
   localEnv.OTHERS_CONFIG.needRunCommonTask = needRunCommonTask;
   writeFileJSON(localEnv, '../.env.local.json', __dirname);
@@ -40,7 +40,7 @@ async function beforeRun() {
   // if (notUpdated) return console.log('无需更新 cookies');
   // 从邮件中同步其他仓库的cookie
   const jdCookies = getProductEnv().JD_COOKIE_OPTION;
-  isCommonTask && jdCookies.some(o => !o.pt_key) && updateLocalEnv(true);
+  isCommonTask && jdCookies.some(o => !o.cookies.pt_key) && updateLocalEnv(true);
   updateConfigJS('cookie/jd.js', data => {
     const cookieMain = [];
     jdCookies.forEach(({cookies}, index) => {
