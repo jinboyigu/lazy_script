@@ -16,11 +16,11 @@ const {getNowDate, getNowHour} = require('./lib/moment');
 const localEnv = readFileJSON('../.env.local.json', __dirname, {});
 let {cwd, needRunCommonTask} = localEnv.OTHERS_CONFIG || {};
 const commonTaskHour = 0;
+let runCommonTask = getNowHour() === commonTaskHour;
 const updateLocalEnv = (needRunCommonTask) => {
   localEnv.OTHERS_CONFIG.needRunCommonTask = needRunCommonTask;
   writeFileJSON(localEnv, '../.env.local.json', __dirname);
 };
-needRunCommonTask && updateLocalEnv(false);
 if (cwd.startsWith('.')) {
   cwd = path.resolve(__dirname, `../${cwd}`);
 }
@@ -29,7 +29,6 @@ const logFileName = `others`;
 const run = name => () => exec(`node main ${name} | tee -a ${path.resolve(__dirname, `../logs/${logFileName}.${getNowDate()}.log`)}`, {cwd});
 
 async function beforeRun() {
-  const isCommonTask = getNowHour() === commonTaskHour;
   // 其他仓库更新
   // exec(`node patch.js`, {cwd});
 
@@ -40,7 +39,8 @@ async function beforeRun() {
   // if (notUpdated) return console.log('无需更新 cookies');
   // 从邮件中同步其他仓库的cookie
   const jdCookies = getProductEnv().JD_COOKIE_OPTION;
-  isCommonTask && jdCookies.some(o => !o.cookies.pt_key) && updateLocalEnv(true);
+  runCommonTask && jdCookies.some(o => !o.cookies.pt_key) && updateLocalEnv(true);
+  needRunCommonTask && jdCookies.every(o => o.cookies.pt_key) && (runCommonTask = true) && updateLocalEnv(false);
   updateConfigJS('cookie/jd.js', data => {
     const cookieMain = [];
     jdCookies.forEach(({cookies}, index) => {
@@ -114,7 +114,7 @@ async function beforeRun() {
   require('./appBase')([
     // [[8, 20], run('jd_task_checkCookie')],
     // hour0
-    ...getCommonTask(needRunCommonTask ? getNowHour() : commonTaskHour),
+    ...getCommonTask(runCommonTask ? getNowHour() : commonTaskHour),
     [[7, 12, 18, 20, 22], run('jd_task_farmNew')],
     [[20], run('jd_task_hbRain')],
     // [[23, 10, 22], run('jd_task_inviteFission'), 32],
