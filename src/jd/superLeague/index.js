@@ -24,6 +24,7 @@ class SuperLeague extends Template {
   static times = 2;
   static needInAppDynamicTime = true;
   static needOriginProMd = true;
+  static activityEndTime = '2025-06-30';
 
   static apiOptions() {
     return {};
