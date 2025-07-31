@@ -91,6 +91,8 @@ async function beforeRun() {
 
   await beforeRun();
 
+  if (getNowHour() === -1) return;
+
   const getCommonTask = (hour = commonTaskHour) => [
     'jd_task_quanyi',
     // 'jd_task_union',

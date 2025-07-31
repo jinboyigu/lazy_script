@@ -14,7 +14,8 @@ fs.watch(rootPath, async (eventType, filename) => {
     if (filename.endsWith('.chlsj')) {
       if (fs.existsSync(path.resolve(rootPath, filename))) {
         exec(`node ${path.resolve(__dirname, 'index.js')}`);
-        _.get(readFileJSON('.env.local.json', rootPath, {}), 'OTHERS_CONFIG.needRunCommonTask') && exec(`node ${path.resolve(rootPath, 'src/runHour.js')}`);
+        const needRunCommonTask = _.get(readFileJSON('.env.local.json', rootPath, {}), 'OTHERS_CONFIG.needRunCommonTask');
+        exec(`node ${path.resolve(rootPath, 'src/runHour.js')} ${needRunCommonTask ? '0' : '-1'}`);
       }
     }
     // 文件或目录被重命名或删除
