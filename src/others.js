@@ -95,7 +95,7 @@ async function beforeRun() {
 
   const getCommonTask = (hour = commonTaskHour) => [
     'jd_task_quanyi',
-    // 'jd_task_union',
+    'jd_task_union_local',
     'jd_task_dwapp',
     'jd_task_daka',
     'jd_task_chuxu',
