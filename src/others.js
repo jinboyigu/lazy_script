@@ -94,30 +94,30 @@ async function beforeRun() {
   if (getNowHour() === -1) return;
 
   const getCommonTask = (hour = commonTaskHour) => [
-    'jd_task_quanyi',
+    // 'jd_task_quanyi',
     'jd_task_union_local',
     'jd_task_dwapp',
-    'jd_task_daka',
-    'jd_task_chuxu',
+    // 'jd_task_daka',
+    // 'jd_task_chuxu',
     'jd_task_beanHome',
     // 'jd_task_luban',
-    'jd_task_xiaoge',
-    'jd_task_deliverySign',
-    'jd_task_plusBusiness',
+    // 'jd_task_xiaoge',
+    // 'jd_task_deliverySign',
+    // 'jd_task_plusBusiness',
     // 'jd_task_pushRedpacket',
-    'jd_task_hudong',
-    'jd_task_wanyiwan',
-    'jd_task_wxFarm',
-    'jd_task_receive',
-    'jd_task_vote',
-    'jd_task_jinrong',
+    // 'jd_task_hudong',
+    // 'jd_task_wanyiwan',
+    // 'jd_task_wxFarm',
+    // 'jd_task_receive',
+    // 'jd_task_vote',
+    // 'jd_task_jinrong',
   ].map(name => [[hour], run(name)]);
   // TODO 调整log输出
   require('./appBase')([
     // [[8, 20], run('jd_task_checkCookie')],
     // hour0
     ...getCommonTask(runCommonTask ? getNowHour() : commonTaskHour),
-    [[7, 12, 18, 20, 22], run('jd_task_farmNew')],
+    // [[7, 12, 18, 20, 22], run('jd_task_farmNew')],
     // [[20], run('jd_task_hbRain')],
     // [[23, 10, 22], run('jd_task_inviteFission'), 32],
     // [[19], run('jd_task_yaoyiyao')],
