@@ -89,4 +89,5 @@ async function main() {
   }
 }
 
-main();
+// main();
+console.log('github action 已下线');
