@@ -35,10 +35,11 @@ function send(option) {
     const sentBox = _.get(getEnv('MAIL_BOX_NAME'), 'autoDeleteSentMail');
     const {subject} = option;
     if (subject && sentBox) {
-      console.log(`准备删除[${sentBox}]中的${subject}, 等待 10s`);
-      await sleep(10);
+      const seconds = 1;
+      console.log(`准备删除[${sentBox}]中的${subject}, 等待 ${seconds}s`);
+      await sleep(seconds);
       try {
-        await search({
+        search({
           since: getMoment().format('LL'),
           realDelFn: message => message.subject === subject,
           boxName: sentBox,
@@ -203,6 +204,7 @@ function _search({subject, since, seen, realDelFn = _.noop, boxName = 'INBOX'}, 
 }
 
 const newEnvSubject = 'lazy_script_new_env';
+let newEnvContent;
 
 /**
  * @description 将新的 env 发送到邮件, 本地更新采用 merge 模式, 所以需要保证数据源完整性(Array不需要更改的数据也要留好位置)
@@ -212,6 +214,8 @@ function sendNewEnv(content, fileName = '.env.new.json') {
   const newEnvPath = require('path').resolve(__dirname, `../../${fileName}`);
   content = content || readFileJSON(newEnvPath);
   if (_.isEmpty(content)) return console.log('无需更新内容');
+  if (newEnvContent === content) return console.log('已经发送过了, 无需重复发送');
+  newEnvContent = content;
   // 先更新文件内容, 避免 send 过长时间
   writeFileJSON({}, newEnvPath);
   send({
