@@ -63,7 +63,7 @@ class NewTry extends Template {
     }
 
     async function handleDoTask() {
-      const {assignments: {assignmentList}} = await qryH5BabelFloors();
+      const {assignments: {assignmentList}} = await qryH5BabelFloors() || {assignments: {assignmentList: []}};
       for (const {ext, encryptAssignmentId: encAid, completionFlag, assignmentName} of assignmentList) {
         if (completionFlag) continue;
         const {waitDuration, extraType, shoppingActivity} = ext;
